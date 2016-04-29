@@ -20,7 +20,7 @@ public class State implements IState <State, Context, CallEdge> {
     private static Map<String, Set<AbstractObject>> store = new HashMap<String, Set<AbstractObject>>();;
 
     /** store from abstract object and field to abstract object*/
-    private static Map<Tuple<AbstractObject, String>, Set<AbstractObject>> propertystore = new HashMap<Tuple<AbstractObject, String>, Set<AbstractObject>>();;
+    private static Map<Tuple<AbstractObject, String>, Set<AbstractObject>> propertystore = new HashMap<Tuple<AbstractObject, String>, Set<AbstractObject>>();
 
     private BasicBlock block;
 
@@ -90,6 +90,23 @@ public class State implements IState <State, Context, CallEdge> {
             propertystore.put(new Tuple<AbstractObject, String>(obj, property), s);
         } else {
             propertystore.get(new Tuple<AbstractObject, String>(obj, property)).add(prop);
+        }
+    }
+    /** adds prop to all properties of onj*/
+    public void writeAllPropertyStore(AbstractObject obj, AbstractObject prop){
+        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+            if(t.a.equals(obj)){
+                propertystore.get(t).add(prop);
+            }
+        }
+    }
+
+    /** adds prop to all properties of onj*/
+    public void writeAllPropertyStore(AbstractObject obj, Set<AbstractObject> prop){
+        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+            if(t.a.equals(obj)){
+                propertystore.get(t).addAll(prop);
+            }
         }
     }
 
