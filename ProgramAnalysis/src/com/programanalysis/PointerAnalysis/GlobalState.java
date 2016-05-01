@@ -29,11 +29,19 @@ public class GlobalState {
         outStates = new HashMap<Function, OutState>();
     }
 
+    /** returns the value of the changed boolean and resets it to false afterwards*/
+    public boolean getAndResetChanged(){
+        boolean res = changed;
+        changed = false;
+        return res;
+    }
+
     /** this should only be used to read the state*/
     public InState getInstate(Function f){
         if(! inStates.containsKey(f)){
             InState state = new InState();
             inStates.put(f, state);
+            changed = true;
         }
         return inStates.get(f);
     }
@@ -43,6 +51,7 @@ public class GlobalState {
         if(! outStates.containsKey(f)){
             OutState state = new OutState();
             outStates.put(f, state);
+            changed = true;
         }
         return outStates.get(f);
     }
@@ -102,6 +111,7 @@ public class GlobalState {
         if(! store.containsKey(VariableName.getVariableName(scope, variable))) {
             Set<AbstractObject> s = new HashSet<AbstractObject>();
             store.put(VariableName.getVariableName(scope, variable), s);
+            changed = true;
         }
     }
 
@@ -116,7 +126,7 @@ public class GlobalState {
         }
         //TODO: write global object property if var is not found
         // put the abstract object in the variable store
-        store.get(VariableName.getVariableName(scope, variable)).add(obj);
+        changed |= store.get(VariableName.getVariableName(scope, variable)).add(obj);
     }
 
     /** adds obj to the store set of variable in the given scope*/
@@ -130,7 +140,7 @@ public class GlobalState {
         }
         //TODO: global object property if var is not found
         // put the abstract object in the variable store
-        store.get(VariableName.getVariableName(scope, variable)).addAll(objs);
+        changed |= store.get(VariableName.getVariableName(scope, variable)).addAll(objs);
     }
 
     public Set<AbstractObject> readStore(String variable, Function scope){
@@ -153,8 +163,9 @@ public class GlobalState {
             Set<AbstractObject> s = new HashSet<>();
             s.add(prop);
             propertystore.put(new Tuple(obj, property), s);
+            changed = true;
         } else {
-            propertystore.get(new Tuple(obj, property)).add(prop);
+            changed |= propertystore.get(new Tuple(obj, property)).add(prop);
         }
     }
     /** adds prop to all properties of obj*/
@@ -164,7 +175,7 @@ public class GlobalState {
         }
         for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
-                propertystore.get(t).add(prop);
+                changed |= propertystore.get(t).add(prop);
             }
         }
     }
@@ -176,7 +187,7 @@ public class GlobalState {
         }
         for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
-                propertystore.get(t).addAll(prop);
+                changed |= propertystore.get(t).addAll(prop);
             }
         }
     }
@@ -189,7 +200,7 @@ public class GlobalState {
         for(AbstractObject obj: objs) {
             for (Tuple t : propertystore.keySet()) {
                 if (t.a.equals(obj)) {
-                    propertystore.get(t).addAll(prop);
+                    changed |= propertystore.get(t).addAll(prop);
                 }
             }
         }
@@ -205,8 +216,9 @@ public class GlobalState {
                 Set<AbstractObject> s = new HashSet<>();
                 s.addAll(prop);
                 propertystore.put(new Tuple(obj, property), s);
+                changed = true;
             } else {
-                propertystore.get(new Tuple(obj, property)).addAll(prop);
+                changed |= propertystore.get(new Tuple(obj, property)).addAll(prop);
             }
         }
     }
@@ -221,8 +233,9 @@ public class GlobalState {
                     Set<AbstractObject> s = new HashSet<AbstractObject>();
                     s.addAll(prop);
                     propertystore.put(new Tuple(obj, propName), s);
+                    changed = true;
                 } else {
-                    propertystore.get(new Tuple(obj, propName)).addAll(prop);
+                    changed |= propertystore.get(new Tuple(obj, propName)).addAll(prop);
                 }
             }
         }
