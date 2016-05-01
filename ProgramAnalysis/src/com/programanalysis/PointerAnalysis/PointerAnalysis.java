@@ -89,9 +89,9 @@ public class PointerAnalysis {
                 worklist.add(new QueueEntry(i.next()));
             }
             if(worklist.isEmpty())
-                worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                if(getState().getAndResetChanged()){
+                    worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                }
         }
-
-        //todo: add program entry again to the worklist if the store changed or some function state changed since the last flow through
     }
 }
