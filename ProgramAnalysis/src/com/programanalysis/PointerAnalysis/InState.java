@@ -1,7 +1,5 @@
 package com.programanalysis.PointerAnalysis;
 
-import com.programanalysis.lattice.AbstractObject;
-
 import java.util.*;
 
 /**

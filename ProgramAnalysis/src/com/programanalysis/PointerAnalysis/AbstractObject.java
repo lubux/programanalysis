@@ -1,4 +1,4 @@
-package com.programanalysis.lattice;
+package com.programanalysis.PointerAnalysis;
 
 /**
  * Created by cedri on 4/24/2016.

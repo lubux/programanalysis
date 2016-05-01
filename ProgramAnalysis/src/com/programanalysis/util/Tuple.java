@@ -1,6 +1,6 @@
 package com.programanalysis.util;
 
-import com.programanalysis.lattice.AbstractObject;
+import com.programanalysis.PointerAnalysis.AbstractObject;
 
 /**
  * Created by cedri on 4/24/2016.
