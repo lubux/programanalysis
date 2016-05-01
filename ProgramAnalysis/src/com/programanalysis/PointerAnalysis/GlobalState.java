@@ -1,6 +1,5 @@
 package com.programanalysis.PointerAnalysis;
 
-import com.programanalysis.lattice.AbstractObject;
 import com.programanalysis.util.Tuple;
 import com.programanalysis.util.VariableName;
 import dk.brics.tajs.flowgraph.Function;

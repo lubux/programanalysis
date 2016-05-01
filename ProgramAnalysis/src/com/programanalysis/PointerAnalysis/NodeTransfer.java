@@ -1,6 +1,5 @@
 package com.programanalysis.PointerAnalysis;
 
-import com.programanalysis.lattice.AbstractObject;
 import dk.brics.tajs.flowgraph.Function;
 import dk.brics.tajs.flowgraph.jsnodes.*;
 import dk.brics.tajs.solver.BlockAndContext;
@@ -30,6 +29,8 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(BinaryOperatorNode binaryOperatorNode, Object o) {
+        BlockRegisters registers = analysis.getRegisters(binaryOperatorNode.getBlock());
+        registers.writeRegister(binaryOperatorNode.getResultRegister(), new HashSet<AbstractObject>());
         //TODO: maybe support string concatenation here?
 
         /*BlockRegisters registers = analysis.getRegisters(binaryOperatorNode.getBlock());
@@ -72,6 +73,8 @@ public class NodeTransfer implements NodeVisitor {
                analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
            }
             if(! callNode.isConstructorCall()) {
+                Object obj = registers.readRegister(callNode.getBaseRegister());
+                analysis.getState().addThisToInState((Set)obj, callee);
                 registers.writeRegister(callNode.getResultRegister(), analysis.getState().getOutstate(callee).returnObjects);
             } else {
                 AbstractObject obj = new AbstractObject(callNode);
@@ -91,14 +94,17 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ConstantNode constantNode, Object o) {
+        BlockRegisters registers = analysis.getRegisters(constantNode.getBlock());
         if(constantNode.getType().equals(ConstantNode.Type.STRING)){
-            BlockRegisters registers = analysis.getRegisters(constantNode.getBlock());
             // simply return a string that can be used for property access
             AbstractObject obj = new AbstractObject(constantNode, constantNode.getString());
             HashSet<AbstractObject> s = new HashSet<>();
             s.add(obj);
             registers.writeRegister(constantNode.getResultRegister(), s);
+        } else {
+            registers.writeRegister(constantNode.getResultRegister(), new HashSet<AbstractObject>());
         }
+
     }
 
     @Override
@@ -225,7 +231,8 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(UnaryOperatorNode unaryOperatorNode, Object o) {
-
+        BlockRegisters registers = analysis.getRegisters(unaryOperatorNode.getBlock());
+        registers.writeRegister(unaryOperatorNode.getResultRegister(), new HashSet<AbstractObject>());
     }
 
     @Override
@@ -236,7 +243,6 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(WritePropertyNode writePropertyNode, Object o) {
-        //TODO
         BlockRegisters registers = analysis.getRegisters(writePropertyNode.getBlock());
         Object base = registers.readRegister(writePropertyNode.getBaseRegister());
         Object value = registers.readRegister(writePropertyNode.getValueRegister());
@@ -258,7 +264,6 @@ public class NodeTransfer implements NodeVisitor {
                 // we don't know what property is written because we don't know the values of any variable
                 //so we assign every property
                 analysis.getState().writeAllPropertyStore((Set)base, (Set)value);
-
             }
         }
     }
