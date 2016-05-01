@@ -25,7 +25,7 @@ public class GlobalState {
 
     public GlobalState(){
         store = new HashMap<String, Set<AbstractObject>>();
-        propertystore = new HashMap<Tuple<AbstractObject, String>, Set<AbstractObject>>();
+        propertystore = new HashMap<Tuple, Set<AbstractObject>>();
         inStates = new HashMap<Function, InState>();
         outStates = new HashMap<Function, OutState>();
     }
@@ -50,6 +50,9 @@ public class GlobalState {
 
     /** add all the AbstractObjects in objs to the OutState of f*/
     public void addToOutState(Set<AbstractObject> objs, Function f){
+        if(objs == null){
+            return;
+        }
         if(! outStates.containsKey(f)){
             OutState state = new OutState();
             outStates.put(f, state);
@@ -59,6 +62,9 @@ public class GlobalState {
 
     /** add all the AbstractObjects in objs to the this objects in InState of f*/
     public void addThisToInState(Set<AbstractObject> objs, Function f){
+        if(objs == null){
+            return;
+        }
         if(! inStates.containsKey(f)){
             InState state = new InState();
             inStates.put(f, state);
@@ -68,6 +74,9 @@ public class GlobalState {
 
     /** add all the AbstractObjects in objs to the set of argument arg in InState of f*/
     public void addArgToInState(Set<AbstractObject> objs, Function f, String arg){
+        if(objs == null){
+            return;
+        }
         if(! inStates.containsKey(f)){
             InState state = new InState();
             inStates.put(f, state);
@@ -86,18 +95,22 @@ public class GlobalState {
     private Map<String, Set<AbstractObject>> store;
 
     /** store from abstract object and field to abstract object*/
-    private Map<Tuple<AbstractObject, String>, Set<AbstractObject>> propertystore;
+    private Map<Tuple, Set<AbstractObject>> propertystore;
 
     /** creates a new set for the given variable in the store (used for variabledeclaraton nodes)*/
     public void variableDeclaration(String variable, Function scope){
-        Set<AbstractObject> s = new HashSet<AbstractObject>();
         // set will already exists when we traverse the flow graph the second time
-        if(! store.containsKey(VariableName.getVariableName(scope, variable)))
+        if(! store.containsKey(VariableName.getVariableName(scope, variable))) {
+            Set<AbstractObject> s = new HashSet<AbstractObject>();
             store.put(VariableName.getVariableName(scope, variable), s);
+        }
     }
 
     /** adds obj to the store set of variable in the given scope*/
     public void writeStore(String variable, Function scope, AbstractObject obj){
+        if(obj == null){
+            return;
+        }
         // switch to the outer scope until the variable is defined
         while(! store.containsKey(VariableName.getVariableName(scope, variable))){
             scope = scope.getOuterFunction();
@@ -109,6 +122,9 @@ public class GlobalState {
 
     /** adds obj to the store set of variable in the given scope*/
     public void writeStore(String variable, Function scope, Set<AbstractObject> objs){
+        if(objs == null){
+            return;
+        }
         // switch to the outer scope until the variable is defined
         while(! store.containsKey(VariableName.getVariableName(scope, variable))){
             scope = scope.getOuterFunction();
@@ -131,40 +147,119 @@ public class GlobalState {
 
     /** adds prop to the propertystore of obj and property */
     public void writePropertyStore(AbstractObject obj, String property, AbstractObject prop){
-        if(! propertystore.containsKey(new Tuple<AbstractObject, String>(obj, property))){
+        if(prop == null){
+            return;
+        }
+        if(! propertystore.containsKey(new Tuple(obj, property))){
             Set<AbstractObject> s = new HashSet<>();
             s.add(prop);
-            propertystore.put(new Tuple<AbstractObject, String>(obj, property), s);
+            propertystore.put(new Tuple(obj, property), s);
         } else {
-            propertystore.get(new Tuple<AbstractObject, String>(obj, property)).add(prop);
+            propertystore.get(new Tuple(obj, property)).add(prop);
         }
     }
-    /** adds prop to all properties of onj*/
+    /** adds prop to all properties of obj*/
     public void writeAllPropertyStore(AbstractObject obj, AbstractObject prop){
-        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+        if(prop == null){
+            return;
+        }
+        for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
                 propertystore.get(t).add(prop);
             }
         }
     }
 
-    /** adds prop to all properties of onj*/
+    /** adds prop to all properties of obj*/
     public void writeAllPropertyStore(AbstractObject obj, Set<AbstractObject> prop){
-        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+        if(prop == null){
+            return;
+        }
+        for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
                 propertystore.get(t).addAll(prop);
             }
         }
     }
 
-    /** adds prop to the propertystore of obj and property */
-    public void writePropertyStore(AbstractObject obj, String property, Set<AbstractObject> prop){
-        if(! propertystore.containsKey(new Tuple<AbstractObject, String>(obj, property))){
-            Set<AbstractObject> s = new HashSet<>();
-            s.addAll(prop);
-            propertystore.put(new Tuple<AbstractObject, String>(obj, property), s);
-        } else {
-            propertystore.get(new Tuple<AbstractObject, String>(obj, property)).addAll(prop);
+    /** adds prop to all properties of obj*/
+    public void writeAllPropertyStore(Set<AbstractObject> objs, Set<AbstractObject> prop){
+        if(prop == null){
+            return;
         }
+        for(AbstractObject obj: objs) {
+            for (Tuple t : propertystore.keySet()) {
+                if (t.a.equals(obj)) {
+                    propertystore.get(t).addAll(prop);
+                }
+            }
+        }
+    }
+
+    /** adds prop to the propertystore of all objects in objs and property */
+    public void writePropertyStore(Set<AbstractObject> objs, String property, Set<AbstractObject> prop){
+        if(prop == null) {
+            return;
+        }
+        for(AbstractObject obj: objs) {
+            if (!propertystore.containsKey(new Tuple(obj, property))) {
+                Set<AbstractObject> s = new HashSet<>();
+                s.addAll(prop);
+                propertystore.put(new Tuple(obj, property), s);
+            } else {
+                propertystore.get(new Tuple(obj, property)).addAll(prop);
+            }
+        }
+    }
+    /** adds prop to all properties in property of all AbstractObjects in objs*/
+    public void writePropertyStore(Set<AbstractObject> objs, Set<String> property, Set<AbstractObject> prop){
+        if(property.isEmpty()){
+            return;
+        }
+        for(AbstractObject obj: objs){
+            for(String propName: property){
+                if(!propertystore.containsKey(new Tuple(obj, propName))){
+                    Set<AbstractObject> s = new HashSet<AbstractObject>();
+                    s.addAll(prop);
+                    propertystore.put(new Tuple(obj, propName), s);
+                } else {
+                    propertystore.get(new Tuple(obj, propName)).addAll(prop);
+                }
+            }
+        }
+    }
+    /** reads the property with the same name as the argument of all abstractObjects in objs*/
+    public Set<AbstractObject> readPropertyStore(Set<AbstractObject> objs, String property){
+        Set<AbstractObject> res = new HashSet<AbstractObject>();
+        for(AbstractObject obj: objs){
+            if(propertystore.containsKey(new Tuple(obj, property))){
+                res.addAll(propertystore.get(new Tuple(obj,property)));
+            }
+        }
+        return res;
+    }
+
+    /** reads the property with the same name as the argument of all abstractObjects in objs*/
+    public Set<AbstractObject> readPropertyStore(Set<AbstractObject> objs, Set<String> property){
+        Set<AbstractObject> res = new HashSet<AbstractObject>();
+        for(AbstractObject obj: objs){
+            for(String prop: property){
+                if(propertystore.containsKey(new Tuple(obj, prop))){
+                    res.addAll(propertystore.get(new Tuple(obj,prop)));
+                }
+            }
+        }
+        return res;
+    }
+
+    /** returns the abstractObjects of all properties of all the abstractObjects in objs*/
+    public Set<AbstractObject> readAllPropertyStore(Set<AbstractObject> objs){
+        Set<AbstractObject> res = new HashSet<AbstractObject>();
+        for(Tuple tuple: propertystore.keySet()){
+            if(objs.contains(tuple.a)){
+                res.addAll(propertystore.get(tuple));
+            }
+        }
+        return res;
     }
 }

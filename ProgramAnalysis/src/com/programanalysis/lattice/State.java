@@ -20,7 +20,7 @@ public class State implements IState <State, Context, CallEdge> {
     private static Map<String, Set<AbstractObject>> store = new HashMap<String, Set<AbstractObject>>();;
 
     /** store from abstract object and field to abstract object*/
-    private static Map<Tuple<AbstractObject, String>, Set<AbstractObject>> propertystore = new HashMap<Tuple<AbstractObject, String>, Set<AbstractObject>>();
+    private static Map<Tuple, Set<AbstractObject>> propertystore = new HashMap<Tuple, Set<AbstractObject>>();
 
     private BasicBlock block;
 
@@ -84,17 +84,17 @@ public class State implements IState <State, Context, CallEdge> {
 
     /** adds prop to the propertystore of obj and property */
     public void writePropertyStore(AbstractObject obj, String property, AbstractObject prop){
-        if(! propertystore.containsKey(new Tuple<AbstractObject, String>(obj, property))){
+        if(! propertystore.containsKey(new Tuple(obj, property))){
             Set<AbstractObject> s = new HashSet<>();
             s.add(prop);
-            propertystore.put(new Tuple<AbstractObject, String>(obj, property), s);
+            propertystore.put(new Tuple(obj, property), s);
         } else {
-            propertystore.get(new Tuple<AbstractObject, String>(obj, property)).add(prop);
+            propertystore.get(new Tuple(obj, property)).add(prop);
         }
     }
     /** adds prop to all properties of onj*/
     public void writeAllPropertyStore(AbstractObject obj, AbstractObject prop){
-        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+        for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
                 propertystore.get(t).add(prop);
             }
@@ -103,7 +103,7 @@ public class State implements IState <State, Context, CallEdge> {
 
     /** adds prop to all properties of onj*/
     public void writeAllPropertyStore(AbstractObject obj, Set<AbstractObject> prop){
-        for(Tuple<AbstractObject,String>t:propertystore.keySet()){
+        for(Tuple t:propertystore.keySet()){
             if(t.a.equals(obj)){
                 propertystore.get(t).addAll(prop);
             }
@@ -112,12 +112,12 @@ public class State implements IState <State, Context, CallEdge> {
 
     /** adds prop to the propertystore of obj and property */
     public void writePropertyStore(AbstractObject obj, String property, Set<AbstractObject> prop){
-        if(! propertystore.containsKey(new Tuple<AbstractObject, String>(obj, property))){
+        if(! propertystore.containsKey(new Tuple(obj, property))){
             Set<AbstractObject> s = new HashSet<>();
             s.addAll(prop);
-            propertystore.put(new Tuple<AbstractObject, String>(obj, property), s);
+            propertystore.put(new Tuple(obj, property), s);
         } else {
-            propertystore.get(new Tuple<AbstractObject, String>(obj, property)).addAll(prop);
+            propertystore.get(new Tuple(obj, property)).addAll(prop);
         }
     }
 

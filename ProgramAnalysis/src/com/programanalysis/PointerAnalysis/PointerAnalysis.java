@@ -5,6 +5,7 @@ import dk.brics.tajs.analysis.Analysis;
 import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.BasicBlock;
 import dk.brics.tajs.flowgraph.FlowGraph;
+import dk.brics.tajs.flowgraph.Function;
 import dk.brics.tajs.solver.CallGraph;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class PointerAnalysis {
 
     public static CallGraph callgraph;
 
-    private Map<BasicBlock, BlockRegisters> blockRegisters;
+    private Map<Function, BlockRegisters> blockRegisters;
 
     private PriorityQueue<QueueEntry> worklist;
 
@@ -38,7 +39,7 @@ public class PointerAnalysis {
         state = new GlobalState();
         flowgraph = analysis.getSolver().getFlowGraph();
         callgraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
-        blockRegisters = new HashMap<BasicBlock, BlockRegisters>();
+        blockRegisters = new HashMap<Function, BlockRegisters>();
         worklist = new PriorityQueue<QueueEntry>();
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
         visitor = new Transfer(this);
@@ -48,12 +49,31 @@ public class PointerAnalysis {
         return state;
     }
 
+    public CallGraph getCallGraph(){
+        return callgraph;
+    }
+
+    public FlowGraph getFlowgraph(){
+        return flowgraph;
+    }
+
     public BlockRegisters getRegisters(BasicBlock block){
-        if(! blockRegisters.containsKey(block)){
+        if(! blockRegisters.containsKey(block.getFunction())){
             BlockRegisters b = new BlockRegisters();
-            blockRegisters.put(block,b);
+            blockRegisters.put(block.getFunction(),b);
         }
-        return blockRegisters.get(block);
+        return blockRegisters.get(block.getFunction());
+    }
+
+    /** adds the entry point of the given function to the worklist*/
+    public void addToWorklist(Function f){
+        for(Iterator<QueueEntry> i = worklist.iterator(); i.hasNext();){
+            if(i.next().getBlock().equals(f.getEntry())){
+                // we don't add it to the worklist because it's already in there
+                return;
+            }
+        }
+        worklist.add(new QueueEntry(f.getEntry()));
     }
 
     public void solve(){
@@ -68,7 +88,10 @@ public class PointerAnalysis {
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
                 worklist.add(new QueueEntry(i.next()));
             }
+            if(worklist.isEmpty())
+                worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
         }
+
         //todo: add program entry again to the worklist if the store changed or some function state changed since the last flow through
     }
 }

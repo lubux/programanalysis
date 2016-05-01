@@ -14,12 +14,17 @@ public class BlockRegisters {
     private List<Object> registers;
 
     public void writeRegister(int reg,Object obj){
-        while (reg >= registers.size())
-            registers.add(null);
-        registers.set(reg, obj);
+        if(reg >= 0) {
+            while (reg >= registers.size())
+                registers.add(null);
+            registers.set(reg, obj);
+        }
     }
 
     public Object readRegister(int reg){
-        return registers.get(reg);
+        if(reg < registers.size() && reg >= 0)
+            return registers.get(reg);
+        else
+            return null;
     }
 }
