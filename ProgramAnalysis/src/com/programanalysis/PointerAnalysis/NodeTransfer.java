@@ -64,8 +64,23 @@ public class NodeTransfer implements NodeVisitor {
             }
         }
         if(callee == null){
-            // if callee is null, we don't have the source code for this function and just create a new abstract object as the return value
-            registers.writeRegister(callNode.getResultRegister(), new AbstractObject(callNode));
+            if(callNode.getLiteralConstructorKind() == CallNode.LiteralConstructorKinds.ARRAY){
+                // we want to construct an array in this function call, but this is not a user defined function
+                // so we just create a new abstract object and assign the properties with integer labels
+                AbstractObject array = new AbstractObject(callNode);
+                Set<AbstractObject> set = new HashSet<AbstractObject>();
+                set.add(array);
+                for(int i = 0; i < callNode.getNumberOfArgs(); i++){
+                    analysis.getState().writePropertyStore(set, new Integer(i).toString(), (Set)registers.readRegister(callNode.getArgRegister(i)));
+                }
+                registers.writeRegister(callNode.getResultRegister(), set);
+            } else {
+                // if callee is null, we don't have the source code for this function and just create a new abstract object as the return value
+                AbstractObject newobj = new AbstractObject(callNode);
+                Set<AbstractObject> set = new HashSet<AbstractObject>();
+                set.add(newobj);
+                registers.writeRegister(callNode.getResultRegister(), set);
+            }
         } else {
            for(int i = 0; i < callNode.getNumberOfArgs(); i++){
                // add all arguments to the in set of the function
@@ -129,7 +144,16 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(BeginForInNode beginForInNode, Object o) {
-
+        //TODO
+        BlockRegisters registers = analysis.getRegisters(beginForInNode.getBlock());
+        Object obj = registers.readRegister(beginForInNode.getObjectRegister());
+        if(obj instanceof Set) {
+            Set<AbstractObject> propNames = analysis.getState().getPropertyNames((Set) obj, beginForInNode);
+            registers.writeRegister(beginForInNode.getPropertyListRegister(), propNames);
+        } else {
+            // we don't know anything about the object that we want the property labels
+            //TODO: can this occurr? if yes do what?
+        }
     }
 
     @Override
@@ -144,12 +168,20 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(NewObjectNode newObjectNode, Object o) {
-
+        // just create a new abstract object, the properties will be assigned in the WritePropertyNode's
+        BlockRegisters registers = analysis.getRegisters(newObjectNode.getBlock());
+        AbstractObject obj = new AbstractObject(newObjectNode);
+        Set<AbstractObject> set = new HashSet<AbstractObject>();
+        set.add(obj);
+        registers.writeRegister(newObjectNode.getResultRegister(), set);
     }
 
     @Override
     public void visit(NextPropertyNode nextPropertyNode, Object o) {
-
+        // just propagate the property name list
+        BlockRegisters registers = analysis.getRegisters(nextPropertyNode.getBlock());
+        Object obj = registers.readRegister(nextPropertyNode.getPropertyListRegister());
+        registers.writeRegister(nextPropertyNode.getPropertyRegister(), obj);
     }
 
     @Override
@@ -252,11 +284,13 @@ public class NodeTransfer implements NodeVisitor {
             analysis.getState().writePropertyStore((Set)base, propertyName, (Set) value);
         } else {
             Object prop = registers.readRegister(writePropertyNode.getPropertyRegister());
-            if(prop instanceof  Set){
+            if(prop instanceof  Set && !((Set)prop).isEmpty()){
                 Set<String> propName = new HashSet<String>();
                 for(AbstractObject absobj: (Set<AbstractObject>)prop){
                     if(absobj.getStringValue() != null){
                         propName.add(absobj.getStringValue());
+                    } else {
+                        // write to all properties because there is an object that is not a string
                     }
                 }
                 analysis.getState().writePropertyStore((Set) base, propName, (Set) value);
