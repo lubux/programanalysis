@@ -8,10 +8,7 @@ import dk.brics.tajs.flowgraph.FlowGraph;
 import dk.brics.tajs.flowgraph.Function;
 import dk.brics.tajs.solver.CallGraph;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Created by cedri on 4/28/2016.
@@ -35,6 +32,8 @@ public class PointerAnalysis {
 
     private PriorityQueue<QueueEntry> worklist;
 
+    private Set<BasicBlock> blockCheckList;
+
     public void init(){
         state = new GlobalState();
         flowgraph = analysis.getSolver().getFlowGraph();
@@ -43,6 +42,7 @@ public class PointerAnalysis {
         worklist = new PriorityQueue<QueueEntry>();
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
         visitor = new Transfer(this);
+        blockCheckList = new HashSet<BasicBlock>();
     }
 
     public GlobalState getState(){
@@ -68,12 +68,13 @@ public class PointerAnalysis {
     /** adds the entry point of the given function to the worklist*/
     public void addToWorklist(Function f){
         for(Iterator<QueueEntry> i = worklist.iterator(); i.hasNext();){
-            if(i.next().getBlock().equals(f.getEntry())){
+            if(i.next().getBlock().equals(f.getEntry()) || blockCheckList.contains(f.getEntry())){
                 // we don't add it to the worklist because it's already in there
                 return;
             }
         }
         worklist.add(new QueueEntry(f.getEntry()));
+        blockCheckList.add(f.getEntry());
     }
 
     public void solve(){
@@ -86,11 +87,16 @@ public class PointerAnalysis {
             }
             // add the block successors to the worklist
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
-                worklist.add(new QueueEntry(i.next()));
+                BasicBlock b = i.next();
+                if(! worklist.contains(new QueueEntry(b)) &&(!blockCheckList.contains(b))){
+                    worklist.add(new QueueEntry(b));
+                    blockCheckList.add(b);
+                }
             }
             if(worklist.isEmpty())
                 if(getState().getAndResetChanged()){
                     worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                    blockCheckList = new HashSet<>();
                 }
         }
     }

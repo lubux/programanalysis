@@ -2,6 +2,7 @@ package com.programanalysis.PointerAnalysis;
 
 import com.programanalysis.util.Tuple;
 import com.programanalysis.util.VariableName;
+import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.Function;
 
 import java.util.HashMap;
@@ -270,6 +271,16 @@ public class GlobalState {
         for(Tuple tuple: propertystore.keySet()){
             if(objs.contains(tuple.a)){
                 res.addAll(propertystore.get(tuple));
+            }
+        }
+        return res;
+    }
+
+    public Set<AbstractObject> getPropertyNames(Set<AbstractObject> objs, AbstractNode node){
+        Set<AbstractObject> res = new HashSet<AbstractObject>();
+        for(Tuple tup: propertystore.keySet()){
+            if(objs.contains(tup.a)){
+                res.add(new AbstractObject(node, tup.b));
             }
         }
         return res;
