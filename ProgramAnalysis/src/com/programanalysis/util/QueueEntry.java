@@ -41,4 +41,8 @@ public class QueueEntry implements Comparable<QueueEntry> {
         }
         return serial - serial2;
     }
+
+    public boolean equals(Object o){
+        return (o instanceof QueueEntry) && ((QueueEntry)o).getBlock().equals(block);
+    }
 }

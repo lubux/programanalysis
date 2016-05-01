@@ -11,5 +11,6 @@ public class Main {
         PointerAnalysis analysis = new PointerAnalysis(tajsAnalysis);
         analysis.init();
         analysis.solve();
+        System.out.print("Pointer Analysis completed");
     }
 }
