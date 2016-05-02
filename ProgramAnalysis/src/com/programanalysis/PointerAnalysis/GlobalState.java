@@ -243,6 +243,9 @@ public class GlobalState {
     }
     /** reads the property with the same name as the argument of all abstractObjects in objs*/
     public Set<AbstractObject> readPropertyStore(Set<AbstractObject> objs, String property){
+        if(objs == null){
+            return null;
+        }
         Set<AbstractObject> res = new HashSet<AbstractObject>();
         for(AbstractObject obj: objs){
             if(propertystore.containsKey(new Tuple(obj, property))){

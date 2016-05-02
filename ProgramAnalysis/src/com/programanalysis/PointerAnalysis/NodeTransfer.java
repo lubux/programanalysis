@@ -82,21 +82,39 @@ public class NodeTransfer implements NodeVisitor {
                 registers.writeRegister(callNode.getResultRegister(), set);
             }
         } else {
-           for(int i = 0; i < callNode.getNumberOfArgs(); i++){
-               // add all arguments to the in set of the function
-               Object a = registers.readRegister(callNode.getArgRegister(i));
-               analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
-           }
-            if(! callNode.isConstructorCall()) {
-                Object obj = registers.readRegister(callNode.getBaseRegister());
-                analysis.getState().addThisToInState((Set)obj, callee);
-                registers.writeRegister(callNode.getResultRegister(), analysis.getState().getOutstate(callee).returnObjects);
+            if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("call")){
+                Object thisobj = registers.readRegister(callNode.getArgRegister(0));
+                analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
+                for(int i = 1; i < callNode.getNumberOfArgs(); i++){
+                    // add all arguments to the in set of the function
+                    Object a = registers.readRegister(callNode.getArgRegister(i));
+                    analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
+                }
+            } else if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("apply")){
+                Object thisobj = registers.readRegister(callNode.getArgRegister(0));
+                analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
+                Object argarray = registers.readRegister(callNode.getArgRegister(1));
+                for(int i = 0; i < callee.getParameterNames().size(); i++){
+                    Object arg = analysis.getState().readPropertyStore((Set<AbstractObject>)argarray, callee.getParameterNames().get(i));
+                    analysis.getState().addArgToInState((Set<AbstractObject>) arg, callee, callee.getParameterNames().get(i));
+                }
             } else {
-                AbstractObject obj = new AbstractObject(callNode);
-                Set<AbstractObject> s = new HashSet<AbstractObject>();
-                s.add(obj);
-                analysis.getState().addThisToInState(s, callee);
-                registers.writeRegister(callNode.getResultRegister(), s);
+               for(int i = 0; i < callNode.getNumberOfArgs(); i++){
+                   // add all arguments to the in set of the function
+                   Object a = registers.readRegister(callNode.getArgRegister(i));
+                   analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
+               }
+                if(! callNode.isConstructorCall()) {
+                    Object obj = registers.readRegister(callNode.getBaseRegister());
+                    analysis.getState().addThisToInState((Set)obj, callee);
+                    registers.writeRegister(callNode.getResultRegister(), analysis.getState().getOutstate(callee).returnObjects);
+                } else {
+                    AbstractObject obj = new AbstractObject(callNode);
+                    Set<AbstractObject> s = new HashSet<AbstractObject>();
+                    s.add(obj);
+                    analysis.getState().addThisToInState(s, callee);
+                    registers.writeRegister(callNode.getResultRegister(), s);
+                }
             }
             analysis.addToWorklist(callee);
         }
