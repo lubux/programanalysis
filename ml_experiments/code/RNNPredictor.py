@@ -92,7 +92,6 @@ class APIPredModel(object):
                                           config.max_grad_norm)
         optimizer = tf.train.GradientDescentOptimizer(self.lr)
         self.train_op = optimizer.apply_gradients(zip(grads, tvars))
-        self.saver = tf.train.Saver()
 
     def assign_lr(self, session, lr_value):
         session.run(tf.assign(self.lr, lr_value))
@@ -120,8 +119,8 @@ def _run_epoch(session, m, data, eval_op, verbose=False):
     costs = 0.0
     iters = 0
     state = m.initial_state.eval()
-    for step, (x, y) in enumerate(ptb_iterator(data, m.batch_size,
-                                               m.num_steps)):
+    for step, (x, y) in enumerate(file_iterator(data, m.batch_size,
+                                                m.num_steps)):
         cost, state, _ = session.run([m.cost, m.final_state, eval_op],
                                      {m.input_data: x,
                                       m.targets: y,
@@ -136,27 +135,8 @@ def _run_epoch(session, m, data, eval_op, verbose=False):
     return np.exp(costs / iters)
 
 
-def _get_best_pred(model, sess, words, vocab, sentence, num_best):
-    state = model.initial_state.eval()
-    sent_split = sentence.split()
-    for word in sent_split[:-1]:
-        x = np.zeros((1, 1))
-        x[0, 0] = vocab[word]
-        feed = {model.input_data: x, model.initial_state: state}
-        [state] = sess.run([model.final_state], feed)
-
-    last = sent_split[-1]
-    x = np.zeros((1, 1))
-    x[0, 0] = vocab[last]
-    feed = {model.input_data: x, model.initial_state: state}
-    [probs, state] = sess.run([model.probabilities, model.final_state], feed)
-    p = probs[0]
-    word_and_prob = zip(words, p)
-    res = sorted(word_and_prob, key=lambda tup: tup[1], reverse=True)
-    return res[0:num_best]
-
-
-def train_model(train_path, test_path, model_store_dir, model_name, config=APIPredictionConfig()):
+def train_model(train_path, test_path, model_store_dir, model_name,
+                config=APIPredictionConfig(), restore=False, restore_epoch=0):
     raw_data = _raw_data(train_path, test_path)
     train_data, test_data, vocab_len, _, vocab = raw_data
 
@@ -170,7 +150,8 @@ def train_model(train_path, test_path, model_store_dir, model_name, config=APIPr
     eval_config.batch_size = 1
     eval_config.num_steps = 1
 
-    start_time = time.time()
+    train_time = 0
+
     print("Start Training")
     with tf.Graph().as_default(), tf.Session() as session:
         initializer = tf.random_uniform_initializer(-config.init_scale,
@@ -181,46 +162,98 @@ def train_model(train_path, test_path, model_store_dir, model_name, config=APIPr
             mtest = APIPredModel(is_training=False, config=eval_config)
 
         tf.initialize_all_variables().run()
+        saver = tf.train.Saver(tf.all_variables())
+        if restore:
+            ckpt = tf.train.get_checkpoint_state(train_path)
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(session, ckpt.model_checkpoint_path)
+            else:
+                 raise RuntimeError("Model not found")
 
-        for i in range(config.max_max_epoch):
+        for i in range(restore_epoch, config.max_max_epoch):
             lr_decay = config.lr_decay ** max(i - config.max_epoch, 0.0)
             m.assign_lr(session, config.learning_rate * lr_decay)
 
+            start_time = time.time()
             print("Epoch: %d Learning rate: %.3f" % (i + 1, session.run(m.lr)))
             train_perplexity = _run_epoch(session, m, train_data, m.train_op,
-                                          verbose=True)
-            save_path = m.saver.save(session, os.path.join(model_store_dir, model_name + ".ckpt"))
+                                            verbose=True)
+            end_time = time.time()
+            train_time += (end_time-start_time)
+            save_path = saver.save(session, os.path.join(model_store_dir, model_name + ".ckpt"))
             print("Model saved in file: %s" % save_path)
             print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
 
             test_perplexity = _run_epoch(session, mtest, test_data, tf.no_op())
             print("Test Perplexity: %.3f" % test_perplexity)
-    print("Training Finished after: %f seconds" % (time.time() - start_time))
+    print("Training Finished after: %f seconds" % train_time)
 
 
-def next_word_prediction(save_dir, model_name, sentence, best_num, vocab=None, words=None,
-                         eval_config=APIPredictionConfig()):
-    if vocab is None and words is None:
-        words = load_vocab(os.path.join(save_dir, model_name + "_vocab.pkl"))
-        vocab = word_to_id_from_vocab(words)
-    eval_config.vocab_size = len(vocab)
-    eval_config.batch_size = 1
-    eval_config.num_steps = 1
+class LSTMPredictor:
+    def __init__(self, save_dir, model_name, eval_config=APIPredictionConfig()):
+        self.eval_config = eval_config
+        self.words = load_vocab(os.path.join(save_dir, model_name + "_vocab.pkl"))
+        self.vocab = word_to_id_from_vocab(self.words)
+        self.eval_config.vocab_size = len(self.vocab)
+        self.eval_config.batch_size = 1
+        self.eval_config.num_steps = 1
 
-    with tf.Graph().as_default(), tf.Session() as session:
-        initializer = tf.random_uniform_initializer(-eval_config.init_scale,
-                                                    eval_config.init_scale)
-        with tf.variable_scope("model", reuse=False, initializer=initializer):
-            model = APIPredModel(is_training=False, config=eval_config)
+        with tf.Graph().as_default():
+            self.session = tf.Session()
+            with self.session.as_default():
+                initializer = tf.random_uniform_initializer(-eval_config.init_scale,
+                                                        eval_config.init_scale)
+                with tf.variable_scope("model", reuse=False, initializer=initializer):
+                    self.model = APIPredModel(is_training=False, config=eval_config)
 
-        tf.initialize_all_variables().run()
-        saver = tf.train.Saver(tf.all_variables())
-        ckpt = tf.train.get_checkpoint_state(save_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(session, ckpt.model_checkpoint_path)
-            return _get_best_pred(model, session, words, vocab, sentence, best_num)
-        else:
-            raise RuntimeError("Model not found")
+                tf.initialize_all_variables().run()
+                saver = tf.train.Saver(tf.all_variables())
+                ckpt = tf.train.get_checkpoint_state(save_dir)
+                if ckpt and ckpt.model_checkpoint_path:
+                    saver.restore(self.session, ckpt.model_checkpoint_path)
+                else:
+                    raise RuntimeError("Model not found")
+
+    def close(self):
+        self.session.close()
+
+    def sentence_score_prediction(self, sentences):
+        with self.session.as_default():
+            result = []
+            for sentence in sentences:
+                sent_split = sentence.split()
+                prob = 1.0
+                state = self.model.initial_state.eval()
+                for word in range(len(sent_split)-1):
+                    x = np.zeros((1, 1))
+                    x[0, 0] = self.vocab[sent_split[word]]
+                    feed = {self.model.input_data: x, self.model.initial_state: state}
+                    [probs, state] = self.session.run([self.model.probabilities, self.model.final_state], feed)
+                    n_word_index = self.vocab[sent_split[word+1]]
+                    p = probs[0]
+                    prob *= p[n_word_index]
+                result.append((sentence, prob))
+            return result
+
+    def next_word_prediction(self, sentence, num_best):
+        with self.session.as_default():
+            state = self.model.initial_state.eval()
+            sent_split = sentence.split()
+            for word in sent_split[:-1]:
+                x = np.zeros((1, 1))
+                x[0, 0] = self.vocab[word]
+                feed = {self.model.input_data: x, self.model.initial_state: state}
+                [state] = self.session.run([self.model.final_state], feed)
+
+            last = sent_split[-1]
+            x = np.zeros((1, 1))
+            x[0, 0] = self.vocab[last]
+            feed = {self.model.input_data: x, self.model.initial_state: state}
+            [probs, _] = self.session.run([self.model.probabilities, self.model.final_state], feed)
+            p = probs[0]
+            word_and_prob = zip(self.words, p)
+            res = sorted(word_and_prob, key=lambda tup: tup[1], reverse=True)
+            return res[0:num_best]
 
 
 # Slightly changed reader functions from the Tutorial
@@ -270,7 +303,7 @@ def load_vocab(vocab_path):
         return pickle.load(pkl_file)
 
 
-def ptb_iterator(raw_data, batch_size, num_steps):
+def file_iterator(raw_data, batch_size, num_steps):
     raw_data = np.array(raw_data, dtype=np.int32)
 
     data_len = len(raw_data)
