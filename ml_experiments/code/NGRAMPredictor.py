@@ -18,7 +18,7 @@ class NGramPredictor:
     def __init__(self, path_to_lm):
         self.lm = LM(path_to_lm, lower=False)
 
-    def get_best_fit(self, words, best_num):
+    def next_word_prediction(self, words, best_num):
         context = [self.lm.vocab.intern(word) for word in words]
         result = []
         for i in xrange(self.lm.vocab.max_interned() + 1):
@@ -28,18 +28,15 @@ class NGramPredictor:
             elif _check_fit(result, logprob):
                 _remove_min(result)
                 result.append((self.lm.vocab.extern(i), logprob))
+        result = map(lambda (a, b): (a, 10**b), result)
         return sorted(result, key=lambda t: t[1], reverse=True)
 
-    def get_best_sentence(self, sentences, best_num):
+    def sentence_score_prediction(self, sentences):
         result = []
         for sentence in sentences:
             logprob = self.lm.total_logprob_strings(sentence)
-            if len(result) < best_num:
-                result.append((sentence, logprob))
-            elif _check_fit(result, logprob):
-                _remove_min(result)
-                result.append((sentence, logprob))
-        return sorted(result, key=lambda t: t[1], reverse=True)
+            result.append((sentence, logprob))
+        return map(lambda (a, b): (a, 10**b), result)
 
 
 class BigramPredictor:
