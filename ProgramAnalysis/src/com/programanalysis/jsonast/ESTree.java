@@ -7,6 +7,9 @@ import com.programanalysis.jsonast.JSONESTree.*;
 
 /**
  * Created by lukas on 05.05.16.
+ * Represents a AST in ESTree format:
+ * https://github.com/estree/estree
+ * Types represneted as
  */
 public class ESTree {
 
