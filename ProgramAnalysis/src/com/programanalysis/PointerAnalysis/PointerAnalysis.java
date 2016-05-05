@@ -46,6 +46,9 @@ public class PointerAnalysis {
         blockRegisters = new HashMap<Function, BlockRegisters>();
         worklist = new PriorityQueue<QueueEntry>();
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+        for(Function f: flowgraph.getFunctions()){
+            addToWorklist(f);
+        }
         visitor = new Transfer(this);
         blockCheckList = new HashSet<BasicBlock>();
     }
@@ -105,6 +108,9 @@ public class PointerAnalysis {
             if(worklist.isEmpty())
                 if(getState().getAndResetChanged()){
                     worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                    for(Function f: flowgraph.getFunctions()){
+                        addToWorklist(f);
+                    }
                     blockCheckList = new HashSet<>();
                 }
         }
