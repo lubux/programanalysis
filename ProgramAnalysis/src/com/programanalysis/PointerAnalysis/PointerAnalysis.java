@@ -44,13 +44,13 @@ public class PointerAnalysis {
         flowgraph = analysis.getSolver().getFlowGraph();
         callgraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
         blockRegisters = new HashMap<Function, BlockRegisters>();
+        blockCheckList = new HashSet<BasicBlock>();
         worklist = new PriorityQueue<QueueEntry>();
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
         for(Function f: flowgraph.getFunctions()){
             addToWorklist(f);
         }
         visitor = new Transfer(this);
-        blockCheckList = new HashSet<BasicBlock>();
     }
 
     public CallGraphParser getCallGraphParser(){
