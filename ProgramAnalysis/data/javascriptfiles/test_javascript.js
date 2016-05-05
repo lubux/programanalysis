@@ -1,4 +1,3 @@
-
 function person(first, last){
 	this.firstname = first;
 	this.lastname = last;
