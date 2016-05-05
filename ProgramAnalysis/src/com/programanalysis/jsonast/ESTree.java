@@ -80,10 +80,10 @@ public class ESTree {
          */
         private int id;
         /**
-         * The type of the node as a String
+         * The type of the node as a ESType
          * Ex. Literal, Expression etc..
          */
-        private String type;
+        private ESType type;
         /**
          * The value of the node if any
          * else null
@@ -102,21 +102,21 @@ public class ESTree {
 
         private ESTreeNode(int id, String type, String value) {
             this.id = id;
-            this.type = type;
+            this.type = ESType.fromStringType(type);
             this.value = value;
             this.children = new ArrayList<>();
         }
 
         private ESTreeNode(int id, String type, String value, List<ESTreeNode> children) {
             this.id = id;
-            this.type = type;
+            this.type = ESType.fromStringType(type);;
             this.value = value;
             this.children = children;
         }
 
         private ESTreeNode(JSONESTreeComp comp) {
             this.id = comp.getId();
-            this.type = comp.getType();
+            this.type = ESType.fromStringType(comp.getType());
             this.value = comp.getValue();
             this.children = new ArrayList<>();
         }
@@ -160,7 +160,7 @@ public class ESTree {
             return id;
         }
 
-        public String getType() {
+        public ESType getType() {
             return type;
         }
 
@@ -210,6 +210,63 @@ public class ESTree {
                 sb.append("");
             }
             return sb.toString();
+        }
+    }
+
+    public enum ESType {
+        Program,
+        EmptyStatement,
+        BlockStatement,
+        ExpressionStatement,
+        IfStatement,
+        LabeledStatement,
+        BreakStatement,
+        ContinueStatement,
+        SwitchStatement,
+        ReturnStatement,
+        ThrowStatement,
+        TryStatement,
+        WhileStatement,
+        DoWhileStatement,
+        ForStatement,
+        ForInStatement,
+        FunctionDeclaration,
+        VariableDeclaration,
+        VariableDeclarator,
+        ThisExpression,
+        ArrayExpression,
+        ObjectExpression,
+        Property,
+        FunctionExpression,
+        SequenceExpression,
+        UnaryExpression,
+        BinaryExpression,
+        AssignmentExpression,
+        UpdateExpression,
+        LogicalExpression,
+        ConditionalExpression,
+        CallExpression,
+        NewExpression,
+        MemberExpression,
+        SwitchCase,
+        CatchClause,
+        Identifier,
+        LiteralString,
+        LiteralBoolean,
+        LiteralNull,
+        LiteralNumber,
+        LiteralRegExp,
+        ArrayAccess,
+        AssignmentPattern,
+        UNK;
+
+        public static ESType fromStringType(String in) {
+            try {
+                return ESType.valueOf(in);
+            } catch (IllegalArgumentException e) {
+                System.out.println("UNK type: " + in);
+                return UNK;
+            }
         }
     }
 }
