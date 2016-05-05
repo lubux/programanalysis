@@ -13,18 +13,30 @@ import com.programanalysis.jsonast.JSONESTree.*;
  */
 public class ESTree {
 
+    /**
+     * The id of the tree
+     * (number: [node1,node2, .. , id])
+     */
     private int id;
 
+    /**
+     * Root node of type Program
+     */
     private ESTreeNode root;
 
     private ESTree() {
     }
 
-    public ESTree(int id, ESTreeNode root) {
+    private ESTree(int id, ESTreeNode root) {
         this.id = id;
         this.root = root;
     }
 
+    /**
+     * Builds a ESTree from a JSONESTree
+     * @param jsonTree the JSONESTree
+     * @return an ESTree
+     */
     public static ESTree buildTree(JSONESTree jsonTree) {
         JSONESTreeComp[] jsonNodes = new JSONESTreeComp[jsonTree.getNodes().size()];
         ESTreeNode[] nodes = new ESTreeNode[jsonNodes.length];
@@ -53,52 +65,97 @@ public class ESTree {
         return root;
     }
 
+    @Override
+    public String toString() {
+        return "Tree: "+ getId() + "\n" + root.toString(" |");
+    }
+
+    /**
+     * Represents node in the ESTree
+     */
     public static class ESTreeNode {
+
+        /**
+         * A unique id of the node
+         */
         private int id;
+        /**
+         * The type of the node as a String
+         * Ex. Literal, Expression etc..
+         */
         private String type;
+        /**
+         * The value of the node if any
+         * else null
+         */
         private String value;
+        /**
+         * The childrens of the node
+         * empty list if no childrens
+         */
         private List<ESTreeNode> children;
+        /**
+         * The parent of the node if any
+         * else null
+         */
         private ESTreeNode parent = null;
 
-        public ESTreeNode(int id, String type, String value) {
+        private ESTreeNode(int id, String type, String value) {
             this.id = id;
             this.type = type;
             this.value = value;
             this.children = new ArrayList<>();
         }
 
-        public ESTreeNode(int id, String type, String value, List<ESTreeNode> children) {
+        private ESTreeNode(int id, String type, String value, List<ESTreeNode> children) {
             this.id = id;
             this.type = type;
             this.value = value;
             this.children = children;
         }
 
-        public ESTreeNode(JSONESTreeComp comp) {
+        private ESTreeNode(JSONESTreeComp comp) {
             this.id = comp.getId();
             this.type = comp.getType();
             this.value = comp.getValue();
             this.children = new ArrayList<>();
         }
 
+        /**
+         * add a child to this node
+         * @param node the child
+         */
         public void addChild(ESTreeNode node) {
             children.add(node);
         }
 
+        /**
+         * Has this node a child?
+         * @return true/false indicates has child
+         */
         public boolean hasChild() {
             return !children.isEmpty();
         }
 
+        /**
+         *
+         * @return number of children
+         */
         public int numChildren() {
             return children.size();
         }
 
+        /**
+         * Get child with id [0,1,..]
+         * @param id the index of the child (arraylist)
+         * @return reference to the child
+         */
         public ESTreeNode getChild(int id) {
             if ((id<0) || (id>=children.size()))
                 throw new IllegalArgumentException("No child with index " + id);
             return children.get(id);
         }
-        
+
         public int getId() {
             return id;
         }
@@ -126,31 +183,33 @@ public class ESTree {
 
         /**
          * !!Aliasing
-         * @return
+         * @return a list of childrens
          */
         public List<ESTreeNode> getChildren() {
             return children;
         }
 
+        /**
+         * Serializes the Node as a String
+         * with intent
+         * @param intent the intent
+         * @return this nodes representation
+         */
         public String toString(String intent) {
             StringBuilder sb = new StringBuilder();
             sb.append(intent).append("(Node:").append(this.id).append(" Type:").append(type);
             if(hasValue()) {
                 sb.append(" Value:").append(value);
             }
+            sb.append(")");
             if(hasChild()) {
-                sb.append(" Childs:\n");
+                sb.append("\n");
                 for(ESTreeNode node : children)
-                    sb.append(node.toString(intent +"-")).append("\n");
+                    sb.append(node.toString(intent +" |")).append("\n");
                 sb.setLength(sb.length()-1);
                 sb.append("");
             }
             return sb.toString();
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Tree: "+ getId() + "\n" + root.toString("-");
     }
 }
