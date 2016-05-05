@@ -98,7 +98,7 @@ public class ESTree {
                 throw new IllegalArgumentException("No child with index " + id);
             return children.get(id);
         }
-
+        
         public int getId() {
             return id;
         }
@@ -122,6 +122,7 @@ public class ESTree {
         public void setParent(ESTreeNode node){
             this.parent = node;
         }
+
 
         /**
          * !!Aliasing

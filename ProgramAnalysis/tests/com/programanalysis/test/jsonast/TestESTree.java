@@ -2,6 +2,7 @@ package com.programanalysis.test.jsonast;
 
 import com.programanalysis.jsonast.ESTree;
 import com.programanalysis.jsonast.JSONESTree;
+import com.programanalysis.util.FileUtil;
 import org.junit.Test;
 
 import java.io.*;
@@ -13,7 +14,7 @@ public class TestESTree {
 
     @Test
     public void testParsing() {
-        File f = new File("./data/jsonast/simpleprogram.json");
+        File f = new File(FileUtil.makePath("data", "jsonast", "simpleprogram.json"));
         BufferedReader r = null;
         try {
             r = new BufferedReader(new FileReader(f));

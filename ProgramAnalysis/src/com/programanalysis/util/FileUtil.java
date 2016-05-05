@@ -17,8 +17,18 @@ public class FileUtil {
         }
     }
 
+    public static String makePath(String... path) {
+        if(path == null || path.length < 1)
+            throw new IllegalArgumentException("Illegal path argument");
+        StringBuilder sb = new StringBuilder();
+        for(int idx=0; idx<path.length-1; idx++)
+            sb.append(path[idx]).append(File.separator);
+        sb.append(path[path.length-1]);
+        return sb.toString();
+    }
+
     public static String getNodeJSCallGraphPath() {
-        return getWorkingDirectory() + File.separator + "javascript-call-graph-master" + File.separator +"main.js";
+        return makePath(getWorkingDirectory(), "javascript-call-graph-master", "main.js");
     }
 
     public static String getNodeJSCommand() {

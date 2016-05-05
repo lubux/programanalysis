@@ -24,7 +24,7 @@ public class TestAnalysis {
 
     @Test
     public void simpleAnalysisDebug2() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "test_javascript.js";
+        String filePath = FileUtil.makePath("data", "javascriptfiles", "test_javascript.js");
         // run the tajs analysis
         Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath}, null);
         dk.brics.tajs.Main.run(tajsAnalysis);
