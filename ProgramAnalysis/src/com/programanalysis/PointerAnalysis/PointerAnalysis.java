@@ -1,5 +1,6 @@
 package com.programanalysis.PointerAnalysis;
 
+import com.programanalysis.util.CallGraphParser;
 import com.programanalysis.util.QueueEntry;
 import dk.brics.tajs.analysis.Analysis;
 import dk.brics.tajs.flowgraph.AbstractNode;
@@ -14,7 +15,8 @@ import java.util.*;
  * Created by cedri on 4/28/2016.
  */
 public class PointerAnalysis {
-    public PointerAnalysis(Analysis analysis){
+    public PointerAnalysis(Analysis analysis, CallGraphParser cgp){
+        this.callGraphParser = cgp;
         this.analysis = analysis;
     }
 
@@ -26,6 +28,7 @@ public class PointerAnalysis {
 
     public static FlowGraph flowgraph;
 
+    // TODO: might remove this?
     public static CallGraph callgraph;
 
     private Map<Function, BlockRegisters> blockRegisters;
@@ -33,6 +36,8 @@ public class PointerAnalysis {
     private PriorityQueue<QueueEntry> worklist;
 
     private Set<BasicBlock> blockCheckList;
+
+    private CallGraphParser callGraphParser;
 
     public void init(){
         state = new GlobalState();
@@ -43,6 +48,10 @@ public class PointerAnalysis {
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
         visitor = new Transfer(this);
         blockCheckList = new HashSet<BasicBlock>();
+    }
+
+    public CallGraphParser getCallGraphParser(){
+        return callGraphParser;
     }
 
     public GlobalState getState(){

@@ -50,6 +50,7 @@ public class NodeTransfer implements NodeVisitor {
         Map<BlockAndContext, Set<Pair>> callSources = analysis.getCallGraph().getCallSources();
         BlockRegisters registers = analysis.getRegisters(callNode.getBlock());
         Function callee = null;
+        /*
         //TODO: any way to make this less ugly and faster?
         for(Set<Pair> entry: callSources.values()){
             for(Pair pair: entry){
@@ -62,7 +63,8 @@ public class NodeTransfer implements NodeVisitor {
                     }
                 }
             }
-        }
+        }*/
+        callee = analysis.getCallGraphParser().getFunction(callNode.getSourceLocation().getLineNumber(), callNode.getSourceLocation().getColumnNumber());
         if(callee == null){
             if(callNode.getLiteralConstructorKind() == CallNode.LiteralConstructorKinds.ARRAY){
                 // we want to construct an array in this function call, but this is not a user defined function
@@ -99,11 +101,22 @@ public class NodeTransfer implements NodeVisitor {
                     analysis.getState().addArgToInState((Set<AbstractObject>) arg, callee, callee.getParameterNames().get(i));
                 }
             } else {
-               for(int i = 0; i < callNode.getNumberOfArgs(); i++){
-                   // add all arguments to the in set of the function
-                   Object a = registers.readRegister(callNode.getArgRegister(i));
-                   analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
-               }
+                if(callNode.getNumberOfArgs() > callee.getParameterNames().size()){
+                    // add the first argument to the this object because this type of call is somehow possible
+                    Object a = registers.readRegister(callNode.getArgRegister(0));
+                    analysis.getState().addThisToInState((Set<AbstractObject>)a, callee);
+                    for(int i = 1; i < callNode.getNumberOfArgs(); i++){
+                        // add all arguments to the in set of the function
+                        a = registers.readRegister(callNode.getArgRegister(i));
+                        analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i-1));
+                    }
+                } else {
+                   for(int i = 0; i < callNode.getNumberOfArgs(); i++){
+                       // add all arguments to the in set of the function
+                       Object a = registers.readRegister(callNode.getArgRegister(i));
+                       analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
+                   }
+                }
                 if(! callNode.isConstructorCall()) {
                     Object obj = registers.readRegister(callNode.getBaseRegister());
                     analysis.getState().addThisToInState((Set)obj, callee);
