@@ -12,7 +12,7 @@ public class VariableName {
      */
     public static String getVariableName(Function scope, String identifier){
         String sol = "";
-        while(! scope.equals(PointerAnalysis.flowgraph.getMain())){
+        while(scope != null && !scope.equals(PointerAnalysis.flowgraph.getMain())){
             sol = scope.getName() + "." + sol;
             scope = scope.getOuterFunction();
         }

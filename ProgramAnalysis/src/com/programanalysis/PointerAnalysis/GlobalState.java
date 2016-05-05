@@ -136,10 +136,15 @@ public class GlobalState {
             return;
         }
         // switch to the outer scope until the variable is defined
-        while(! store.containsKey(VariableName.getVariableName(scope, variable))){
+        while(! store.containsKey(VariableName.getVariableName(scope, variable)) && scope != null){
             scope = scope.getOuterFunction();
         }
-        //TODO: global object property if var is not found
+        if(scope==null && ! store.containsKey(VariableName.getVariableName(scope, variable))){
+            Set<AbstractObject> set = new HashSet<AbstractObject>();
+            set.addAll(objs);
+            store.put(VariableName.getVariableName(scope, variable), set);
+            changed = true;
+        }
         // put the abstract object in the variable store
         changed |= store.get(VariableName.getVariableName(scope, variable)).addAll(objs);
     }
@@ -209,7 +214,7 @@ public class GlobalState {
 
     /** adds prop to the propertystore of all objects in objs and property */
     public void writePropertyStore(Set<AbstractObject> objs, String property, Set<AbstractObject> prop){
-        if(prop == null) {
+        if(prop == null || !prop.isEmpty()) {
             return;
         }
         for(AbstractObject obj: objs) {
@@ -270,6 +275,9 @@ public class GlobalState {
 
     /** returns the abstractObjects of all properties of all the abstractObjects in objs*/
     public Set<AbstractObject> readAllPropertyStore(Set<AbstractObject> objs){
+        if(objs == null){
+            return new HashSet<AbstractObject>();
+        }
         Set<AbstractObject> res = new HashSet<AbstractObject>();
         for(Tuple tuple: propertystore.keySet()){
             if(objs.contains(tuple.a)){
