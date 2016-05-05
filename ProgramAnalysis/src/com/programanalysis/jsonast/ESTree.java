@@ -138,7 +138,7 @@ public class ESTree {
                 sb.append(" Childs:\n");
                 for(ESTreeNode node : children)
                     sb.append(node.toString(intent +"-")).append("\n");
-                sb.setLength(sb.length()-2);
+                sb.setLength(sb.length()-1);
                 sb.append("");
             }
             return sb.toString();
