@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  * Created by cedri on 4/28/2016.
  */
-//todo: copy the transfer functions from the other NodeTransfer class
 public class NodeTransfer implements NodeVisitor {
 
     PointerAnalysis analysis;
@@ -47,7 +46,6 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(CallNode callNode, Object o) {
-        Map<BlockAndContext, Set<Pair>> callSources = analysis.getCallGraph().getCallSources();
         BlockRegisters registers = analysis.getRegisters(callNode.getBlock());
         Function callee = null;
         /*
@@ -175,14 +173,13 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(BeginForInNode beginForInNode, Object o) {
-        //TODO
         BlockRegisters registers = analysis.getRegisters(beginForInNode.getBlock());
         Object obj = registers.readRegister(beginForInNode.getObjectRegister());
         if(obj instanceof Set) {
             Set<AbstractObject> propNames = analysis.getState().getPropertyNames((Set) obj, beginForInNode);
             registers.writeRegister(beginForInNode.getPropertyListRegister(), propNames);
         } else {
-            // we don't know anything about the object that we want the property labels
+            // we don't know anything about the object from which we want the property labels
             //TODO: can this occurr? if yes do what?
         }
     }
@@ -227,7 +224,6 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ReadPropertyNode readPropertyNode, Object o) {
-        //TODO: what if base is null?
         BlockRegisters registers = analysis.getRegisters(readPropertyNode.getBlock());
         Object base = registers.readRegister(readPropertyNode.getBaseRegister());
         if(readPropertyNode.isPropertyFixed()){
@@ -315,7 +311,7 @@ public class NodeTransfer implements NodeVisitor {
             analysis.getState().writePropertyStore((Set)base, propertyName, (Set) value);
         } else {
             Object prop = registers.readRegister(writePropertyNode.getPropertyRegister());
-            if(prop instanceof  Set && !((Set)prop).isEmpty()){
+            if(prop != null && prop instanceof  Set && !((Set)prop).isEmpty()){
                 Set<String> propName = new HashSet<String>();
                 for(AbstractObject absobj: (Set<AbstractObject>)prop){
                     if(absobj.getStringValue() != null){
@@ -339,10 +335,16 @@ public class NodeTransfer implements NodeVisitor {
         Object obj = registers.readRegister(writeVariableNode.getValueRegister());
         //TODO: what if variable is function argument? (see tajs)
         // if we assign an abstract object, just add it to the store set of the variable
-        if(obj instanceof Set){
-            analysis.getState().writeStore(writeVariableNode.getVariableName(), writeVariableNode.getBlock().getFunction(), (Set) obj);
+        if(writeVariableNode.getBlock().getFunction().getParameterNames().contains(writeVariableNode.getVariableName())){
+            // we write to a function argument, so we modify the in set of the function
+            analysis.getState().addArgToInState((Set<AbstractObject>) obj, writeVariableNode.getBlock().getFunction(), writeVariableNode.getVariableName());
         } else {
-            // TODO: can we even get here?
+            // we write to an ordinary variable
+            if(obj != null && obj instanceof Set){
+                analysis.getState().writeStore(writeVariableNode.getVariableName(), writeVariableNode.getBlock().getFunction(), (Set) obj);
+            } else {
+                // TODO: can we even get here?
+            }
         }
     }
 

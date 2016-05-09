@@ -28,9 +28,6 @@ public class PointerAnalysis {
 
     public static FlowGraph flowgraph;
 
-    // TODO: might remove this?
-    public static CallGraph callgraph;
-
     private Map<Function, BlockRegisters> blockRegisters;
 
     private PriorityQueue<QueueEntry> worklist;
@@ -42,7 +39,6 @@ public class PointerAnalysis {
     public void init(){
         state = new GlobalState();
         flowgraph = analysis.getSolver().getFlowGraph();
-        callgraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
         blockRegisters = new HashMap<Function, BlockRegisters>();
         blockCheckList = new HashSet<BasicBlock>();
         worklist = new PriorityQueue<QueueEntry>();
@@ -59,10 +55,6 @@ public class PointerAnalysis {
 
     public GlobalState getState(){
         return state;
-    }
-
-    public CallGraph getCallGraph(){
-        return callgraph;
     }
 
     public FlowGraph getFlowgraph(){
