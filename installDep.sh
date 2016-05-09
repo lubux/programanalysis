@@ -40,9 +40,9 @@ sudo nano setup.py
 #Change SRILM_DIR to /usr/share/srilm in setup.py
 
 cd
-wget http://www.srl.inf.ethz.ch/pa2016/json_printer.tar.gz
-tar -xvzf json_printer.tar.gz
-rm -f json_printer.tar.gz
+wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v1.tar.gz
+tar -xvzf json_printer_v1.tar.gz
+rm -f json_printer_v1.tar.gz
 cd json_printer
 sudo apt-get install libgoogle-glog-dev libgflags-dev libjsoncpp-dev cmake g++
 sudo ./build.sh

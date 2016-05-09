@@ -1,0 +1,334 @@
+I0509 08:25:14.214128  6037 main.cpp:47] Loading training data...
+I0509 08:25:14.221122  6037 tree.cpp:2003] Parsing done.
+I0509 08:25:14.221144  6037 tree.cpp:2010] Remaining trees after removing trees with more than 30000 nodes: 5
+I0509 08:25:14.221164  6037 main.cpp:50] Training data with 5 trees loaded.
+I0509 08:25:14.221246  6037 main.cpp:54] 
+function()  {
+   var httpRequest;
+   document.getElementById("ajaxButton").onclick = function()  {
+      makeRequest("test.html");
+   }
+;
+   function makeRequest(url)  {
+      httpRequest = new XMLHttpRequest();
+      if (! httpRequest)  {
+         alert("Giving up :( Cannot create an XMLHTTP instance");
+         return false;
+      }
+      httpRequest.onreadystatechange = alertContents;
+      httpRequest.open("GET", url);
+      httpRequest.send();
+   }
+;
+}
+();
+I0509 08:25:14.221281  6037 main.cpp:54] 
+CKEDITOR.plugins.setLang("iframe", "ka",  {
+      border:"·É©·Éê·É†·É©·Éù·É° ·Éí·Éê·Éõ·Éù·É©·Éî·Éú·Éê", 
+      noUrl:"·Éê·Éô·É†·Éò·É§·Éî·Éó iframe-·Éò·É° URL", 
+      scrolling:"·Éí·Éê·Éì·Éê·ÉÆ·Éï·Éî·Éï·Éò·É° ·Éñ·Éù·Éö·Éî·Éë·Éò·É° ·Éì·Éê·É®·Éï·Éî·Éë·Éê", 
+      title:"IFrame-·Éò·É° ·Éû·Éê·É†·Éê·Éõ·Éî·É¢·É†·Éî·Éë·Éò", 
+      toolbar:"IFrame"   }
+);
+I0509 08:25:14.221681  6037 main.cpp:54] 
+"use strict";
+var invariant = require("react/lib/invariant");
+var objectAssign = require("object-assign");
+var qs = require("qs");
+var paramCompileMatcher = /:([a-zA-Z_$][a-zA-Z0-9_$]*)|[*.()\[\]\\+|{}^$]/g;
+var paramInjectMatcher = /:([a-zA-Z_$][a-zA-Z0-9_$?]*[?]?)|[*]/g;
+var paramInjectTrailingSlashMatcher = /\/\/\?|\/\?\/|\/\?/g;
+var queryMatcher = /\?(.*)$/;
+var _compiledPatterns =  {} ;
+function compilePattern(pattern)  {
+   if (! pattern in _compiledPatterns)  {
+      var paramNames = [];
+      var source = pattern.replace(paramCompileMatcher, function(match, paramName)  {
+            if (paramName)  {
+               paramNames.push(paramName);
+               return "([^/?#]+)";
+            }
+             else if (match === "*")  {
+               paramNames.push("splat");
+               return "(.*?)";
+            }
+             else  {
+               return "\" + match;
+            }
+         }
+      );
+      _compiledPatterns[pattern] =  {
+         matcher:new RegExp("^" + source + "$", "i"), 
+         paramNames:paramNames      }
+;
+   }
+   return _compiledPatterns[pattern];
+}
+;
+var PathUtils =  {
+   isAbsolute:function(path)  {
+      return path.charAt(0) === "/";
+   }, 
+   join:function(a, b)  {
+      return a.replace(/\/*$/, "/") + b;
+   }, 
+   extractParamNames:function(pattern)  {
+      return compilePattern(pattern).paramNames;
+   }, 
+   extractParams:function(pattern, path)  {
+      var _compilePattern = compilePattern(pattern);
+      var matcher = _compilePattern.matcher;
+      var paramNames = _compilePattern.paramNames;
+      var match = path.match(matcher);
+      if (! match)  {
+         return null;
+      }
+      var params =  {} ;
+      paramNames.forEach(function(paramName, index)  {
+            params[paramName] = match[index + 1];
+         }
+      );
+      return params;
+   }, 
+   injectParams:function(pattern, params)  {
+      params = params ||  {} ;
+      var splatIndex = 0;
+      return pattern.replace(paramInjectMatcher, function(match, paramName)  {
+            paramName = paramName || "splat";
+            if (paramName.slice(- 1) === "?")  {
+               paramName = paramName.slice(0, - 1);
+               if (params[paramName] == null) return ""            }
+             else  {
+               invariant(params[paramName] != null, "Missing "%s" parameter for path "%s"", paramName, pattern);
+            }
+            var segment;
+            if (paramName === "splat" && Array.isArray(params[paramName]))  {
+               segment = params[paramName][splatIndex++];
+               invariant(segment != null, "Missing splat # %s for path "%s"", splatIndex, pattern);
+            }
+             else  {
+               segment = params[paramName];
+            }
+            return segment;
+         }
+      ).replace(paramInjectTrailingSlashMatcher, "/");
+   }, 
+   extractQuery:function(path)  {
+      var match = path.match(queryMatcher);
+      return match && qs.parse(match[1]);
+   }, 
+   withoutQuery:function(path)  {
+      return path.replace(queryMatcher, "");
+   }, 
+   withQuery:function(path, query)  {
+      var existingQuery = PathUtils.extractQuery(path);
+      if (existingQuery) query = query ? objectAssign(existingQuery, query) : existingQuery      var queryString = qs.stringify(query,  {
+            arrayFormat:"brackets"         }
+      );
+      if (queryString)  {
+         return PathUtils.withoutQuery(path) + "?" + queryString;
+      }
+      return PathUtils.withoutQuery(path);
+   }} ;
+module.exports = PathUtils;
+I0509 08:25:14.221909  6037 main.cpp:54] 
+goog.provide("goog.ui.DrilldownRowTest");
+goog.setTestOnly("goog.ui.DrilldownRowTest");
+goog.require("goog.dom");
+goog.require("goog.dom.TagName");
+goog.require("goog.html.SafeHtml");
+goog.require("goog.testing.jsunit");
+goog.require("goog.ui.DrilldownRow");
+function testMakeRows()  {
+   var ff = goog.dom.getElement("firstRow");
+   var d = new goog.ui.DrilldownRow( {} );
+   var d1 = new goog.ui.DrilldownRow( {
+         html:createHtmlForRow("Second row")      }
+   );
+   var d2 = new goog.ui.DrilldownRow( {
+         html:createHtmlForRow("Third row")      }
+   );
+   var d21 = new goog.ui.DrilldownRow( {
+         html:createHtmlForRow("Fourth row")      }
+   );
+   var d22 = new goog.ui.DrilldownRow(goog.ui.DrilldownRow.sampleProperties);
+   d.decorate(ff);
+   d.addChild(d1, true);
+   d.addChild(d2, true);
+   d2.addChild(d21, true);
+   d2.addChild(d22, true);
+   assertThrows(function()  {
+         d.findIndex();
+      }
+   );
+   assertEquals(0, d1.findIndex());
+   assertEquals(1, d2.findIndex());
+}
+;
+function createHtmlForRow(rowText)  {
+   var SafeHtml = goog.html.SafeHtml;
+   return SafeHtml.create(goog.dom.TagName.TR,  {} , SafeHtml.concat(goog.html.SafeHtml.create(goog.dom.TagName.TD,  {} , rowText), goog.html.SafeHtml.create(goog.dom.TagName.TD,  {} , "Second column")));
+}
+;
+I0509 08:25:14.222784  6037 main.cpp:54] 
+function($, deck, undefined)  {
+   var $d = $(document);
+   $.extend(true, $[deck].defaults,  {
+         keys: {
+            next:null, 
+            previous:null         }} );
+   $.extend(true, $[deck].defaults,  {
+         selectors: {
+            subslidesToNotify:".slide,.onshowtoplevel"         }, 
+         keys: {
+            previous:[8, 37, 33], 
+            next:[13, 32, 39, 34], 
+            previousTopLevel:[38], 
+            nextTopLevel:[40], 
+            nextEndOfTopLevel:[90], 
+            previousEndOfTopLevel:[65]         }, 
+         countNested:false      }
+   );
+   var myInArray = function(el, arr)  {
+      for (i in arr) if (arr[i].is(el)) return i * 1      return - 1;
+   }
+;
+   $[deck]("extend", "getSlideIndex", function(node)  {
+         var slides = $[deck]("getSlides");
+         var ind = myInArray(node, slides);
+         return ind;
+      }
+   );
+   $[deck]("extend", "getToplevelSlideOf", function(node)  {
+         var opts = $[deck]("getOptions");
+         var slides = $[deck]("getSlides");
+         var last =  {
+            node:$(node), 
+            index:myInArray(node, slides)         }
+;
+         $(node).parentsUntil(opts.selectors.container).each(function(ii, v)  {
+               var ind = myInArray(v, slides);
+               if (ind != - 1)  {
+                  last =  {
+                     node:$(v), 
+                     index:ind                  }
+;
+               }
+            }
+         );
+         return last;
+      }
+   );
+   $[deck]("extend", "getToplevelSlideOfIndex", function(ind)  {
+         return $[deck]("getToplevelSlideOf", $[deck]("getSlide", ind));
+      }
+   );
+   $[deck]("extend", "previousTopLevelSlide", function()  {
+         var current = $[deck]("getSlide");
+         var currentParent = $[deck]("getToplevelSlideOf", current);
+         var toGo = currentParent.index;
+         if (current.is(currentParent.node) && toGo > 0)  {
+            toGo = $[deck]("getToplevelSlideOfIndex", toGo - 1).index;
+         }
+         $[deck]("go", toGo);
+      }
+   );
+   $[deck]("extend", "nextTopLevelSlide", function()  {
+         var current = $[deck]("getSlide");
+         var currentParent = $[deck]("getToplevelSlideOf", current);
+         var icur = currentParent.index;
+         for (; icur < $[deck]("getSlides").length; icur++)  {
+               var cursorParent = $[deck]("getToplevelSlideOfIndex", icur).node;
+               if (! cursorParent.is(currentParent.node))  {
+                  $[deck]("go", icur);
+                  break;
+               }
+            }
+      }
+   );
+   $[deck]("extend", "nextEndOfTopLevelSlide", function()  {
+         var current = $[deck]("getSlideIndex", $[deck]("getSlide"));
+         var nextParent = $[deck]("getToplevelSlideOfIndex", current + 1);
+         var icur = nextParent.index;
+         for (; icur < $[deck]("getSlides").length; icur++)  {
+               var cursorParent = $[deck]("getToplevelSlideOfIndex", icur).node;
+               if (! cursorParent.is(nextParent.node))  {
+                  $[deck]("go", icur - 1);
+                  break;
+               }
+            }
+         if (icur == $[deck]("getSlides").length)  {
+            $[deck]("go", icur - 1);
+         }
+      }
+   );
+   $[deck]("extend", "previousEndOfTopLevelSlide", function()  {
+         var current = $[deck]("getSlideIndex", $[deck]("getSlide"));
+         var currentParent = $[deck]("getToplevelSlideOfIndex", current).index;
+         if (currentParent > 0)  {
+            $[deck]("go", currentParent - 1);
+         }
+      }
+   );
+   $d.bind("deck.init", function()  {
+         $d.unbind("keydown.decknexttoplevel").bind("keydown.decknexttoplevel", function(e)  {
+               var $opts = $[deck]("getOptions");
+               var key = $opts.keys.nextTopLevel;
+               if (e.which === key || $.inArray(e.which, key) > - 1)  {
+                  e.preventDefault();
+                  $[deck]("nextTopLevelSlide");
+               }
+            }
+         );
+         $d.unbind("keydown.decknextendoftoplevel").bind("keydown.decknextendoftoplevel", function(e)  {
+               var $opts = $[deck]("getOptions");
+               var key = $opts.keys.nextEndOfTopLevel;
+               if (e.which === key || $.inArray(e.which, key) > - 1)  {
+                  e.preventDefault();
+                  $[deck]("nextEndOfTopLevelSlide");
+               }
+            }
+         );
+         $d.unbind("keydown.deckprevioustoplevel").bind("keydown.deckprevioustoplevel", function(e)  {
+               var $opts = $[deck]("getOptions");
+               var key = $opts.keys.previousTopLevel;
+               if (e.which === key || $.inArray(e.which, key) > - 1)  {
+                  e.preventDefault();
+                  $[deck]("previousTopLevelSlide");
+               }
+            }
+         );
+         $d.unbind("keydown.deckpreviousendoftoplevel").bind("keydown.deckpreviousendoftoplevel", function(e)  {
+               var $opts = $[deck]("getOptions");
+               var key = $opts.keys.previousEndOfTopLevel;
+               if (e.which === key || $.inArray(e.which, key) > - 1)  {
+                  e.preventDefault();
+                  $[deck]("previousEndOfTopLevelSlide");
+               }
+            }
+         );
+      }
+   );
+   var bigJump = function(from, to)  {
+      var direction = "forward";
+      if (from > to)  {
+         direction = "reverse";
+      }
+      var opts = $[deck]("getOptions");
+      $($[deck]("getToplevelSlideOfIndex", to).node.find(opts.selectors.subslidesToNotify).get().reverse()).each(function(ind, el)  {
+            $(el).triggerHandler("deck.toplevelBecameCurrent", direction);
+         }
+      );
+      for (icur = $[deck]("getToplevelSlideOfIndex", to).index + 1; icur < to + 1; icur++)  {
+            $[deck]("getSlides")[icur].triggerHandler("deck.afterToplevelBecameCurrent", "forward");
+         }
+   }
+;
+   $d.bind("deck.change", function(e, from, to)  {
+         if (Math.abs(from - to) > 1 || ! $[deck]("getToplevelSlideOfIndex", to).node.is($[deck]("getToplevelSlideOfIndex", from).node))  {
+            bigJump(from, to);
+         }
+      }
+   );
+}
+(jQuery, "deck");
