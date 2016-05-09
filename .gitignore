@@ -11,3 +11,8 @@
 hs_err_pid*
 ml_experiments/code/.idea
 workspace.xml
+glog-master/src/glog
+glog-master
+ProgramAnalysis/node_modules/escodegen
+ProgramAnalysis/json_printer/src/syntree
+ProgramAnalysis.ova
