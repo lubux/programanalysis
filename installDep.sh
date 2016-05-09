@@ -3,7 +3,10 @@ sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update
 sudo apt-get install oracle-java8-installer
 sudo apt-get install oracle-java8-set-default
-sudo apt-get install python3 
+
+sudo apt-get install python 
+
+sudo apt-get install nodejs
 
 sudo apt-get install python-pip python-dev build-essential
 sudo pip install --upgrade pip 
