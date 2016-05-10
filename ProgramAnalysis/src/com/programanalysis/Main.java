@@ -14,6 +14,8 @@ import static java.lang.Runtime.getRuntime;
 
 public class Main {
 
+    //main -m[--mode] (data/query) -i[--infile] -o[--outfile] (path)
+
     public static void main(String[] args) {
         /*
         // run the tajs analysis
@@ -33,6 +35,7 @@ public class Main {
         analysis.solve();
         System.out.print("Pointer Analysis completed");*/
 
+        // see https://commons.apache.org/proper/commons-cli/usage.html
         CommandLine commandLine;
         Options options = new Options();
         options.addOption("t", false, "display current time");
@@ -41,7 +44,7 @@ public class Main {
             CommandLine cmd = parser.parse(options, args);
 
             if(cmd.hasOption("t")) {
-                
+
             }
             else {
 

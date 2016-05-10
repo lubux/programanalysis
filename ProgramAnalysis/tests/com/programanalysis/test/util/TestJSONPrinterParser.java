@@ -2,6 +2,7 @@ package com.programanalysis.test.util;
 
 import com.programanalysis.jsonast.GenProgram;
 import com.programanalysis.jsonast.JSONPrinterCaller;
+import com.programanalysis.jsonast.LocIdPair;
 import com.programanalysis.test.OSTestHelper;
 import com.programanalysis.util.FileUtil;
 import com.programanalysis.jsonast.JSONPrinterParser;
@@ -49,9 +50,9 @@ public class TestJSONPrinterParser {
             e.printStackTrace();
             Assert.assertTrue(false);
         }
-        List<Map<SourceLocation, Integer>> results = JSONPrinterParser.parseJSONPrinterIDOutput(data);
+        List<List<LocIdPair>> results = JSONPrinterParser.parseJSONPrinterIDOutput(data);
         int i = 1;
-        for (Map<SourceLocation, Integer> res: results) {
+        for (List<LocIdPair> res: results) {
             System.out.println("-------Result "+i+"-------");
             System.out.println(res);
             System.out.println("----------------------");

@@ -86,25 +86,25 @@ public class JSONPrinterParser {
      * @param input the inputstream of the output
      * @return a list of maps for each program, the map contains mappings from SourceLocation to the id of the node
      */
-    public static List<Map<SourceLocation, Integer>> parseJSONPrinterIDOutput(InputStream input) {
+    public static List<List<LocIdPair>> parseJSONPrinterIDOutput(InputStream input) {
         BufferedReader reader = null;
-        List<Map<SourceLocation, Integer>> result = new ArrayList<>();
+        List<List<LocIdPair>> result = new ArrayList<>();
         int curfile = 1;
         try {
             int curID = 0;
             reader = new BufferedReader(new InputStreamReader(input));
             String line = reader.readLine();
-            HashMap<SourceLocation, Integer> curMap = new HashMap<>();
+            List<LocIdPair> curMap = new ArrayList<>();
             while (line!=null && !line.isEmpty()) {
                 Matcher matcher =  PATTERN_ID.matcher(line);
                 if (matcher.find()) {
                     int lineNr = Integer.valueOf(matcher.group(2));
                     if(curID>lineNr) {
                         result.add(curMap);
-                        curMap = new HashMap<>();
+                        curMap = new ArrayList<>();
                     }
                     SourceLocation loc = new SourceLocation(lineNr, Integer.valueOf(matcher.group(3)), FILE_NAME_IDENTIFIER+curfile);
-                    curMap.put(loc, Integer.valueOf(matcher.group(1)));
+                    curMap.add(new LocIdPair(loc, Integer.valueOf(matcher.group(1))));
                     curID = lineNr;
                 }
                 line = reader.readLine();
@@ -128,13 +128,13 @@ public class JSONPrinterParser {
 
     public static List<GenProgram> parseGenPrograms(InputStream dataOutput, InputStream idOutput) {
         List<String> outs = parseJSONPrinterOutput(dataOutput);
-        List<Map<SourceLocation, Integer>> maps = parseJSONPrinterIDOutput(idOutput);
+        List<List<LocIdPair>> maps = parseJSONPrinterIDOutput(idOutput);
         Iterator<String> itOuts = outs.listIterator();
-        Iterator<Map<SourceLocation, Integer>> itMaps = maps.iterator();
+        Iterator<List<LocIdPair>> itMaps = maps.iterator();
         ArrayList<GenProgram> programs = new ArrayList<>();
         int i = 1;
         while (itOuts.hasNext() && itMaps.hasNext()) {
-            programs.add(new GenProgram(FILE_NAME_IDENTIFIER+i, itOuts.next(), itMaps.next()));
+            programs.add(new GenProgram(i, FILE_NAME_IDENTIFIER+i, itOuts.next(), itMaps.next()));
             i++;
         }
         return programs;
