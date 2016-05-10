@@ -132,7 +132,7 @@ public class JSONPrinterParser {
         Iterator<String> itOuts = outs.listIterator();
         Iterator<List<LocIdPair>> itMaps = maps.iterator();
         ArrayList<GenProgram> programs = new ArrayList<>();
-        int i = 1;
+        int i = 0;
         while (itOuts.hasNext() && itMaps.hasNext()) {
             programs.add(new GenProgram(i, FILE_NAME_IDENTIFIER+i, itOuts.next(), itMaps.next()));
             i++;

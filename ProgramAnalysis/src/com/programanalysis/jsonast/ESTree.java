@@ -24,10 +24,12 @@ public class ESTree {
      */
     private ESTreeNode root;
 
+    private ESTreeNode[] nodes;
+
     private ESTree() {
     }
 
-    private ESTree(int id, ESTreeNode root) {
+    private ESTree(int id, ESTreeNode root, ESTreeNode[] nodes) {
         this.id = id;
         this.root = root;
     }
@@ -47,7 +49,7 @@ public class ESTree {
 
         if(nodes.length<1)
             throw new RuntimeException("Illegal Tree");
-        ESTree tree = new ESTree(jsonTree.getId(), nodes[0]);
+        ESTree tree = new ESTree(jsonTree.getId(), nodes[0], nodes);
         for (ESTreeNode node : nodes) {
             for(int id : jsonNodes[node.getId()].getChildren()) {
                 node.addChild(nodes[id]);
@@ -63,6 +65,12 @@ public class ESTree {
 
     public ESTreeNode getRoot() {
         return root;
+    }
+
+    public ESTreeNode getNodeWithID(int id) {
+        if(id<0 || id>=nodes.length)
+            throw new IllegalArgumentException("Not valid id "+id);
+        return nodes[id];
     }
 
     @Override

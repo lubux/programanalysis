@@ -1,7 +1,6 @@
 package com.programanalysis.jsonast;
 
 import dk.brics.tajs.flowgraph.SourceLocation;
-import dk.brics.tajs.lattice.Str;
 
 import java.util.*;
 
@@ -20,6 +19,8 @@ public class GenProgram {
     private Map<SourceLocation,Set<Integer>> sourceToIDs;
 
     private SourceLocation[] sourceLocations;
+
+    private Set<Integer> markedNodes = new HashSet<>();
 
     GenProgram(int id, String name, String code, List<LocIdPair> sourcetoID) {
         this.id = id;
@@ -48,6 +49,14 @@ public class GenProgram {
 
     public String getCode() {
         return code;
+    }
+
+    public void markNode(int id) {
+        markedNodes.add(id);
+    }
+
+    public Iterator<Integer> getMarkedNodesIterator() {
+        return markedNodes.iterator();
     }
 
     public int getId() {

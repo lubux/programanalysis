@@ -1,11 +1,8 @@
 package com.programanalysis.test.util;
 
-import com.programanalysis.jsonast.GenProgram;
-import com.programanalysis.jsonast.JSONPrinterCaller;
-import com.programanalysis.jsonast.LocIdPair;
+import com.programanalysis.jsonast.*;
 import com.programanalysis.test.OSTestHelper;
 import com.programanalysis.util.FileUtil;
-import com.programanalysis.jsonast.JSONPrinterParser;
 import dk.brics.tajs.flowgraph.SourceLocation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -61,8 +58,7 @@ public class TestJSONPrinterParser {
         Assert.assertEquals(results.size(), 5);
     }
 
-    @Test
-    public void testCombined() {
+    private static List<GenProgram> getTestPrograms() {
         File f1 = new File(FileUtil.makePath("data", "jsonast", "out_data.txt"));
         File f2 = new File(FileUtil.makePath("data", "jsonast", "out_ids.txt"));
         InputStream data1 = null;
@@ -74,11 +70,34 @@ public class TestJSONPrinterParser {
             e.printStackTrace();
             Assert.assertTrue(false);
         }
-        List<GenProgram> results = JSONPrinterParser.parseGenPrograms(data1, data2);
+        return JSONPrinterParser.parseGenPrograms(data1, data2);
+    }
+
+    @Test
+    public void testCombined() {
+        List<GenProgram> results = getTestPrograms();
         for (GenProgram res: results) {
             System.out.println(res);
         }
         Assert.assertEquals(results.size(), 5);
+    }
+
+    @Test
+    public void testMarker() {
+        int[] expected = new int[] {45,18,14,13,10};
+        int i = 0;
+        List<GenProgram> results = getTestPrograms();
+        try {
+            TestFileMarker.markNodes(results,FileUtil.makePath("data", "jsonast", "test.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (GenProgram res : results) {
+            int cur = res.getMarkedNodesIterator().next();
+            Assert.assertEquals(i, res.getId());
+            Assert.assertEquals(cur, expected[i]);
+            i++;
+        }
     }
 
     @Test
@@ -92,5 +111,7 @@ public class TestJSONPrinterParser {
             Assert.assertEquals(programs.size(), 5);
         }
     }
+
+
 }
 
