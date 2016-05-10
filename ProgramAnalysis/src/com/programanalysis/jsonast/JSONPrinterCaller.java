@@ -35,15 +35,13 @@ public class JSONPrinterCaller {
                 .append(STDERR_FLAG);
         idCMD = new StringBuilder(dataCMD);
         idCMD.append(DELIM).append(MODE_INFO_FLAG);
-        Runtime runtime = getRuntime();
         Process dataProcess = null;
         Process idProcess = null;
         List<GenProgram> result = null;
         try {
-            dataProcess = runtime.exec(dataCMD.toString());
+            dataProcess = getRuntime().exec(dataCMD.toString());
             dataProcess.waitFor();
-            idProcess = runtime.exec(idCMD.toString());
-            idProcess.waitFor();
+            idProcess = getRuntime().exec(idCMD.toString());
             result = JSONPrinterParser.parseGenPrograms(dataProcess.getErrorStream(), idProcess.getErrorStream());
         } catch (IOException e) {
             e.printStackTrace();
