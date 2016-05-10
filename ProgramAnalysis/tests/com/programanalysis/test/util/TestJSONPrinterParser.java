@@ -16,6 +16,21 @@ import java.util.Map;
  */
 public class TestJSONPrinterParser {
 
+    private static List<GenProgram> getTestPrograms() {
+        File f1 = new File(FileUtil.makePath("data", "jsonast", "out_data.txt"));
+        File f2 = new File(FileUtil.makePath("data", "jsonast", "out_ids.txt"));
+        InputStream data1 = null;
+        InputStream data2 = null;
+        try {
+            data1 = new FileInputStream(f1);
+            data2 = new FileInputStream(f2);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Assert.assertTrue(false);
+        }
+        return JSONPrinterParser.parseGenPrograms(data1, data2);
+    }
+
     @Test
     public void testParsing() {
         File f = new File(FileUtil.makePath("data", "jsonast", "out_data.txt"));
@@ -58,21 +73,6 @@ public class TestJSONPrinterParser {
         Assert.assertEquals(results.size(), 5);
     }
 
-    private static List<GenProgram> getTestPrograms() {
-        File f1 = new File(FileUtil.makePath("data", "jsonast", "out_data.txt"));
-        File f2 = new File(FileUtil.makePath("data", "jsonast", "out_ids.txt"));
-        InputStream data1 = null;
-        InputStream data2 = null;
-        try {
-            data1 = new FileInputStream(f1);
-            data2 = new FileInputStream(f2);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Assert.assertTrue(false);
-        }
-        return JSONPrinterParser.parseGenPrograms(data1, data2);
-    }
-
     @Test
     public void testCombined() {
         List<GenProgram> results = getTestPrograms();
@@ -84,7 +84,7 @@ public class TestJSONPrinterParser {
 
     @Test
     public void testMarker() {
-        int[] expected = new int[] {45,18,14,13,10};
+        int[] expected = new int[] {45, 18, 14, 13, 10};
         int i = 0;
         List<GenProgram> results = getTestPrograms();
         try {
