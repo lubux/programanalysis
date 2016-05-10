@@ -16,7 +16,7 @@ import static java.lang.Runtime.getRuntime;
 public class JSONPrinterCaller {
 
 
-    private static final String PATH_TO_COMMAND = FileUtil.makePath(".","ast_printer", "main");
+    private static final String PATH_TO_COMMAND = FileUtil.makePath(FileUtil.getWorkingDirectory() ,"ast_printer", "main");
     private static final String DATA_FLAG = "--data";
     private static final String NUM_RECORDS_FLAG = "--num_data_records";
     private static final String STDERR_FLAG = "--logtostderr";
