@@ -64,12 +64,12 @@ public class JSONPrinterCaller {
 
     /**
      * Generates the javascript programs for the given json ast's in the file
-     * Uses default number of lines (1000)
+     * Uses default number of lines (100000)
      * @param filePath the path of the AST file
      * @return a list of programs
      */
     public static List<GenProgram> getPrograms(String filePath) {
-        return getPrograms(filePath, 1000);
+        return getPrograms(filePath, 100000);
     }
 
 

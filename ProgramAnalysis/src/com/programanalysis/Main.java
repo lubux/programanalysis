@@ -88,7 +88,7 @@ public class Main {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);
             TestFileMarker.markNodes(programs, testPath);
 
-            //TODO: Start analysis + predidction
+            //TODO: Start analysis + prediction
         } catch (IOException e) {
             reportError("Error occurred :(");
         }

@@ -11,7 +11,15 @@
       <element id="library" level="project" name="hamcrest-core-1.3-sources" />
       <element id="library" level="project" name="junit-4.12-sources" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-cli-1.3.1.jar" path-in-jar="/" />
-      <element id="dir-copy" path="$PROJECT_DIR$/data" />
+      <element id="directory" name="ast_printer">
+        <element id="dir-copy" path="$PROJECT_DIR$/ast_printer" />
+      </element>
+      <element id="directory" name="data">
+        <element id="dir-copy" path="$PROJECT_DIR$/data" />
+      </element>
+      <element id="directory" name="javascript-call-graph-master">
+        <element id="dir-copy" path="$PROJECT_DIR$/javascript-call-graph-master" />
+      </element>
     </root>
   </artifact>
 </component>
