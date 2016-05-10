@@ -3,6 +3,7 @@ package com.programanalysis.jsonast;
 import com.programanalysis.util.FileUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Runtime.getRuntime;
@@ -37,13 +38,25 @@ public class JSONPrinterCaller {
         Runtime runtime = getRuntime();
         Process dataProcess = null;
         Process idProcess = null;
+        List<GenProgram> result = null;
         try {
             dataProcess = runtime.exec(dataCMD.toString());
+            dataProcess.waitFor();
             idProcess = runtime.exec(idCMD.toString());
+            idProcess.waitFor();
+            result = JSONPrinterParser.parseGenPrograms(dataProcess.getErrorStream(), idProcess.getErrorStream());
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return new ArrayList<>();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            if(dataProcess!=null)
+                dataProcess.destroy();
+            if(idProcess!=null)
+                idProcess.destroy();
         }
-        return JSONPrinterParser.parseGenPrograms(dataProcess.getErrorStream(), idProcess.getErrorStream());
+        return result;
     }
 }

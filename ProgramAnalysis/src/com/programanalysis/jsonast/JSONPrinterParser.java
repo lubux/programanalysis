@@ -37,7 +37,6 @@ public class JSONPrinterParser {
             reader = new BufferedReader(new InputStreamReader(input));
             String line = reader.readLine();
             while (line!=null && !line.isEmpty()) {
-                System.out.println(line);
                 Matcher matcher =  PATTERN_LOG.matcher(line);
                 if (matcher.find()) {
                     if(skip<2) {
@@ -97,7 +96,6 @@ public class JSONPrinterParser {
             String line = reader.readLine();
             HashMap<SourceLocation, Integer> curMap = new HashMap<>();
             while (line!=null && !line.isEmpty()) {
-                System.out.println(line);
                 Matcher matcher =  PATTERN_ID.matcher(line);
                 if (matcher.find()) {
                     int lineNr = Integer.valueOf(matcher.group(2));
