@@ -81,7 +81,7 @@ public class TestJSONPrinterParser {
 
     @Test
     public void testCaller() {
-        String path = FileUtil.makePath("..","js_dataset", "programs_training.json");
+        String path = FileUtil.makePath("data", "jsonast", "simpleprogram.json");
         List<GenProgram> programs = JSONPrinterCaller.getPrograms(path, 5);
         for (GenProgram res: programs) {
             System.out.println(res);
