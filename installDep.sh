@@ -38,6 +38,7 @@ git clone https://github.com/njsmith/pysrilm.git
 cd pysrilm/
 sudo nano setup.py
 #Change SRILM_DIR to /usr/share/srilm in setup.py
+sudo python setup.py install
 
 cd
 wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v1.tar.gz

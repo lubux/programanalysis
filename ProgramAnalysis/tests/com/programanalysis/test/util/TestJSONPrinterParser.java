@@ -1,6 +1,7 @@
 package com.programanalysis.test.util;
 
 import com.programanalysis.jsonast.GenProgram;
+import com.programanalysis.jsonast.JSONPrinterCaller;
 import com.programanalysis.util.FileUtil;
 import com.programanalysis.jsonast.JSONPrinterParser;
 import dk.brics.tajs.flowgraph.SourceLocation;
@@ -72,12 +73,20 @@ public class TestJSONPrinterParser {
             Assert.assertTrue(false);
         }
         List<GenProgram> results = JSONPrinterParser.parseGenPrograms(data1, data2);
-        int i = 1;
         for (GenProgram res: results) {
             System.out.println(res);
-            i++;
         }
         Assert.assertEquals(results.size(), 5);
+    }
+
+    @Test
+    public void testCaller() {
+        String path = FileUtil.makePath("..","js_dataset", "programs_training.json");
+        List<GenProgram> programs = JSONPrinterCaller.getPrograms(path, 5);
+        for (GenProgram res: programs) {
+            System.out.println(res);
+        }
+        Assert.assertEquals(programs.size(), 5);
     }
 }
 

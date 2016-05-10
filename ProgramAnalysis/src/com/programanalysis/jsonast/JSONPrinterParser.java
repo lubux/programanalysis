@@ -18,8 +18,8 @@ public class JSONPrinterParser {
     public static final Pattern PATTERN_LOG = Pattern.compile(PATTERN_LOG_STR);
     public static final Pattern PATTERN_ID = Pattern.compile(PATTERN_LOG_ID);
 
-
     public static final String FILE_NAME_IDENTIFIER = "ProgramInLine";
+
     /**
      * Parses the Output of the AST printer
      * (http://www.srl.inf.ethz.ch/pa2016/json_printer_v1.tar.gz)
