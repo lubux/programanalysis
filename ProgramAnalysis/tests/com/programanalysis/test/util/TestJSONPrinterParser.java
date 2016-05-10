@@ -2,6 +2,7 @@ package com.programanalysis.test.util;
 
 import com.programanalysis.jsonast.GenProgram;
 import com.programanalysis.jsonast.JSONPrinterCaller;
+import com.programanalysis.test.OSTestHelper;
 import com.programanalysis.util.FileUtil;
 import com.programanalysis.jsonast.JSONPrinterParser;
 import dk.brics.tajs.flowgraph.SourceLocation;
@@ -81,12 +82,14 @@ public class TestJSONPrinterParser {
 
     @Test
     public void testCaller() {
-        String path = FileUtil.makePath("data", "jsonast", "simpleprogram.json");
-        List<GenProgram> programs = JSONPrinterCaller.getPrograms(path, 5);
-        for (GenProgram res: programs) {
-            System.out.println(res);
+        if(OSTestHelper.getOperatingSystemType().equals(OSTestHelper.OSType.Linux)) {
+            String path = FileUtil.makePath("data", "jsonast", "simpleprogram.json");
+            List<GenProgram> programs = JSONPrinterCaller.getPrograms(path, 5);
+            for (GenProgram res : programs) {
+                System.out.println(res);
+            }
+            Assert.assertEquals(programs.size(), 5);
         }
-        Assert.assertEquals(programs.size(), 5);
     }
 }
 

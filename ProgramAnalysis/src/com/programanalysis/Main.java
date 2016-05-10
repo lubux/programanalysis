@@ -4,6 +4,7 @@ import com.programanalysis.PointerAnalysis.PointerAnalysis;
 import com.programanalysis.util.CallGraphCaller;
 import com.programanalysis.util.CallGraphParser;
 import dk.brics.tajs.analysis.Analysis;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import static java.lang.Runtime.getRuntime;
 public class Main {
 
     public static void main(String[] args) {
+        /*
         // run the tajs analysis
         Analysis tajsAnalysis = dk.brics.tajs.Main.init(args, null);
         dk.brics.tajs.Main.run(tajsAnalysis);
@@ -29,7 +31,25 @@ public class Main {
         PointerAnalysis analysis = new PointerAnalysis(tajsAnalysis, cgp);
         analysis.init();
         analysis.solve();
-        System.out.print("Pointer Analysis completed");
+        System.out.print("Pointer Analysis completed");*/
+
+        CommandLine commandLine;
+        Options options = new Options();
+        options.addOption("t", false, "display current time");
+        CommandLineParser parser =  new DefaultParser();
+        try {
+            CommandLine cmd = parser.parse(options, args);
+
+            if(cmd.hasOption("t")) {
+                
+            }
+            else {
+
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
     }
 }

@@ -12,7 +12,6 @@ import static java.lang.Runtime.getRuntime;
  * Created by lukas on 10.05.16.
  * Class for Calling the external ast_printer
  * (http://www.srl.inf.ethz.ch/pa2016/json_printer_v1.tar.gz)
- *--num_data_records=10 --data=simpleprogram.json --logtostderr 2> out_data.txt
  */
 public class JSONPrinterCaller {
 
@@ -25,7 +24,12 @@ public class JSONPrinterCaller {
     private static final String DELIM = " ";
     private static final String ASSIGN = "=";
 
-
+    /**
+     * Generates the javascript programs for the given json ast's in the file
+     * @param filePath the path of the AST file
+     * @param numPrograms the number of lines to consider ind the file (i.e. number of ast's)
+     * @return a list of programs
+     */
     public static List<GenProgram> getPrograms(String filePath, int numPrograms) {
         StringBuilder dataCMD = new StringBuilder(PATH_TO_COMMAND);
         StringBuilder idCMD;
@@ -57,4 +61,16 @@ public class JSONPrinterCaller {
         }
         return result;
     }
+
+    /**
+     * Generates the javascript programs for the given json ast's in the file
+     * Uses default number of lines (1000)
+     * @param filePath the path of the AST file
+     * @return a list of programs
+     */
+    public static List<GenProgram> getPrograms(String filePath) {
+        return getPrograms(filePath, 1000);
+    }
+
+
 }

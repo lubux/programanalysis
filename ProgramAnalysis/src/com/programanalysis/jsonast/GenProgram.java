@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * Created by lukas on 09.05.16.
- * Represents a program generated from the JSONAst
+ * Represents a program generated from the JSON-Ast
  */
 public class GenProgram {
 
