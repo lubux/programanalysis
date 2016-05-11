@@ -150,7 +150,15 @@ public class NodeTransfer implements NodeVisitor {
             HashSet<AbstractObject> s = new HashSet<>();
             s.add(obj);
             registers.writeRegister(constantNode.getResultRegister(), s);
-        } else {
+        } else if(constantNode.getType().equals(ConstantNode.Type.NUMBER)){
+            String number = (new Integer((new Double(constantNode.getNumber()).intValue()))).toString();
+            AbstractObject obj = new AbstractObject(constantNode, number);
+            HashSet<AbstractObject> s = new HashSet<>();
+            s.add(obj);
+            registers.writeRegister(constantNode.getResultRegister(), s);
+        }
+
+        else {
             registers.writeRegister(constantNode.getResultRegister(), new HashSet<AbstractObject>());
         }
 

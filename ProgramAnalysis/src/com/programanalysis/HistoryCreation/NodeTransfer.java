@@ -34,7 +34,8 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(BinaryOperatorNode binaryOperatorNode, Object o) {
-
+        BlockRegisters reg = historyCreation.getState().getRegisters(binaryOperatorNode.getBlock());
+        reg.writeRegister(binaryOperatorNode.getResultRegister(), new HashSet<AbstractObject>());
     }
 
     @Override
@@ -122,7 +123,21 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ConstantNode constantNode, Object o) {
-
+        BlockRegisters reg = historyCreation.getState().getRegisters(constantNode.getBlock());
+        if(constantNode.getType().equals(ConstantNode.Type.STRING)){
+            AbstractObject abs = new AbstractObject(constantNode, constantNode.getString());
+            Set<AbstractObject> set = new HashSet<AbstractObject>();
+            set.add(abs);
+            reg.writeRegister(constantNode.getResultRegister(), set);
+        } else if(constantNode.getType().equals(ConstantNode.Type.NUMBER)){
+            String number = (new Integer((new Double(constantNode.getNumber()).intValue()))).toString();
+            AbstractObject obj = new AbstractObject(constantNode, number);
+            HashSet<AbstractObject> s = new HashSet<>();
+            s.add(obj);
+            reg.writeRegister(constantNode.getResultRegister(), s);
+        } else {
+            reg.writeRegister(constantNode.getResultRegister(), new HashSet<AbstractObject>());
+        }
     }
 
     @Override
@@ -162,7 +177,11 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(NewObjectNode newObjectNode, Object o) {
-
+        BlockRegisters reg = historyCreation.getState().getRegisters(newObjectNode.getBlock());
+        AbstractObject absobj = new AbstractObject(newObjectNode);
+        Set<AbstractObject> set = new HashSet<AbstractObject>();
+        set.add(absobj);
+        reg.writeRegister(newObjectNode.getResultRegister(), set);
     }
 
     @Override
@@ -241,7 +260,9 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(UnaryOperatorNode unaryOperatorNode, Object o) {
-
+        BlockRegisters reg = historyCreation.getState().getRegisters(unaryOperatorNode.getBlock());
+        Set<AbstractObject> set = new HashSet<AbstractObject>();
+        reg.writeRegister(unaryOperatorNode.getResultRegister(), set);
     }
 
     @Override

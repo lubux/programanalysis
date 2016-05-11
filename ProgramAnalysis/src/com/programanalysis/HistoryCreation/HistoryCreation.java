@@ -42,7 +42,7 @@ public class HistoryCreation {
         this.workList = new PriorityQueue<QueueEntry>();
         this.blockCounter = new HashMap<BasicBlock, Integer>();
         this.state = new State();
-        this.oldState = this.state;
+        this.oldState = new State();
         this.visitor = new Transfer(pointerAnalysis, this);
     }
 
