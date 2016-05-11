@@ -45,6 +45,14 @@ public class HistoryCreation {
         this.visitor = new Transfer(pointerAnalysis, this);
     }
 
+    public State getState(){
+        return state;
+    }
+
+    public State getOldState(){
+        return oldState;
+    }
+
     public void addToWorklist(QueueEntry entry){
         if(! blockCounter.keySet().contains(entry.getBlock())){
             blockCounter.put(entry.getBlock(), 1);
@@ -56,7 +64,7 @@ public class HistoryCreation {
                 return;
             } else {
                 if(!workList.contains(entry)){
-                    blockCounter.put(entry.getBlock(), i++);
+                    blockCounter.put(entry.getBlock(), ++i);
                     workList.add(entry);
                 } else {
                     // we don't add it because it's already in the worklist, but we also don't increase the counter
@@ -83,7 +91,6 @@ public class HistoryCreation {
                 visitor.transfer(node, null);
             }
 
-            //TODO: merge current state to successors in state
             // add the block successors to the worklist
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
                 BasicBlock b = i.next();
@@ -101,6 +108,18 @@ public class HistoryCreation {
                 // add the successor to the worklist
                 addToWorklist(new QueueEntry(b));
             }
+            if(block.getSuccessors().isEmpty()){
+                // add the current state to the out state
+                Map<AbstractObject, History> outState = state.getFunctionOutState(block.getFunction());
+                for(AbstractObject absObj: state.getCurrentState().keySet()){
+                    if(! outState.keySet().contains(absObj)){
+                        outState.put(absObj, state.getCurrentState().get(absObj).copy());
+                    } else {
+                        // merge the current state in the out state
+                        outState.get(absObj).merge(state.getCurrentState().get(absObj));
+                    }
+                }
+            }
             if(workList.isEmpty())
                 if(! state.equals(oldState)){
                     // we start the whole iteration again
@@ -117,5 +136,18 @@ public class HistoryCreation {
                     // we have a fix point
                 }
         }
+    }
+
+    /** prints all histories contained in this analysis to a string, each history on a new line*/
+    public String printHistories(){
+        String res = "";
+        for(Function f: flowGraph.getFunctions()){
+            Map<AbstractObject, History> map = state.getFunctionOutState(f);
+            for(AbstractObject obj: map.keySet()){
+                History h = map.get(obj);
+                res = res + h.print();
+            }
+        }
+        return res;
     }
 }

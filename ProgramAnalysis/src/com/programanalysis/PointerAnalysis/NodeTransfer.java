@@ -48,8 +48,9 @@ public class NodeTransfer implements NodeVisitor {
     public void visit(CallNode callNode, Object o) {
         BlockRegisters registers = analysis.getRegisters(callNode.getBlock());
         Function callee = null;
-        /*
+
         //TODO: any way to make this less ugly and faster?
+        Map<BlockAndContext, Set<Pair>> callSources = analysis.getCallgraph().getCallSources();
         for(Set<Pair> entry: callSources.values()){
             for(Pair pair: entry){
                 if(((NodeAndContext)(pair.getFirst())).getNode().equals(callNode)){
@@ -61,8 +62,10 @@ public class NodeTransfer implements NodeVisitor {
                     }
                 }
             }
-        }*/
-        callee = analysis.getCallGraphParser().getFunction(callNode.getSourceLocation().getLineNumber(), callNode.getSourceLocation().getColumnNumber());
+        }
+        if(callee == null) {
+            callee = analysis.getCallGraphParser().getFunction(callNode.getSourceLocation().getLineNumber(), callNode.getSourceLocation().getColumnNumber());
+        }
         if(callee == null){
             if(callNode.getLiteralConstructorKind() == CallNode.LiteralConstructorKinds.ARRAY){
                 // we want to construct an array in this function call, but this is not a user defined function
@@ -106,7 +109,9 @@ public class NodeTransfer implements NodeVisitor {
                     for(int i = 1; i < callNode.getNumberOfArgs(); i++){
                         // add all arguments to the in set of the function
                         a = registers.readRegister(callNode.getArgRegister(i));
-                        analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i-1));
+                        if(i-1 < callee.getParameterNames().size()){
+                            analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i-1));
+                        }
                     }
                 } else {
                    for(int i = 0; i < callNode.getNumberOfArgs(); i++){

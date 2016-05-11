@@ -13,7 +13,7 @@ public class InState {
         argumentObjects = new HashMap<String,Set<AbstractObject>>();
     }
 
-    Set<AbstractObject> thisObjects;
+    public Set<AbstractObject> thisObjects;
 
-    Map<String,Set<AbstractObject>> argumentObjects;
+    public Map<String,Set<AbstractObject>> argumentObjects;
 }

@@ -12,6 +12,8 @@ import java.util.Set;
  */
 public class History {
 
+    private int maxLength = 25;
+
     public History(AbstractObject obj){
         this.historySet = new HashSet<List<String>>();
         this.abstractObject = obj;
@@ -26,9 +28,38 @@ public class History {
 
     /** adds apiCall to every history of this object*/
     public void add(String apiCall){
-        for(List<String> l: historySet){
-            l.add(apiCall);
+        if(apiCall == null){
+            return;
         }
+        if(historySet.isEmpty()){
+            historySet.add(new ArrayList<String>());
+        }
+        for(List<String> l: historySet){
+            if(l.size()< maxLength){
+                l.add(apiCall);
+            }
+        }
+    }
+
+    /** adds every history in otherHistory to every history in historySet*/
+    public void add(History otherHistory){
+        Set<List<String>> newHistorySet = new HashSet<List<String>>();
+        for(List<String> histList: otherHistory.historySet){
+            if(historySet.isEmpty()){
+                historySet.add(new ArrayList<String>());
+            }
+            for(List<String> thisList: historySet) {
+                List<String> l = new ArrayList<String>();
+                l.addAll(thisList);
+                for(String s: histList){
+                    if(l.size() < maxLength){
+                        l.add(s);
+                    }
+                }
+                newHistorySet.add(l);
+            }
+        }
+        historySet = newHistorySet;
     }
 
     public AbstractObject getAbstractObject(){
@@ -54,6 +85,26 @@ public class History {
         // copy all the history lists to res
         for(List<String> l: historySet){
             res.historySet.add(new ArrayList<String>(l));
+        }
+        return res;
+    }
+
+    public String print(){
+        String res = "";
+        for (List<String> l: historySet){
+            String partRes = "";
+            for(int i = 0; i < l.size(); i++){
+                if(l.get(i) != null) {
+                    partRes = partRes + l.get(i);
+                    if (i != l.size() - 1) {
+                        partRes = partRes + " ";
+                    }
+                }
+            }
+            if(!partRes.equals("")) {
+                partRes = partRes + "\n";
+            }
+            res = res + partRes;
         }
         return res;
     }

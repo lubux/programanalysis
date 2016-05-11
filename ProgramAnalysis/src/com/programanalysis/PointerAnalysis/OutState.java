@@ -13,7 +13,7 @@ public class OutState {
         returnObjects = new HashSet<AbstractObject>();
     }
 
-    Set<AbstractObject> returnObjects;
+    public Set<AbstractObject> returnObjects;
 
 
 }

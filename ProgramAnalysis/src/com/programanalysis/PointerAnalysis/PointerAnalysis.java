@@ -28,6 +28,8 @@ public class PointerAnalysis {
 
     public static FlowGraph flowgraph;
 
+    public CallGraph callGraph;
+
     private Map<Function, BlockRegisters> blockRegisters;
 
     private PriorityQueue<QueueEntry> worklist;
@@ -39,6 +41,7 @@ public class PointerAnalysis {
     public void init(){
         state = new GlobalState();
         flowgraph = analysis.getSolver().getFlowGraph();
+        callGraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
         blockRegisters = new HashMap<Function, BlockRegisters>();
         blockCheckList = new HashSet<BasicBlock>();
         worklist = new PriorityQueue<QueueEntry>();
@@ -60,6 +63,8 @@ public class PointerAnalysis {
     public FlowGraph getFlowgraph(){
         return flowgraph;
     }
+
+    public CallGraph getCallgraph() { return callGraph;}
 
     public BlockRegisters getRegisters(BasicBlock block){
         if(! blockRegisters.containsKey(block.getFunction())){
