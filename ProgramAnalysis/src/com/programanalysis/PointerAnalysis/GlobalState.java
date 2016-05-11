@@ -5,6 +5,7 @@ import com.programanalysis.util.VariableName;
 import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.Function;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,8 +24,17 @@ public class GlobalState {
 
     private Map<Function, OutState> outStates;
 
+    private Map<Function, Map<String, Set<AbstractObject>>> store;
+
+    /** store from abstract object and field to abstract object*/
+    private Map<Tuple, Set<AbstractObject>> propertystore;
+
     public GlobalState(){
-        store = new HashMap<String, Set<AbstractObject>>();
+        store = new HashMap<Function, Map<String, Set<AbstractObject>>>();
+        for(Function f: PointerAnalysis.flowgraph.getFunctions()){
+            Map<String, Set<AbstractObject>> map = new HashMap<String, Set<AbstractObject>>();
+            store.put(f, map);
+        }
         propertystore = new HashMap<Tuple, Set<AbstractObject>>();
         inStates = new HashMap<Function, InState>();
         outStates = new HashMap<Function, OutState>();
@@ -99,25 +109,19 @@ public class GlobalState {
     }
 
 
-
-    /** store from variable name to abstract object*/
-    private Map<String, Set<AbstractObject>> store;
-
-    /** store from abstract object and field to abstract object*/
-    private Map<Tuple, Set<AbstractObject>> propertystore;
-
     /** creates a new set for the given variable in the store (used for variabledeclaraton nodes)*/
     public void variableDeclaration(String variable, Function scope){
+        Map<String, Set<AbstractObject>> functionStore = store.get(scope);
         // set will already exists when we traverse the flow graph the second time
-        if(! store.containsKey(VariableName.getVariableName(scope, variable))) {
+        if(! functionStore.containsKey(variable)) {
             Set<AbstractObject> s = new HashSet<AbstractObject>();
-            store.put(VariableName.getVariableName(scope, variable), s);
+            functionStore.put(variable, s);
             changed = true;
         }
     }
 
     /** adds obj to the store set of variable in the given scope*/
-    public void writeStore(String variable, Function scope, AbstractObject obj){
+    /*public void writeStore(String variable, Function scope, AbstractObject obj){
         if(obj == null){
             return;
         }
@@ -128,7 +132,7 @@ public class GlobalState {
         //TODO: write global object property if var is not found
         // put the abstract object in the variable store
         changed |= store.get(VariableName.getVariableName(scope, variable)).add(obj);
-    }
+    }*/
 
     /** adds obj to the store set of variable in the given scope*/
     public void writeStore(String variable, Function scope, Set<AbstractObject> objs){
@@ -136,28 +140,31 @@ public class GlobalState {
             return;
         }
         // switch to the outer scope until the variable is defined
-        while(! store.containsKey(VariableName.getVariableName(scope, variable)) && scope != null){
-            scope = scope.getOuterFunction();
-        }
-        if(scope==null && ! store.containsKey(VariableName.getVariableName(scope, variable))){
-            Set<AbstractObject> set = new HashSet<AbstractObject>();
-            set.addAll(objs);
-            store.put(VariableName.getVariableName(scope, variable), set);
-            changed = true;
+        while(! store.get(scope).containsKey(variable)){
+            if(scope.getOuterFunction() != null) {
+                scope = scope.getOuterFunction();
+            } else {
+                if(! store.get(scope).containsKey(variable)){
+                    Set<AbstractObject> set = new HashSet<AbstractObject>();
+                    store.get(scope).put(variable, set);
+                    changed = true;
+                }
+                break;
+            }
         }
         // put the abstract object in the variable store
-        changed |= store.get(VariableName.getVariableName(scope, variable)).addAll(objs);
+        changed |= store.get(scope).get(variable).addAll(objs);
     }
 
     public Set<AbstractObject> readStore(String variable, Function scope){
         // switch to the outer scope until the variable is defined
-        while(! store.containsKey(VariableName.getVariableName(scope, variable))){
+        while(! store.get(scope).containsKey(variable)){
             scope = scope.getOuterFunction();
             if(scope == null){
                 return new HashSet<AbstractObject>();
             }
         }
-        return store.get(VariableName.getVariableName(scope, variable));
+        return store.get(scope).get(variable);
     }
 
     /** adds prop to the propertystore of obj and property */
@@ -214,7 +221,7 @@ public class GlobalState {
 
     /** adds prop to the propertystore of all objects in objs and property */
     public void writePropertyStore(Set<AbstractObject> objs, String property, Set<AbstractObject> prop){
-        if(prop == null || !prop.isEmpty() || objs == null) {
+        if(prop == null || prop.isEmpty() || objs == null) {
             return;
         }
         for(AbstractObject obj: objs) {

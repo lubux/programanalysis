@@ -30,7 +30,7 @@ public class PointerAnalysis {
 
     public CallGraph callGraph;
 
-    private Map<Function, BlockRegisters> blockRegisters;
+    private Map<BasicBlock, BlockRegisters> blockRegisters;
 
     private PriorityQueue<QueueEntry> worklist;
 
@@ -39,10 +39,10 @@ public class PointerAnalysis {
     private CallGraphParser callGraphParser;
 
     public void init(){
-        state = new GlobalState();
         flowgraph = analysis.getSolver().getFlowGraph();
+        state = new GlobalState();
         callGraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
-        blockRegisters = new HashMap<Function, BlockRegisters>();
+        blockRegisters = new HashMap<BasicBlock, BlockRegisters>();
         blockCheckList = new HashSet<BasicBlock>();
         worklist = new PriorityQueue<QueueEntry>();
         worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
@@ -67,11 +67,11 @@ public class PointerAnalysis {
     public CallGraph getCallgraph() { return callGraph;}
 
     public BlockRegisters getRegisters(BasicBlock block){
-        if(! blockRegisters.containsKey(block.getFunction())){
+        if(! blockRegisters.containsKey(block)){
             BlockRegisters b = new BlockRegisters();
-            blockRegisters.put(block.getFunction(),b);
+            blockRegisters.put(block,b);
         }
-        return blockRegisters.get(block.getFunction());
+        return blockRegisters.get(block);
     }
 
     /** adds the entry point of the given function to the worklist*/
@@ -93,10 +93,16 @@ public class PointerAnalysis {
             // go through the nodes of the basic block
             for(AbstractNode node: block.getNodes()){
                 visitor.transfer(node, null);
+                if(node.isRegistersDone()){
+                    // delete the registers
+                    getRegisters(block).deleteOrdinaryRegisters();
+                }
             }
             // add the block successors to the worklist
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
                 BasicBlock b = i.next();
+                // propagate the registers
+                getRegisters(b).addOrdRegs(getRegisters(block));
                 if(! worklist.contains(new QueueEntry(b)) &&(!blockCheckList.contains(b))){
                     worklist.add(new QueueEntry(b));
                     blockCheckList.add(b);
@@ -105,10 +111,10 @@ public class PointerAnalysis {
             if(worklist.isEmpty())
                 if(getState().getAndResetChanged()){
                     worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                    blockCheckList = new HashSet<>();
                     for(Function f: flowgraph.getFunctions()){
                         addToWorklist(f);
                     }
-                    blockCheckList = new HashSet<>();
                 }
         }
     }

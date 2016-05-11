@@ -173,7 +173,12 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(DeclareFunctionNode declareFunctionNode, Object o) {
-
+        // return a new abstract object for the function
+        BlockRegisters reg = analysis.getRegisters(declareFunctionNode.getBlock());
+        AbstractObject obj = new AbstractObject(declareFunctionNode);
+        Set<AbstractObject> set = new HashSet<AbstractObject>();
+        set.add(obj);
+        reg.writeRegister(declareFunctionNode.getResultRegister(), set );
     }
 
     @Override

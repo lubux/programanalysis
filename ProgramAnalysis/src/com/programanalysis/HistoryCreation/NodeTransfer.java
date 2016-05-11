@@ -39,7 +39,7 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(CallNode callNode, Object o) {
-        BlockRegisters reg = historyCreation.getState().getRegisters();
+        BlockRegisters reg = historyCreation.getState().getRegisters(callNode.getBlock());
         Object obj = reg.readRegister(callNode.getBaseRegister());
         Function f = null;
         //TODO: any way to make this less ugly and faster?
@@ -182,7 +182,7 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ReadPropertyNode readPropertyNode, Object o) {
-        BlockRegisters reg = historyCreation.getState().getRegisters();
+        BlockRegisters reg = historyCreation.getState().getRegisters(readPropertyNode.getBlock());
         Object base = reg.readRegister(readPropertyNode.getBaseRegister());
         if(readPropertyNode.isPropertyFixed()){
             reg.writeRegister(readPropertyNode.getResultRegister(), pointerAnalysis.getState().readPropertyStore((Set<AbstractObject>)base, readPropertyNode.getPropertyString()));
@@ -206,7 +206,7 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ReadVariableNode readVariableNode, Object o) {
-        BlockRegisters reg = historyCreation.getState().getRegisters();
+        BlockRegisters reg = historyCreation.getState().getRegisters(readVariableNode.getBlock());
         String variable = readVariableNode.getVariableName();
         if(variable.equals("this")){
             Object obj = pointerAnalysis.getState().getInstate(readVariableNode.getBlock().getFunction()).thisObjects;

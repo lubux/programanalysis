@@ -18,12 +18,12 @@ public class State {
 
     private Map<AbstractObject, History> currentState;
 
-    private BlockRegisters registers;
+    private Map<BasicBlock,BlockRegisters> registers;
 
     public State(){
         this.blockInStates = new HashMap<BasicBlock, Map<AbstractObject, History>>();
         this.outStates = new HashMap<Function, Map<AbstractObject, History>>();
-        this.registers = new BlockRegisters();
+        this.registers = new HashMap<BasicBlock, BlockRegisters>();
     }
 
     public void setCurrentState(BasicBlock block){
@@ -39,8 +39,13 @@ public class State {
         }
     }
 
-    public BlockRegisters getRegisters(){
-        return registers;
+    public BlockRegisters getRegisters(BasicBlock block){
+
+        if(! registers.containsKey(block)){
+            BlockRegisters reg = new BlockRegisters();
+            registers.put(block, reg);
+        }
+        return registers.get(block);
     }
 
     public Map<AbstractObject, History> getBlockInState(BasicBlock block){

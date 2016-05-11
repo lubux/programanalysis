@@ -27,4 +27,16 @@ public class BlockRegisters {
         else
             return null;
     }
+
+    public void deleteOrdinaryRegisters(){
+        for(int i = 2; i < registers.size(); i++){
+            registers.set(i, null);
+        }
+    }
+
+    public void addOrdRegs(BlockRegisters other){
+        for(int i = 2; i < other.registers.size(); i++){
+            this.writeRegister(i, other.readRegister(i));
+        }
+    }
 }

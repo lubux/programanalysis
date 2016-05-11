@@ -1,6 +1,7 @@
 package com.programanalysis.HistoryCreation;
 
 import com.programanalysis.PointerAnalysis.AbstractObject;
+import com.programanalysis.PointerAnalysis.BlockRegisters;
 import com.programanalysis.PointerAnalysis.PointerAnalysis;
 import com.programanalysis.util.CallGraphParser;
 import com.programanalysis.util.QueueEntry;
@@ -89,11 +90,17 @@ public class HistoryCreation {
             // go through the nodes of the basic block
             for(AbstractNode node: block.getNodes()){
                 visitor.transfer(node, null);
+                if(node.isRegistersDone()){
+                    // delete the registers
+                    getState().getRegisters(block).deleteOrdinaryRegisters();
+                }
             }
 
             // add the block successors to the worklist
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
                 BasicBlock b = i.next();
+                // propagate the registers
+                getState().getRegisters(b).addOrdRegs(getState().getRegisters(block));
                 // propagate the histories to the successor block
                 Map<AbstractObject, History> inState = state.getBlockInState(b);
                 for(AbstractObject obj: state.getCurrentState().keySet()){
