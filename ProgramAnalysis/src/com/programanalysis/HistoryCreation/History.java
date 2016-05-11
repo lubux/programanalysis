@@ -2,15 +2,15 @@ package com.programanalysis.HistoryCreation;
 
 import com.programanalysis.PointerAnalysis.AbstractObject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by cedri on 5/9/2016.
  */
 public class History {
+
+    private int maxCount = 30;
 
     private int maxLength = 25;
 
@@ -91,20 +91,47 @@ public class History {
 
     public String print(){
         String res = "";
-        for (List<String> l: historySet){
-            String partRes = "";
-            for(int i = 0; i < l.size(); i++){
-                if(l.get(i) != null) {
-                    partRes = partRes + l.get(i);
-                    if (i != l.size() - 1) {
-                        partRes = partRes + " ";
+        if(historySet.size() <= maxCount) {
+            for (List<String> l : historySet) {
+                String partRes = "";
+                for (int i = 0; i < l.size(); i++) {
+                    if (l.get(i) != null) {
+                        partRes = partRes + l.get(i);
+                        if (i != l.size() - 1) {
+                            partRes = partRes + " ";
+                        }
                     }
                 }
+                if (!partRes.equals("")) {
+                    partRes = partRes + "\n";
+                }
+                res = res + partRes;
             }
-            if(!partRes.equals("")) {
-                partRes = partRes + "\n";
+        } else {
+            // we only print random maxCount histories
+            Set<Integer> s = new HashSet<Integer>();
+            while(s.size() < maxCount){
+                s.add(ThreadLocalRandom.current().nextInt(0, historySet.size()));
             }
-            res = res + partRes;
+            int index = 0;
+            for(Iterator<List<String>> i = historySet.iterator(); i.hasNext();index++){
+                List<String> l = i.next();
+                if(s.contains(new Integer(index))){
+                    String partRes = "";
+                    for (int j = 0; j < l.size(); j++) {
+                        if (l.get(j) != null) {
+                            partRes = partRes + l.get(j);
+                            if (j != l.size() - 1) {
+                                partRes = partRes + " ";
+                            }
+                        }
+                    }
+                    if (!partRes.equals("")) {
+                        partRes = partRes + "\n";
+                    }
+                    res = res + partRes;
+                }
+            }
         }
         return res;
     }
