@@ -10,8 +10,10 @@ import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.BasicBlock;
 import dk.brics.tajs.flowgraph.FlowGraph;
 import dk.brics.tajs.flowgraph.Function;
+import dk.brics.tajs.util.*;
 
 import java.util.*;
+import java.util.Collections;
 
 /**
  * Created by cedri on 5/8/2016.
@@ -145,8 +147,8 @@ public class HistoryCreation {
         }
     }
 
-    /** prints all histories contained in this analysis to a string, each history on a new line*/
-    public String printHistories(){
+    /** prints all histories contained in this analysis to a string, each history on a new line, be aware that there is randomness in the history selection*/
+    public String printAllHistories(){
         String res = "";
         for(Function f: flowGraph.getFunctions()){
             Map<AbstractObject, History> map = state.getFunctionOutState(f);
@@ -155,6 +157,77 @@ public class HistoryCreation {
                 res = res + h.print();
             }
         }
+        return res;
+    }
+
+    public String printSelectedHistories(){
+        String res = "";
+        boolean first = true;
+        Map<Function, Set<Function>> callGraph = pointerAnalysis.getCallGraphParser().getHistoryCallGraph();
+        Queue<Function> removeQueue = new LinkedList<Function>();
+        Set<Function> printSet = new HashSet<Function>();
+        Map<Function, Integer> calledFunctionsCounter = new HashMap<Function, Integer>();
+        for(Function f: flowGraph.getFunctions()){
+            calledFunctionsCounter.put(f, 0);
+        }
+        removeQueue.add(flowGraph.getMain());
+        printSet.add(flowGraph.getMain());
+        while(! removeQueue.isEmpty()){
+            Function f = removeQueue.remove();
+            calledFunctionsCounter.remove(f);
+            if(callGraph.keySet().contains(f)){
+                Set<Function> set = callGraph.get(f);
+                for(Function g: set){
+                    if(!removeQueue.contains(g)) {
+                        removeQueue.add(g);
+                    }
+                }
+                callGraph.remove(f);
+            }
+            if(removeQueue.isEmpty() && calledFunctionsCounter.keySet().size() > 0){
+                if(first){
+                    // traverse the rest of the call graph and count how many times each remaining function is called
+                    for(Function key: callGraph.keySet()){
+                        for(Function value: callGraph.get(key)){
+                            if(calledFunctionsCounter.keySet().contains(value)){
+                                // the called function is still of our interest
+                                calledFunctionsCounter.put(value, calledFunctionsCounter.get(value) + 1);
+                            }
+                        }
+                    }
+                    first = false;
+                }
+                // as we have counted how many times each function is called, we pick the one that is called the least times (ideally 0)
+                int min = Collections.min(calledFunctionsCounter.values());
+                //pick the first function that is called 'min' times
+                for(Function g: calledFunctionsCounter.keySet()){
+                    if(calledFunctionsCounter.get(g).intValue() == min){
+                        printSet.add(g);
+                        removeQueue.add(g);
+                        break;
+                    }
+                }
+            }
+        }
+        // merge all histories in a new Map in order to avoid duplicate histories from same abstract objects(due to context insensitive pointer analysis)
+        Map<AbstractObject, History> finalHistoryMap = new HashMap<AbstractObject, History>();
+        for(Function f: printSet){
+            Map<AbstractObject, History> historyMap = state.getFunctionOutState(f);
+            for(AbstractObject obj: historyMap.keySet()){
+                if(!finalHistoryMap.keySet().contains(obj)){
+                    finalHistoryMap.put(obj, historyMap.get(obj));
+                } else {
+                    // merge the other history into the final history
+                    finalHistoryMap.get(obj).merge(historyMap.get(obj));
+                }
+            }
+        }
+
+        for(AbstractObject obj: finalHistoryMap.keySet()){
+            History h = finalHistoryMap.get(obj);
+            res = res + h.print();
+        }
+
         return res;
     }
 }

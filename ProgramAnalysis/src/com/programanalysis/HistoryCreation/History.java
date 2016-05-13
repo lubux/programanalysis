@@ -1,6 +1,7 @@
 package com.programanalysis.HistoryCreation;
 
 import com.programanalysis.PointerAnalysis.AbstractObject;
+import dk.brics.tajs.flowgraph.AbstractNode;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,29 +13,29 @@ public class History {
 
     private int maxCount = 30;
 
-    private int maxLength = 25;
+    private int maxLength = 10;
 
     public History(AbstractObject obj){
-        this.historySet = new HashSet<List<String>>();
+        this.historySet = new HashSet<List<APICallTuple>>();
         this.abstractObject = obj;
     }
 
     /** adds all the histories of other to the set of this abtract object histories*/
     public void merge(History other){
-        for(List<String> l: other.historySet){
-            this.historySet.add(new ArrayList<String>(l));
+        for(List<APICallTuple> l: other.historySet){
+            this.historySet.add(new ArrayList<APICallTuple>(l));
         }
     }
 
     /** adds apiCall to every history of this object*/
-    public void add(String apiCall){
+    public void add(APICallTuple apiCall){
         if(apiCall == null){
             return;
         }
         if(historySet.isEmpty()){
-            historySet.add(new ArrayList<String>());
+            historySet.add(new ArrayList<APICallTuple>());
         }
-        for(List<String> l: historySet){
+        for(List<APICallTuple> l: historySet){
             if(l.size()< maxLength){
                 l.add(apiCall);
             }
@@ -43,15 +44,15 @@ public class History {
 
     /** adds every history in otherHistory to every history in historySet*/
     public void add(History otherHistory){
-        Set<List<String>> newHistorySet = new HashSet<List<String>>();
-        for(List<String> histList: otherHistory.historySet){
+        Set<List<APICallTuple>> newHistorySet = new HashSet<List<APICallTuple>>();
+        for(List<APICallTuple> histList: otherHistory.historySet){
             if(historySet.isEmpty()){
-                historySet.add(new ArrayList<String>());
+                historySet.add(new ArrayList<APICallTuple>());
             }
-            for(List<String> thisList: historySet) {
-                List<String> l = new ArrayList<String>();
+            for(List<APICallTuple> thisList: historySet) {
+                List<APICallTuple> l = new ArrayList<APICallTuple>();
                 l.addAll(thisList);
-                for(String s: histList){
+                for(APICallTuple s: histList){
                     if(l.size() < maxLength){
                         l.add(s);
                     }
@@ -68,7 +69,7 @@ public class History {
 
     private AbstractObject abstractObject;
 
-    private Set<List<String>> historySet;
+    private Set<List<APICallTuple>> historySet;
 
     public boolean equals(Object obj){
         if(obj instanceof History){
@@ -83,8 +84,8 @@ public class History {
     public History copy(){
         History res = new History(abstractObject);
         // copy all the history lists to res
-        for(List<String> l: historySet){
-            res.historySet.add(new ArrayList<String>(l));
+        for(List<APICallTuple> l: historySet){
+            res.historySet.add(new ArrayList<APICallTuple>(l));
         }
         return res;
     }
@@ -92,11 +93,11 @@ public class History {
     public String print(){
         String res = "";
         if(historySet.size() <= maxCount) {
-            for (List<String> l : historySet) {
+            for (List<APICallTuple> l : historySet) {
                 String partRes = "";
                 for (int i = 0; i < l.size(); i++) {
                     if (l.get(i) != null) {
-                        partRes = partRes + l.get(i);
+                        partRes = partRes + "<" + l.get(i).getString() + ">";
                         if (i != l.size() - 1) {
                             partRes = partRes + " ";
                         }
@@ -114,13 +115,13 @@ public class History {
                 s.add(ThreadLocalRandom.current().nextInt(0, historySet.size()));
             }
             int index = 0;
-            for(Iterator<List<String>> i = historySet.iterator(); i.hasNext();index++){
-                List<String> l = i.next();
+            for(Iterator<List<APICallTuple>> i = historySet.iterator(); i.hasNext();index++){
+                List<APICallTuple> l = i.next();
                 if(s.contains(new Integer(index))){
                     String partRes = "";
                     for (int j = 0; j < l.size(); j++) {
                         if (l.get(j) != null) {
-                            partRes = partRes + l.get(j);
+                            partRes = partRes + "<" + l.get(j).getString() + ">";
                             if (j != l.size() - 1) {
                                 partRes = partRes + " ";
                             }

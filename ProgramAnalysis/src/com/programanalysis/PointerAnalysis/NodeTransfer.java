@@ -85,6 +85,9 @@ public class NodeTransfer implements NodeVisitor {
                 registers.writeRegister(callNode.getResultRegister(), set);
             }
         } else {
+            // add this function to the call graph for the history printing
+            analysis.getCallGraphParser().addFuncToHistCallGraph(callNode.getBlock().getFunction(), callee);
+
             if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("call")){
                 Object thisobj = registers.readRegister(callNode.getArgRegister(0));
                 analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
@@ -94,12 +97,17 @@ public class NodeTransfer implements NodeVisitor {
                     analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
                 }
             } else if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("apply")){
-                Object thisobj = registers.readRegister(callNode.getArgRegister(0));
-                analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
-                Object argarray = registers.readRegister(callNode.getArgRegister(1));
-                for(int i = 0; i < callee.getParameterNames().size(); i++){
-                    Object arg = analysis.getState().readPropertyStore((Set<AbstractObject>)argarray, callee.getParameterNames().get(i));
-                    analysis.getState().addArgToInState((Set<AbstractObject>) arg, callee, callee.getParameterNames().get(i));
+                // "apply" calls are not tracked by neither of the 2 call graphs -> this and probably the "call" call is useless
+                if(callNode.getNumberOfArgs() >= 1) {
+                    Object thisobj = registers.readRegister(callNode.getArgRegister(0));
+                    analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
+                }
+                if(callNode.getNumberOfArgs() >= 2) {
+                    Object argarray = registers.readRegister(callNode.getArgRegister(1));
+                    for (int i = 0; i < callee.getParameterNames().size(); i++) {
+                        Object arg = analysis.getState().readPropertyStore((Set<AbstractObject>) argarray, callee.getParameterNames().get(i));
+                        analysis.getState().addArgToInState((Set<AbstractObject>) arg, callee, callee.getParameterNames().get(i));
+                    }
                 }
             } else {
                 if(callNode.getNumberOfArgs() > callee.getParameterNames().size()){

@@ -76,7 +76,11 @@ public class NodeTransfer implements NodeVisitor {
                         History h = new History(absObj);
                         state.put(absObj, h);
                     }
-                    state.get(absObj).add(callNode.getPropertyString());
+                    if(callNode.getPropertyString() != null) {
+                        state.get(absObj).add(new APICallTuple(callNode, callNode.getPropertyString()));
+                    } else {
+                        //TODO: can we get here?
+                    }
                 }
             }
             // add a return value to the return register
@@ -92,12 +96,13 @@ public class NodeTransfer implements NodeVisitor {
                         state.put(absObj, h);
                     }
                     if(callNode.getPropertyString() != null){
-                        state.get(absObj).add(callNode.getPropertyString());
+                        state.get(absObj).add(new APICallTuple(callNode, callNode.getPropertyString()));
                     } else {
                         if(f.getName()==null){
                             //we call a function variable, therefore it's not an API call and not of our interest
+                        } else {
+                            state.get(absObj).add(new APICallTuple(callNode, f.getName()));
                         }
-                        state.get(absObj).add(f.getName());
                     }
                 }
             }

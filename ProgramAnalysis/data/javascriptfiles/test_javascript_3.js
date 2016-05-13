@@ -10,5 +10,10 @@ function human(gender, name){
     }
 }
 var p = new human("male", "Thomas");
-p.walk();
+if(true) {
+    p.walk();
+} else {
+    p.move();
+}
+walk.apply(new human("mal", "max"), []);
 

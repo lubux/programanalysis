@@ -6,7 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -24,6 +26,9 @@ public class CallGraphParser {
 
     private Map<Integer, Map<Integer, Function>> functionMap;
 
+    /** used for the printing of the histories*/
+    private Map<Function, Set<Function>> historyCallGraph;
+
     /**
      * constructor
      *
@@ -34,6 +39,7 @@ public class CallGraphParser {
         this.input = input;
         this.analysis = analysis;
         this.functionMap = new HashMap<Integer, Map<Integer, Function>>();
+        this.historyCallGraph = new HashMap<Function, Set<Function>>();
         // read in the source code
         File file = new File(filePath);
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -48,6 +54,25 @@ public class CallGraphParser {
         reader.close();
         // build the functionMap
         parse();
+    }
+
+    /** adds callee to the set of called functions of caller for the history call graph*/
+    public void addFuncToHistCallGraph(Function caller, Function callee){
+        if(! historyCallGraph.keySet().contains(caller)){
+            Set<Function> set = new HashSet<Function>();
+            historyCallGraph.put(caller,set);
+        }
+        historyCallGraph.get(caller).add(callee);
+
+    }
+
+    /** returns a copy of the historyCallGraph*/
+    public Map<Function, Set<Function>> getHistoryCallGraph(){
+        Map<Function, Set<Function>> res = new HashMap<Function, Set<Function>>();
+        for(Function f: historyCallGraph.keySet()){
+            res.put(f, historyCallGraph.get(f));
+        }
+        return res;
     }
 
     /** returns the called function by a callnode with the given source location, might return null*/
@@ -85,12 +110,18 @@ public class CallGraphParser {
             } else {
                 srccol = srcchar - tmp.lastIndexOf("\n");
             }
+            if(srcchar == 0){
+                srccol = 1;
+            }
             tmp = sourceCode.substring(0, destchar);
             int destcol;
             if (tmp.lastIndexOf("\n") < 0) {
                 destcol = destchar;
             } else {
                 destcol = destchar - tmp.lastIndexOf("\n");
+            }
+            if(destchar == 0){
+                destcol = 1;
             }
             for (Function f : analysis.getSolver().getFlowGraph().getFunctions()) {
                 if (f.getSourceLocation().getLineNumber() == destline && f.getSourceLocation().getColumnNumber() == destcol) {
