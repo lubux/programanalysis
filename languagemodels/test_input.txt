@@ -1,0 +1,5 @@
+0 34
+<s> <getElementsByTagName> [?] </s>
+<s> <removeChild> [?] </s>
+<s> <getElementsByTagName> <getElementsByTagName> <getElementsByTagName> [?] </s>
+<s> <getElementsByTagName> <querySelectorAll> [?] <s>
