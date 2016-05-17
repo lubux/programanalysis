@@ -108,14 +108,19 @@ class APIPredModel(object):
 
 
 class APIPredictionConfig(object):
-    """Config for API Prediction"""
+    """
+    Config for API Prediction
+    good params?: http://dl.acm.org/citation.cfm?id=2876379&dl=ACM&coll=DL
+    """
+
     def __init__(self):
         self.init_scale = 0.05
         self.learning_rate = 1.0
         self.max_grad_norm = 5
         self.num_layers = 2
         self.num_steps = 35
-        self.hidden_size = 650
+        #self.hidden_size = 650
+        self.hidden_size = 400
         self.max_epoch = 6
         self.max_max_epoch = 39
         self.keep_prob = 0.5
@@ -123,7 +128,7 @@ class APIPredictionConfig(object):
         self.batch_size = 20
         self.vocab_size = 10000
         self.l2_reg_lambda = 1e-4
-        self.use_adam_optimizer = True
+        self.use_adam_optimizer = False
 
 
 def _run_epoch(session, m, data, eval_op, verbose=False):

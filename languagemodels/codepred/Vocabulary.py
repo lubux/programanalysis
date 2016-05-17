@@ -58,25 +58,27 @@ def load_vocab_data(path="./models/vocab.p"):
         return pickle.load(fi)
 
 
-def create_train(file, num_train, vocab, out_train="./data/train.txt", out_eval="./data/val.txt"):
-    with open(file, "r") as r_f, open(out_train, "w") as w_train, open(out_eval, "w") as w_eval:
+def create_train(files, num_train, vocab, out_train="./data/train.txt", out_eval="./data/val.txt"):
+    with open(out_train, "w") as w_train, open(out_eval, "w") as w_eval:
         last_line = " "
         line_count = 0
-        for line in r_f:
-            if line in last_line:
-                continue
-            line_count += 1
-            last_line = line
-            tokens = line.split()
-            new_line = []
-            for token in tokens:
-                if token in vocab:
-                    new_line.append(token)
-                else:
-                    new_line.append(TOKEN_UNKOWN)
+        for file_in in files:
+            with open(file_in, "r") as r_f:
+                for line in r_f:
+                    if line in last_line:
+                        continue
+                    line_count += 1
+                    last_line = line
+                    tokens = line.split()
+                    new_line = []
+                    for token in tokens:
+                        if token in vocab:
+                            new_line.append(token)
+                        else:
+                            new_line.append(TOKEN_UNKOWN)
 
-            line_str = ' '.join(new_line)
-            if line_count > num_train:
-                w_eval.write("%s\n" % line_str)
-            else:
-                w_train.write("%s\n" % line_str)
+                    line_str = ' '.join(new_line)
+                    if line_count > num_train:
+                        w_eval.write("%s\n" % line_str)
+                    else:
+                        w_train.write("%s\n" % line_str)
