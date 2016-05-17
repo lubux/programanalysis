@@ -1,5 +1,13 @@
 0 34
-<s> <getElementsByTagName> [?] </s>
-<s> <removeChild> [?] </s>
-<s> <getElementsByTagName> <getElementsByTagName> <getElementsByTagName> [?] </s>
-<s> <getElementsByTagName> <querySelectorAll> [?] <s>
+<getElementsByTagName> [?]
+<removeChild> [?]
+<getElementsByTagName> <getElementsByTagName> <getElementsByTagName> [?]
+<getElementsByTagName> <querySelectorAll> [?]
+1 32
+<each> <type> [?]
+<isFunction> <type> <Deferred> <Callbacks> <each> <type> [?]
+<constructor> <isFunction> <type> <makeArray> <type> [?]
+2 32
+<lukas> <cedi> [?]
+3 33
+[?]

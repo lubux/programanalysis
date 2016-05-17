@@ -14,6 +14,8 @@ parser.add_argument("-i", "--input", help="the path of the input file",
 
 args = parser.parse_args()
 
+[max_sent_len, word_to_id, vocab] = pred.load_vocab_data()
+
 if args.model == MODEL_NGRAM_FLAG:
     pred.predict_ngram(args.input)
 elif args.model == MODEL_RNN_FLAG:

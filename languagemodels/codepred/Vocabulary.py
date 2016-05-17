@@ -48,9 +48,14 @@ class Vocabulary:
         vocab.sort()
         return vocab, dict(zip(vocab, range(len(vocab))))
 
-    def gen_data(self, max_vocab_size, out_path="./out.p"):
+    def gen_data(self, max_vocab_size, out_path="./models/vocab.p"):
         vocab, word_to_id = self.get_word_to_id(max_vocab_size)
         pickle.dump([self.max_sent_len, word_to_id, vocab], open(out_path, "wb"))
+
+
+def load_vocab_data(path="./models/vocab.p"):
+    with open(path, "rb") as fi:
+        return pickle.load(fi)
 
 
 def create_train(file, num_train, vocab, out_train="./data/train.txt", out_eval="./data/val.txt"):
