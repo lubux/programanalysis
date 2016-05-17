@@ -70,7 +70,7 @@ class APIPredModel(object):
 
         inputs = [tf.squeeze(input_, [1])
                   for input_ in tf.split(1, num_steps, inputs)]
-        outputs, state = rnn.rnn(cell, inputs, initial_state=self.initial_state)
+        outputs, state = tf.nn.rnn(cell, inputs, initial_state=self.initial_state)
 
         output = tf.reshape(tf.concat(1, outputs), [-1, size])
         softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
@@ -112,7 +112,6 @@ class APIPredictionConfig(object):
     Config for API Prediction
     good params?: http://dl.acm.org/citation.cfm?id=2876379&dl=ACM&coll=DL
     """
-
     def __init__(self):
         self.init_scale = 0.05
         self.learning_rate = 1.0
@@ -120,7 +119,7 @@ class APIPredictionConfig(object):
         self.num_layers = 2
         self.num_steps = 35
         #self.hidden_size = 650
-        self.hidden_size = 400
+        self.hidden_size = 100
         self.max_epoch = 6
         self.max_max_epoch = 39
         self.keep_prob = 0.5
