@@ -1,5 +1,6 @@
 import argparse
 import pred_funcs as pred
+import codepred.Vocabulary as voc
 
 MODEL_NGRAM_FLAG = "ngram"
 MODEL_RNN_FLAG = "rnn"
@@ -14,10 +15,10 @@ parser.add_argument("-i", "--input", help="the path of the input file",
 
 args = parser.parse_args()
 
-[max_sent_len, word_to_id, vocab] = pred.load_vocab_data()
+[max_sent_len, word_to_id, vocab] = voc.load_vocab_data()
 
 if args.model == MODEL_NGRAM_FLAG:
-    pred.predict_ngram(args.input)
+    pred.predict_ngram_before(args.input, vocab)
 elif args.model == MODEL_RNN_FLAG:
-    pred.predict_rnn(args.input)
+    pred.predict_rnn(args.input, vocab)
 
