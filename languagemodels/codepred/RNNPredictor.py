@@ -158,11 +158,6 @@ def train_model(train_path, test_path, model_store_dir, model_name,
     train_data, test_data = _raw_data(train_path, test_path, word_to_id)
     config.vocab_size = len(vocab)
 
-    eval_config = APIPredictionConfig()
-    eval_config.vocab_size = len(vocab)
-    eval_config.batch_size = 1
-    eval_config.num_steps = 1
-
     train_time = 0
 
     print("Start Training")
@@ -172,15 +167,15 @@ def train_model(train_path, test_path, model_store_dir, model_name,
         with tf.variable_scope("model", reuse=None, initializer=initializer):
             m = APIPredModel(is_training=True, config=config)
         with tf.variable_scope("model", reuse=True, initializer=initializer):
-            mtest = APIPredModel(is_training=False, config=eval_config)
+            mvalid = APIPredModel(is_training=False, config=config)
 
         tf.initialize_all_variables().run()
         saver = tf.train.Saver(tf.all_variables())
-        last_test_preplexity = -1
+        last_test_perplexity = -1
         num_increase_in_row = 0
-        max_num_increase = 2
+        max_num_increase = 1
         if restore:
-            ckpt = tf.train.get_checkpoint_state(train_path)
+            ckpt = tf.train.get_checkpoint_state(model_store_dir)
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(session, ckpt.model_checkpoint_path)
             else:
@@ -202,21 +197,44 @@ def train_model(train_path, test_path, model_store_dir, model_name,
             print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
             print("Epoch duration: %d, total duration: %d" % (epoch_time, train_time))
 
-            test_perplexity = _run_epoch(session, mtest, test_data, tf.no_op())
-            print("Test Perplexity: %.3f" % test_perplexity)
+            test_perplexity = _run_epoch(session, mvalid, test_data, tf.no_op())
+            print("Valid Perplexity: %.3f" % test_perplexity)
 
-            if test_perplexity==-1:
-                last_test_preplexity = test_perplexity
+            if last_test_perplexity < 0:
+                last_test_perplexity = test_perplexity
             else:
-                if last_test_preplexity < test_perplexity:
+                if last_test_perplexity < test_perplexity:
                     num_increase_in_row += 1
                 else:
                     num_increase_in_row = 0
-                last_test_preplexity = test_perplexity
+                last_test_perplexity = test_perplexity
             if num_increase_in_row >= max_num_increase:
                 print("%d times test perplexity increased -> stop training" % num_increase_in_row)
                 break
     print("Training Finished after: %f seconds" % train_time)
+
+
+def get_perplexity(train_path, test_path, model_store_dir,
+                   config=APIPredictionConfig(), vocab_path="./models/vocab.p"):
+    [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
+    train_data, test_data = _raw_data(train_path, test_path, word_to_id)
+    config.vocab_size = len(vocab)
+
+    print("Start Perplexity measure")
+    with tf.Graph().as_default(), tf.Session() as session:
+        with tf.variable_scope("model", reuse=False):
+            mvalid = APIPredModel(is_training=False, config=config)
+
+        tf.initialize_all_variables().run()
+        saver = tf.train.Saver(tf.all_variables())
+        ckpt = tf.train.get_checkpoint_state(model_store_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            saver.restore(session, ckpt.model_checkpoint_path)
+        else:
+             raise RuntimeError("Model not found")
+
+        test_perplexity = _run_epoch(session, mvalid, test_data, tf.no_op())
+        print("Valid Perplexity: %.3f" % test_perplexity)
 
 
 class LSTMPredictor:

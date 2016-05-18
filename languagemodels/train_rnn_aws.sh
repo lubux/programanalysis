@@ -35,6 +35,8 @@ cd training
 screen python ./train_rnn.py | tee log.txt
 EOF
 
+read -p "Press to download data..."
+
 echo "download data"
 $SSH_CMD << EOF
 cd training

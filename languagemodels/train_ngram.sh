@@ -20,4 +20,4 @@ done
 ngram-count -text $TRAINPATH -order 2 -lm ./models/ngram_lm2 -gt3min 1 -gt4min 1 -kndiscount -interpolate -unk
 ngram-count -text $TRAINPATH -order 3 -lm ./models/ngram_lm3 -gt3min 1 -gt4min 1 -kndiscount -interpolate -unk
 
-ngram -ppl ../data/val.txt -lm ./models/ngram_lm3 -unk >> ./models/ngram_lm3_perplexity.txt
+ngram -ppl ./data/val.txt -lm ./models/ngram_lm3 -unk >> ./models/ngram_lm3_perplexity.txt

@@ -27,7 +27,7 @@ test_input = "./test_input.txt"
 pred.predict_ngram_before(test_input, vocab)
 print "--------------------------RNN---------------------------------------"
 #print "-----------------------------------------------------------------"
-#pred.predict_rnn(test_input, vocab)
+pred.predict_rnn(test_input, vocab)
 
 print "--------------------------RNN-BI---------------------------------------"
 
