@@ -14,7 +14,7 @@ LN_NGRAM = "ngram_lm3"
 REG_PAT = re.compile(r'(\d+)[ \t](\d+)')
 TOKEN_PATTERN = re.compile(r'\[(.*)\]')
 
-NOT_ALLOWED_TOKEN = [voc.TOKEN_START, voc.TOKEN_END]
+NOT_ALLOWED_TOKEN = [voc.TOKEN_START, voc.TOKEN_END, voc.TOKEN_UNKOWN]
 NUM_CAND = 5
 
 

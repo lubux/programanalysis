@@ -37,6 +37,8 @@ import os
 import numpy as np
 import tensorflow as tf
 import codepred.Vocabulary as pre
+from random import shuffle
+import itertools
 
 
 class APIPredModel(object):
@@ -117,13 +119,13 @@ class APIPredictionConfig(object):
         self.num_layers = 2
         self.num_steps = 35
         #self.hidden_size = 650
-        self.hidden_size = 100
-        self.max_epoch = 6
-        self.max_max_epoch = 39
+        self.hidden_size = 400
+        self.max_epoch = 2
+        self.max_max_epoch = 20
         self.keep_prob = 0.5
         self.lr_decay = 0.8
         self.batch_size = 20
-        self.vocab_size = 10000
+        self.vocab_size = 20000
         self.l2_reg_lambda = 1e-4
         self.use_adam_optimizer = False
 
@@ -174,6 +176,9 @@ def train_model(train_path, test_path, model_store_dir, model_name,
 
         tf.initialize_all_variables().run()
         saver = tf.train.Saver(tf.all_variables())
+        last_test_preplexity = -1
+        num_increase_in_row = 0
+        max_num_increase = 2
         if restore:
             ckpt = tf.train.get_checkpoint_state(train_path)
             if ckpt and ckpt.model_checkpoint_path:
@@ -199,6 +204,18 @@ def train_model(train_path, test_path, model_store_dir, model_name,
 
             test_perplexity = _run_epoch(session, mtest, test_data, tf.no_op())
             print("Test Perplexity: %.3f" % test_perplexity)
+
+            if test_perplexity==-1:
+                last_test_preplexity = test_perplexity
+            else:
+                if last_test_preplexity < test_perplexity:
+                    num_increase_in_row += 1
+                else:
+                    num_increase_in_row = 0
+                last_test_preplexity = test_perplexity
+            if num_increase_in_row >= max_num_increase:
+                print("%d times test perplexity increased -> stop training" % num_increase_in_row)
+                break
     print("Training Finished after: %f seconds" % train_time)
 
 
@@ -315,10 +332,13 @@ def _read_words(filename):
     with open(filename, "r") as f:
         for line in f:
             tokens = line.split()
-            res.append(pre.TOKEN_START)
-            res.extend(tokens)
-            res.append(pre.TOKEN_END)
-    return res
+            cur = list()
+            cur.append(pre.TOKEN_START)
+            cur.extend(tokens)
+            cur.append(pre.TOKEN_END)
+            res.append(cur)
+    shuffle(res)
+    return list(itertools.chain(*res))
 
 
 def word_to_id_from_vocab(words):
