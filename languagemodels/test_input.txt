@@ -1,0 +1,13 @@
+0 34
+[getElementsByTagName] <?>
+[removeChild] <?>
+[getElementsByTagName] [getElementsByTagName] [getElementsByTagName] <?>
+[getElementsByTagName] [querySelectorAll] <?>
+1 32
+[each] [type] <?>
+[isFunction] [type] [Deferred] [Callbacks] [each] [type] <?>
+[constructor] [isFunction] [type] [makeArray] [type] <?>
+2 32
+[lukas] [cedi] <?>
+3 33
+<?>

@@ -22,6 +22,8 @@ The hyperparameters used in the model:
 - lr_decay - the decay of the learning rate for each epoch after "max_epoch"
 - batch_size - the batch size
 
+-l2_reg_lambda - the influence of the l2 regularization (see cost function)
+
 """
 
 from __future__ import absolute_import
@@ -30,12 +32,13 @@ from __future__ import print_function
 
 import time
 import collections
-import pickle
 import os
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.models.rnn import rnn
+import codepred.Vocabulary as pre
+from random import shuffle
+import itertools
 
 
 class APIPredModel(object):
@@ -67,17 +70,21 @@ class APIPredModel(object):
 
         inputs = [tf.squeeze(input_, [1])
                   for input_ in tf.split(1, num_steps, inputs)]
-        outputs, state = rnn.rnn(cell, inputs, initial_state=self.initial_state)
+        outputs, state = tf.nn.rnn(cell, inputs, initial_state=self.initial_state)
 
         output = tf.reshape(tf.concat(1, outputs), [-1, size])
         softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
         softmax_b = tf.get_variable("softmax_b", [vocab_size])
-        logits = tf.matmul(output, softmax_w) + softmax_b
+        # add l2 regulation, avoid large values
+        l2_reg = tf.constant(0.0)
+        logits = tf.nn.xw_plus_b(output, softmax_w, softmax_b)
         loss = tf.nn.seq2seq.sequence_loss_by_example(
             [logits],
             [tf.reshape(self.targets, [-1])],
             [tf.ones([batch_size * num_steps])])
-        self.cost = cost = tf.reduce_sum(loss) / batch_size
+        l2_reg += tf.nn.l2_loss(softmax_w)
+        l2_reg += tf.nn.l2_loss(softmax_b)
+        self.cost = cost = tf.reduce_sum(loss) / batch_size + config.l2_reg_lambda * l2_reg
         self.final_state = state
 
         self.probabilities = tf.nn.softmax(logits)
@@ -90,7 +97,10 @@ class APIPredModel(object):
         tvars = tf.trainable_variables()
         grads, _ = tf.clip_by_global_norm(tf.gradients(cost, tvars),
                                           config.max_grad_norm)
-        optimizer = tf.train.GradientDescentOptimizer(self.lr)
+        if config.use_adam_optimizer:
+            optimizer = tf.train.AdamOptimizer(self.lr)
+        else:
+            optimizer = tf.train.GradientDescentOptimizer(self.lr)
         self.train_op = optimizer.apply_gradients(zip(grads, tvars))
 
     def assign_lr(self, session, lr_value):
@@ -98,19 +108,26 @@ class APIPredModel(object):
 
 
 class APIPredictionConfig(object):
-    """Config for API Prediction"""
-    init_scale = 0.05
-    learning_rate = 1.0
-    max_grad_norm = 5
-    num_layers = 2
-    num_steps = 35
-    hidden_size = 650
-    max_epoch = 6
-    max_max_epoch = 39
-    keep_prob = 0.5
-    lr_decay = 0.8
-    batch_size = 20
-    vocab_size = 10000
+    """
+    Config for API Prediction
+    good params?: http://dl.acm.org/citation.cfm?id=2876379&dl=ACM&coll=DL
+    """
+    def __init__(self):
+        self.init_scale = 0.05
+        self.learning_rate = 1.0
+        self.max_grad_norm = 5
+        self.num_layers = 2
+        self.num_steps = 35
+        #self.hidden_size = 650
+        self.hidden_size = 400
+        self.max_epoch = 2
+        self.max_max_epoch = 20
+        self.keep_prob = 0.5
+        self.lr_decay = 0.8
+        self.batch_size = 20
+        self.vocab_size = 20000
+        self.l2_reg_lambda = 1e-4
+        self.use_adam_optimizer = False
 
 
 def _run_epoch(session, m, data, eval_op, verbose=False):
@@ -136,19 +153,10 @@ def _run_epoch(session, m, data, eval_op, verbose=False):
 
 
 def train_model(train_path, test_path, model_store_dir, model_name,
-                config=APIPredictionConfig(), restore=False, restore_epoch=0):
-    raw_data = _raw_data(train_path, test_path)
-    train_data, test_data, vocab_len, _, vocab = raw_data
-
-    vocab_path = os.path.join(model_store_dir, model_name + "_vocab.pkl")
-    _store_vocab(vocab, vocab_path)
-    print("Vocab saved in file: %s" % vocab_path)
-    config.vocab_size = vocab_len
-
-    eval_config = APIPredictionConfig()
-    eval_config.vocab_size = vocab_len
-    eval_config.batch_size = 1
-    eval_config.num_steps = 1
+                config=APIPredictionConfig(), vocab_path="./models/vocab.p", restore=False, restore_epoch=0):
+    [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
+    train_data, test_data = _raw_data(train_path, test_path, word_to_id)
+    config.vocab_size = len(vocab)
 
     train_time = 0
 
@@ -159,12 +167,15 @@ def train_model(train_path, test_path, model_store_dir, model_name,
         with tf.variable_scope("model", reuse=None, initializer=initializer):
             m = APIPredModel(is_training=True, config=config)
         with tf.variable_scope("model", reuse=True, initializer=initializer):
-            mtest = APIPredModel(is_training=False, config=eval_config)
+            mvalid = APIPredModel(is_training=False, config=config)
 
         tf.initialize_all_variables().run()
         saver = tf.train.Saver(tf.all_variables())
+        last_test_perplexity = -1
+        num_increase_in_row = 0
+        max_num_increase = 1
         if restore:
-            ckpt = tf.train.get_checkpoint_state(train_path)
+            ckpt = tf.train.get_checkpoint_state(model_store_dir)
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(session, ckpt.model_checkpoint_path)
             else:
@@ -179,31 +190,67 @@ def train_model(train_path, test_path, model_store_dir, model_name,
             train_perplexity = _run_epoch(session, m, train_data, m.train_op,
                                             verbose=True)
             end_time = time.time()
-            train_time += (end_time-start_time)
-            save_path = saver.save(session, os.path.join(model_store_dir, model_name + ".ckpt"))
+            epoch_time = (end_time-start_time)
+            train_time += epoch_time
+            save_path = saver.save(session, os.path.join(model_store_dir, model_name + ".ckpt"), global_step=(i+1))
             print("Model saved in file: %s" % save_path)
             print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
+            print("Epoch duration: %d, total duration: %d" % (epoch_time, train_time))
 
-            test_perplexity = _run_epoch(session, mtest, test_data, tf.no_op())
-            print("Test Perplexity: %.3f" % test_perplexity)
+            test_perplexity = _run_epoch(session, mvalid, test_data, tf.no_op())
+            print("Valid Perplexity: %.3f" % test_perplexity)
+
+            if last_test_perplexity < 0:
+                last_test_perplexity = test_perplexity
+            else:
+                if last_test_perplexity < test_perplexity:
+                    num_increase_in_row += 1
+                else:
+                    num_increase_in_row = 0
+                last_test_perplexity = test_perplexity
+            if num_increase_in_row >= max_num_increase:
+                print("%d times test perplexity increased -> stop training" % num_increase_in_row)
+                break
     print("Training Finished after: %f seconds" % train_time)
 
 
+def get_perplexity(train_path, test_path, model_store_dir,
+                   config=APIPredictionConfig(), vocab_path="./models/vocab.p"):
+    [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
+    train_data, test_data = _raw_data(train_path, test_path, word_to_id)
+    config.vocab_size = len(vocab)
+
+    print("Start Perplexity measure")
+    with tf.Graph().as_default(), tf.Session() as session:
+        with tf.variable_scope("model", reuse=False):
+            mvalid = APIPredModel(is_training=False, config=config)
+
+        tf.initialize_all_variables().run()
+        saver = tf.train.Saver(tf.all_variables())
+        ckpt = tf.train.get_checkpoint_state(model_store_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            saver.restore(session, ckpt.model_checkpoint_path)
+        else:
+             raise RuntimeError("Model not found")
+
+        test_perplexity = _run_epoch(session, mvalid, test_data, tf.no_op())
+        print("Valid Perplexity: %.3f" % test_perplexity)
+
+
 class LSTMPredictor:
-    def __init__(self, save_dir, model_name, eval_config=APIPredictionConfig()):
+    def __init__(self, save_dir, vocab_path="./models/vocab.p", eval_config=APIPredictionConfig()):
         self.eval_config = eval_config
-        self.words = load_vocab(os.path.join(save_dir, model_name + "_vocab.pkl"))
-        self.vocab = word_to_id_from_vocab(self.words)
-        self.eval_config.vocab_size = len(self.vocab)
+        [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
+        self.words = vocab
+        self.vocab = word_to_id
+        self.eval_config.vocab_size = len(self.words)
         self.eval_config.batch_size = 1
         self.eval_config.num_steps = 1
 
         with tf.Graph().as_default():
             self.session = tf.Session()
             with self.session.as_default():
-                initializer = tf.random_uniform_initializer(-eval_config.init_scale,
-                                                        eval_config.init_scale)
-                with tf.variable_scope("model", reuse=False, initializer=initializer):
+                with tf.variable_scope("model", reuse=False):
                     self.model = APIPredModel(is_training=False, config=eval_config)
 
                 tf.initialize_all_variables().run()
@@ -235,6 +282,45 @@ class LSTMPredictor:
                 result.append((sentence, prob))
             return result
 
+    def score_complentions(self, contexts):
+        num_words = len(self.words)
+        scores = np.zeros((num_words, len(contexts)))
+        for step, context in enumerate(contexts):
+            with self.session.as_default():
+                state = self.model.initial_state.eval()
+                for word in context[:-1]:
+                    x = np.zeros((1, 1))
+                    x[0, 0] = self.vocab[word]
+                    feed = {self.model.input_data: x, self.model.initial_state: state}
+                    [state] = self.session.run([self.model.final_state], feed)
+
+                last = context[-1]
+                x = np.zeros((1, 1))
+                x[0, 0] = self.vocab[last]
+                feed = {self.model.input_data: x, self.model.initial_state: state}
+                [probs, _] = self.session.run([self.model.probabilities, self.model.final_state], feed)
+                scores[:, step] = probs[0]
+        final_scores = np.mean(scores, axis=1)
+        return zip(self.words, final_scores)
+
+    def get_context_prop(self, context, candidates):
+         with self.session.as_default():
+            state = self.model.initial_state.eval()
+            for word in context[:-1]:
+                x = np.zeros((1, 1))
+                x[0, 0] = self.vocab[word]
+                feed = {self.model.input_data: x, self.model.initial_state: state}
+                [state] = self.session.run([self.model.final_state], feed)
+
+            last = context[-1]
+            x = np.zeros((1, 1))
+            x[0, 0] = self.vocab[last]
+            feed = {self.model.input_data: x, self.model.initial_state: state}
+            [probs, _] = self.session.run([self.model.probabilities, self.model.final_state], feed)
+            probs_context = probs[0]
+            res = [probs_context[self.vocab[cand]] for cand in candidates]
+         return res
+
     def next_word_prediction(self, sentence, num_best):
         with self.session.as_default():
             state = self.model.initial_state.eval()
@@ -260,8 +346,17 @@ class LSTMPredictor:
 
 
 def _read_words(filename):
-    with tf.gfile.GFile(filename, "r") as f:
-        return f.read().replace("\n", "<eos>").split()
+    res = []
+    with open(filename, "r") as f:
+        for line in f:
+            tokens = line.split()
+            cur = list()
+            cur.append(pre.TOKEN_START)
+            cur.extend(tokens)
+            cur.append(pre.TOKEN_END)
+            res.append(cur)
+    shuffle(res)
+    return list(itertools.chain(*res))
 
 
 def word_to_id_from_vocab(words):
@@ -282,25 +377,14 @@ def _build_vocab(filename):
 
 def _file_to_word_ids(filename, word_to_id):
     data = _read_words(filename)
-    return [word_to_id[word] for word in data]
+    id_unk = word_to_id[pre.TOKEN_UNKOWN]
+    return [word_to_id.get(word, id_unk) for word in data]
 
 
-def _raw_data(train_path, test_path):
-    word_to_id, words = _build_vocab(train_path)
+def _raw_data(train_path, test_path, word_to_id):
     train_data = _file_to_word_ids(train_path, word_to_id)
     test_data = _file_to_word_ids(test_path, word_to_id)
-    vocabulary = len(word_to_id)
-    return train_data, test_data, vocabulary, word_to_id, words
-
-
-def _store_vocab(vocab, vocab_path):
-    with open(vocab_path, 'wb') as pkl_file:
-        pickle.dump(vocab, pkl_file)
-
-
-def load_vocab(vocab_path):
-    with open(vocab_path, 'rb') as pkl_file:
-        return pickle.load(pkl_file)
+    return train_data, test_data
 
 
 def file_iterator(raw_data, batch_size, num_steps):

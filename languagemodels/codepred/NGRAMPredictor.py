@@ -19,7 +19,7 @@ class NGramPredictor:
         self.lm = LM(path_to_lm, lower=False)
 
     def next_word_prediction(self, words, best_num):
-        context = [self.lm.vocab.intern(word) for word in words]
+        context = [self.lm.vocab.intern(word) for word in words[::-1]]
         result = []
         for i in xrange(self.lm.vocab.max_interned() + 1):
             logprob = self.lm.logprob(i, context)
@@ -30,6 +30,11 @@ class NGramPredictor:
                 result.append((self.lm.vocab.extern(i), logprob))
         result = map(lambda (a, b): (a, 10**b), result)
         return sorted(result, key=lambda t: t[1], reverse=True)
+
+    def get_context_prop(self, context_sent, candidates):
+        context = [self.lm.vocab.intern(word) for word in context_sent[::-1]]
+        res = [self.lm.logprob(self.lm.vocab.intern(cand), context) for cand in candidates]
+        return map(lambda prob: 10**prob, res)
 
     def sentence_score_prediction(self, sentences):
         result = []
