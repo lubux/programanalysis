@@ -54,6 +54,7 @@ public class PredictionHistory {
         HistoryCreation hist = new HistoryCreation(tajsAnalysis, pointerAnalysis, null, newNodeSet);
         hist.solve();
         predictionHistories = hist.printPredictionHistories();
+        dk.brics.tajs.Main.reset();
     }
 
     public String getPredictionHistories(){
