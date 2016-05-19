@@ -45,6 +45,8 @@ public class FileUtil {
     }
 
     public static String getNodeJSCommand() {
+        if(OSTestHelper.getOperatingSystemType().equals(OSTestHelper.OSType.Linux))
+            return "nodejs";
         return "node";
     }
 

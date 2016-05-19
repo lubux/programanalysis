@@ -55,6 +55,13 @@ public class GenProgram {
         markedNodes.add(id);
     }
 
+    public int getFirstMarkedNode() {
+        for(Integer in : markedNodes) {
+            return in;
+        }
+        throw new RuntimeException("No MarkedNode available");
+    }
+
     public Iterator<Integer> getMarkedNodesIterator() {
         return markedNodes.iterator();
     }

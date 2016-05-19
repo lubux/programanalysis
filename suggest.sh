@@ -45,7 +45,7 @@ CUR_PATH=$(pwd)
 
 # Run your analysis and produce output as defined above
 cd $SCRIPT_PATH/ProgramAnalysis/
-java -jar ProgramAnalysis.jar -m test_predict -pf $1 -tf $2 > $SCRIPT_PATH/ProgramAnalysis/languagemodels/tmp_input.txt
+java -jar ProgramAnalysis.jar -m test_predict -pf $1 -tf $2 > $SCRIPT_PATH/languagemodels/tmp_input.txt 2> /dev/null
 cd $SCRIPT_PATH/languagemodels/
 python predict.py -m rnn -i ./tmp_input.txt
 rm tmp_input.txt
