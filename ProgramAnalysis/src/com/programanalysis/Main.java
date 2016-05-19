@@ -3,7 +3,11 @@ package com.programanalysis;
 import com.programanalysis.jsonast.GenProgram;
 import com.programanalysis.jsonast.JSONPrinterCaller;
 import com.programanalysis.jsonast.TestFileMarker;
+import dk.brics.tajs.flowgraph.SourceLocation;
 import org.apache.commons.cli.*;
+
+import com.programanalysis.util.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -88,8 +92,25 @@ public class Main {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);
             TestFileMarker.markNodes(programs, testPath);
 
-            //TODO: Start analysis + prediction
-        } catch (IOException e) {
+            for(GenProgram program: programs) {
+                File temp = new File("./tmp.js");
+                try {
+                    FileUtil.writeToFile(program.getCode(), temp);
+                    if(!program.getMarkedNodesIterator().hasNext())
+                        System.err.println("No marked node found");
+                        System.exit(-1);
+                    int markedNodeID = program.getMarkedNodesIterator().next();
+                    SourceLocation loc = program.getSourceLocationForID(markedNodeID);
+                    PredictionHistory pred = new PredictionHistory(temp.getPath(), loc.getLineNumber(), loc.getColumnNumber());
+                    System.out.println(pred.getPredictionHistories());
+                } finally {
+                    if(temp.exists())
+                        if(!temp.delete())
+                           System.err.println("Failed deleting temp");
+                }
+
+            }
+        } catch (Exception e) {
             reportError("Error occurred :(");
         }
     }

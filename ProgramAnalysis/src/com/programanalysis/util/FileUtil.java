@@ -1,6 +1,8 @@
 package com.programanalysis.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -25,6 +27,17 @@ public class FileUtil {
             sb.append(path[idx]).append(File.separator);
         sb.append(path[path.length-1]);
         return sb.toString();
+    }
+
+    public static void writeToFile(String text, File out) throws IOException {
+        BufferedWriter fw = null;
+        try {
+            fw = new BufferedWriter(new FileWriter(out));
+            fw.write(text);
+        } finally {
+            if(fw!=null)
+                fw.close();
+        }
     }
 
     public static String getNodeJSCallGraphPath() {
