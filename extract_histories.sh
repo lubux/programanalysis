@@ -29,3 +29,9 @@ fi
 
 
 # Run your analysis and produce output as defined above
+SCRIPT_PATH=$( cd $(dirname $0) ; pwd -P )
+CUR_PATH=$(pwd)
+
+cd $SCRIPT_PATH/ProgramAnalysis/
+java -jar ProgramAnalysis.jar -m test_hist -pf $1 -tf $2
+cd CUR_PATH

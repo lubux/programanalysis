@@ -40,5 +40,13 @@ if [[ $# -ne 2 ]]; then
 	exit -1
 fi
 
+SCRIPT_PATH=$( cd $(dirname $0) ; pwd -P )
+CUR_PATH=$(pwd)
 
 # Run your analysis and produce output as defined above
+cd $SCRIPT_PATH/ProgramAnalysis/
+java -jar ProgramAnalysis.jar -m test_predict -pf $1 -tf $2 > $SCRIPT_PATH/ProgramAnalysis/languagemodels/tmp_input.txt
+cd $SCRIPT_PATH/languagemodels/
+python predict.py -m rnn -i ./tmp_input.txt
+rm tmp_input.txt
+cd CUR_PATH
