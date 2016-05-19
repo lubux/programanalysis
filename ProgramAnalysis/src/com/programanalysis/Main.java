@@ -1,6 +1,7 @@
 package com.programanalysis;
 
 import com.programanalysis.jsonast.GenProgram;
+import com.programanalysis.jsonast.JSONESTree;
 import com.programanalysis.jsonast.JSONPrinterCaller;
 import com.programanalysis.jsonast.TestFileMarker;
 import dk.brics.tajs.flowgraph.SourceLocation;
@@ -8,8 +9,8 @@ import org.apache.commons.cli.*;
 
 import com.programanalysis.util.FileUtil;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Iterator;
 import java.util.List;
 
 public class Main {
@@ -79,7 +80,63 @@ public class Main {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);
             TestFileMarker.markNodes(programs, testPath);
 
-            //TODO: Start analysis
+
+            // read in all the JSONESTrees for the variable names
+            File f = new File(programPath);
+            BufferedReader r = null;
+            int MAX = programs.size();
+            int numIt = 0;
+            JSONESTree[] trees = new JSONESTree[programs.size()];
+            try {
+                r = new BufferedReader(new FileReader(f));
+                String json = r.readLine();
+                while (json !=null && !json.isEmpty() && numIt < MAX) {
+                    trees[numIt] = JSONESTree.parseLine(json);
+                    json = r.readLine();
+                    numIt++;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(r!=null)
+                    try {
+                        r.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+
+            numIt = 0;
+
+            for(GenProgram program: programs) {
+                File temp = new File("./tmp.js");
+                try {
+                    FileUtil.writeToFile(program.getCode(), temp);
+                    if(!program.getMarkedNodesIterator().hasNext()){
+                        System.err.println("No marked node found");
+                        System.exit(-1);
+                    }
+                    // go through all the marked nodes for one program
+                    for(Iterator<Integer> it = program.getMarkedNodesIterator(); it.hasNext();){
+                        int markedNodeID = it.next();
+                        String variablename = trees[numIt].getNodes().get(markedNodeID).getValue();
+                        SourceLocation loc = program.getSourceLocationForID(markedNodeID);
+                        HistoryExtraction extr = new HistoryExtraction(temp.getPath(), loc.getLineNumber(), loc.getColumnNumber(), variablename, numIt, markedNodeID);
+                        String extrHist = extr.getExtractedHistories();
+                        // remove the last new line
+                        System.out.print(extrHist);
+                    }
+
+
+                } finally {
+                    if(temp.exists())
+                        if(!temp.delete())
+                            System.err.println("Failed deleting temp");
+                    numIt++;
+                }
+            }
         } catch (IOException e) {
             reportError("Error occurred :(");
         }

@@ -314,7 +314,7 @@ public class HistoryCreation {
         return res;
     }
 
-    public String printExtractionHistories(){
+    public String printExtractionHistories(int progId, int nodeId){
         String res = "";
         Function f = null;
         Set<AbstractObject> absObjs;
@@ -336,7 +336,7 @@ public class HistoryCreation {
         for(AbstractObject obj: absObjs){
             History h = state.getFunctionOutState(flowGraph.getMain()).get(obj);
             if(h != null){
-                res = res + h.print();
+                res = res + h.printExtractionHistory(progId, nodeId);
             }
         }
 

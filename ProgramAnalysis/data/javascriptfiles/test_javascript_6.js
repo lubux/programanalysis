@@ -37,6 +37,8 @@ var beverage = new beverage("Coke");
 var beverage2 = new beverage("Fanta");
 var burger = new Meal("burger & fries", beverage, beverage2);
 burger.getBeverage().drink();
+var beverage3 = (new Meal("pizza", beverage, beverage2)).getBeverage();
+beverage3.drink();
 
 if(true){
     burger.eat();

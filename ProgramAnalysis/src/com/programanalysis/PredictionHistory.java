@@ -49,11 +49,10 @@ public class PredictionHistory {
                 }
             }
         }
-        pointerAnalysis.init();
-        pointerAnalysis.solve();
         HistoryCreation hist = new HistoryCreation(tajsAnalysis, pointerAnalysis, null, newNodeSet);
         hist.solve();
         predictionHistories = hist.printPredictionHistories();
+        dk.brics.tajs.Main.reset();
     }
 
     public String getPredictionHistories(){

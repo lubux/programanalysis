@@ -28,7 +28,7 @@ public class HistoryExtraction {
 
     private String extractedHistories;
 
-    public HistoryExtraction(String sourcePath, int lineNumber, int columnNumber, String variableName) throws IOException {
+    public HistoryExtraction(String sourcePath, int lineNumber, int columnNumber, String variableName, int progId, int nodeId) throws IOException {
         this.lineNumber = lineNumber;
         this.columnNumber = columnNumber;
         this.sourcePath = sourcePath;
@@ -43,7 +43,8 @@ public class HistoryExtraction {
         Set<AbstractNode> nodeSet = pointerAnalysis.getNodesOfInterest();
         HistoryCreation hist = new HistoryCreation(tajsAnalysis, pointerAnalysis, variableName, nodeSet);
         hist.solve();
-        extractedHistories = hist.printExtractionHistories();
+        extractedHistories = hist.printExtractionHistories(progId, nodeId);
+        dk.brics.tajs.Main.reset();
     }
 
     public String getExtractedHistories(){

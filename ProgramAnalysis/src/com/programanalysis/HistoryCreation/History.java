@@ -161,4 +161,25 @@ public class History {
         }
         return res;
     }
+
+    /** puts the progId and nodeId at the start of each line*/
+    public String printExtractionHistory(int progId, int nodeId){
+        String res = "";
+        for (List<APICallTuple> l : historySet) {
+            String partRes = progId + " " + nodeId + " ";
+            for (int i = 0; i < l.size(); i++) {
+                if (l.get(i) != null) {
+                    partRes = partRes + "[" + l.get(i).getString() + "]";
+                    if (i != l.size() - 1) {
+                        partRes = partRes + " ";
+                    }
+                }
+            }
+            if (!partRes.equals("")) {
+                partRes = partRes + "\n";
+            }
+            res = res + partRes;
+        }
+        return res;
+    }
 }
