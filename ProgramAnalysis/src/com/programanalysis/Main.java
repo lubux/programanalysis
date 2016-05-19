@@ -81,6 +81,7 @@ public class Main {
 
             //TODO: Start analysis
         } catch (IOException e) {
+            e.printStackTrace();
             reportError("Error occurred :(");
         }
 
@@ -90,7 +91,6 @@ public class Main {
     public static void handlePredictionTest(String programPath, String testPath) {
         String SEARCH_TOKEN = "predictionfunction";
         String REPLACE_TOKEN = "." + SEARCH_TOKEN + "()";
-        StringBuilder output = new StringBuilder();
         try {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);
             TestFileMarker.markNodes(programs, testPath);
@@ -120,6 +120,7 @@ public class Main {
 
             }
         } catch (Exception e) {
+            e.printStackTrace();
             reportError("Error occurred :(");
         }
     }
