@@ -2,6 +2,7 @@ package com.programanalysis.PointerAnalysis;
 
 import com.programanalysis.util.Tuple;
 import com.programanalysis.util.VariableName;
+import com.sun.javafx.binding.SelectBinding;
 import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.Function;
 
@@ -111,6 +112,13 @@ public class GlobalState {
 
     /** creates a new set for the given variable in the store (used for variabledeclaraton nodes)*/
     public void variableDeclaration(String variable, Function scope){
+        if(scope == null){
+            return;
+        }
+        if(! store.keySet().contains(scope)){
+            Map<String, Set<AbstractObject>> map = new HashMap<String, Set<AbstractObject>>();
+            store.put(scope, map);
+        }
         Map<String, Set<AbstractObject>> functionStore = store.get(scope);
         // set will already exists when we traverse the flow graph the second time
         if(! functionStore.containsKey(variable)) {

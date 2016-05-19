@@ -1,16 +1,13 @@
 package com.programanalysis.HistoryCreation;
 
 import com.programanalysis.PointerAnalysis.AbstractObject;
-import com.programanalysis.PointerAnalysis.BlockRegisters;
 import com.programanalysis.PointerAnalysis.PointerAnalysis;
-import com.programanalysis.util.CallGraphParser;
 import com.programanalysis.util.QueueEntry;
 import dk.brics.tajs.analysis.Analysis;
 import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.BasicBlock;
 import dk.brics.tajs.flowgraph.FlowGraph;
 import dk.brics.tajs.flowgraph.Function;
-import dk.brics.tajs.util.*;
 
 import java.util.*;
 import java.util.Collections;
@@ -21,6 +18,8 @@ import java.util.Collections;
 public class HistoryCreation {
 
     private Analysis analysis;
+
+    private boolean mainOnly;
 
     private FlowGraph flowGraph;
 
@@ -36,6 +35,16 @@ public class HistoryCreation {
 
     private Transfer visitor;
 
+    private int maxIter = 10;
+
+    private Set<AbstractNode> nodesOfInterest;
+
+    private Set<AbstractObject> predictionObjects;
+
+    private String variableName;
+
+    private boolean prediction;
+
     public HistoryCreation(Analysis analysis, PointerAnalysis pointerAnalysis){
         // initialize all data structures
         this.analysis = analysis;
@@ -46,6 +55,32 @@ public class HistoryCreation {
         this.state = new State();
         this.oldState = new State();
         this.visitor = new Transfer(pointerAnalysis, this);
+        this.prediction = false;
+        this.nodesOfInterest = new HashSet<AbstractNode>();
+        this.predictionObjects = new HashSet<AbstractObject>();
+        this.mainOnly = false;
+    }
+
+    /** constructor for history extraction/ prediction -> prediction if variable name = null*/
+    public HistoryCreation(Analysis analysis, PointerAnalysis pointerAnalysis, String variableName, Set<AbstractNode> nodesOfInterest){
+        // initialize all data structures
+        this.analysis = analysis;
+        this.pointerAnalysis = pointerAnalysis;
+        this.flowGraph = analysis.getSolver().getFlowGraph();
+        this.workList = new PriorityQueue<QueueEntry>();
+        this.blockCounter = new HashMap<BasicBlock, Integer>();
+        this.state = new State();
+        this.oldState = new State();
+        this.visitor = new Transfer(pointerAnalysis, this);
+        this.predictionObjects = new HashSet<AbstractObject>();
+        this.mainOnly = true;
+        this.nodesOfInterest = nodesOfInterest;
+        if(variableName == null){
+            prediction = true;
+        } else {
+            prediction = false;
+        }
+        this.variableName = variableName;
     }
 
     public State getState(){
@@ -54,6 +89,22 @@ public class HistoryCreation {
 
     public State getOldState(){
         return oldState;
+    }
+
+    public boolean getPrediction(){
+        return prediction;
+    }
+
+    public Set<AbstractNode> getNodesOfInterest(){
+        return nodesOfInterest;
+    }
+
+    public Set<AbstractObject> getPredictionObjects(){
+        return predictionObjects;
+    }
+
+    public boolean getMainOnly(){
+        return mainOnly;
     }
 
     public void addToWorklist(QueueEntry entry){
@@ -77,11 +128,15 @@ public class HistoryCreation {
     }
 
     public void solve(){
+        int iterationCount = 0;
         // add all function entries to the worklist
         addToWorklist(new QueueEntry(flowGraph.getEntryBlock()));
-        // this won't add the main function 2 times because of the check in the addToWorklist method*/
-        for(Function f: flowGraph.getFunctions()){
-            addToWorklist(new QueueEntry(f.getEntry()));
+        if(!mainOnly) {
+            // we are creating training data and want to add all functions
+            // this won't add the main function 2 times because of the check in the addToWorklist method*/
+            for (Function f : flowGraph.getFunctions()) {
+                addToWorklist(new QueueEntry(f.getEntry()));
+            }
         }
 
         // iterate to the fixpoint
@@ -102,7 +157,7 @@ public class HistoryCreation {
             for (Iterator<BasicBlock> i = block.getSuccessors().iterator(); i.hasNext(); ) {
                 BasicBlock b = i.next();
                 // propagate the registers
-                getState().getRegisters(b).addOrdRegs(getState().getRegisters(block));
+                getState().getRegisters(b).addRegs(getState().getRegisters(block));
                 // propagate the histories to the successor block
                 Map<AbstractObject, History> inState = state.getBlockInState(b);
                 for(AbstractObject obj: state.getCurrentState().keySet()){
@@ -130,15 +185,19 @@ public class HistoryCreation {
                 }
             }
             if(workList.isEmpty())
-                if(! state.equals(oldState)){
+                if(! state.equals(oldState) && iterationCount < maxIter){
                     // we start the whole iteration again
+                    iterationCount = iterationCount + 1;
                     oldState = state;
                     state = new State();
                     blockCounter = new HashMap<BasicBlock, Integer>();
                     // add all function entries to the worklist
                     addToWorklist(new QueueEntry(flowGraph.getEntryBlock()));
-                    for(Function f: flowGraph.getFunctions()){
-                        addToWorklist(new QueueEntry(f.getEntry()));
+                    if(!mainOnly) {
+                        // we are creating training data add all functions
+                        for (Function f : flowGraph.getFunctions()) {
+                            addToWorklist(new QueueEntry(f.getEntry()));
+                        }
                     }
 
                 } else {
@@ -226,6 +285,59 @@ public class HistoryCreation {
         for(AbstractObject obj: finalHistoryMap.keySet()){
             History h = finalHistoryMap.get(obj);
             res = res + h.print();
+        }
+
+        return res;
+    }
+
+    /** returns the all the histories of the main flow of the variable specified in function with name identifier*/
+    public String printVariableHistories(Function function, String identifier){
+        String res = "";
+        Set<AbstractObject> objectSet = pointerAnalysis.getState().readStore(identifier, function);
+        Map<AbstractObject, History> map = state.getFunctionOutState(flowGraph.getMain());
+        for(AbstractObject obj: objectSet){
+            History h = map.get(obj);
+            if(h != null){
+                res = res + h.print();
+            }
+        }
+        return res;
+    }
+
+    /** print all histories that are used for the prediction*/
+    public String printPredictionHistories(){
+        String res = "";
+        for(AbstractObject obj: predictionObjects){
+            History h = state.getFunctionOutState(flowGraph.getMain()).get(obj);
+            res = res + h.printPredictionHistory();
+        }
+        return res;
+    }
+
+    public String printExtractionHistories(){
+        String res = "";
+        Function f = null;
+        Set<AbstractObject> absObjs;
+        // get the function of the desired variable (might do something less ugly here
+        for(AbstractNode node: nodesOfInterest){
+            f = node.getBlock().getFunction();
+            break;
+        }
+        if(f == null){
+            return res;
+        }
+        if(f.getParameterNames().contains(variableName)){
+            // we want to extract the histories of a function parameter
+            absObjs = pointerAnalysis.getState().getInstate(f).argumentObjects.get(variableName);
+        } else {
+            // we have an ordinary variable
+            absObjs = pointerAnalysis.getState().readStore(variableName, f);
+        }
+        for(AbstractObject obj: absObjs){
+            History h = state.getFunctionOutState(flowGraph.getMain()).get(obj);
+            if(h != null){
+                res = res + h.print();
+            }
         }
 
         return res;

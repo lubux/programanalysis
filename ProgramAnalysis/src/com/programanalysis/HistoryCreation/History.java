@@ -11,9 +11,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class History {
 
-    private int maxCount = 30;
+    private int maxCount = 14;
 
-    private int maxLength = 10;
+    private int maxLength = 16;
 
     public History(AbstractObject obj){
         this.historySet = new HashSet<List<APICallTuple>>();
@@ -23,7 +23,9 @@ public class History {
     /** adds all the histories of other to the set of this abtract object histories*/
     public void merge(History other){
         for(List<APICallTuple> l: other.historySet){
-            this.historySet.add(new ArrayList<APICallTuple>(l));
+            if(historySet.size() < maxCount) {
+                this.historySet.add(new ArrayList<APICallTuple>(l));
+            }
         }
     }
 
@@ -57,7 +59,9 @@ public class History {
                         l.add(s);
                     }
                 }
-                newHistorySet.add(l);
+                if(newHistorySet.size() < maxCount) {
+                    newHistorySet.add(l);
+                }
             }
         }
         historySet = newHistorySet;
@@ -97,7 +101,7 @@ public class History {
                 String partRes = "";
                 for (int i = 0; i < l.size(); i++) {
                     if (l.get(i) != null) {
-                        partRes = partRes + "<" + l.get(i).getString() + ">";
+                        partRes = partRes + "[" + l.get(i).getString() + "]";
                         if (i != l.size() - 1) {
                             partRes = partRes + " ";
                         }
@@ -121,7 +125,7 @@ public class History {
                     String partRes = "";
                     for (int j = 0; j < l.size(); j++) {
                         if (l.get(j) != null) {
-                            partRes = partRes + "<" + l.get(j).getString() + ">";
+                            partRes = partRes + "[" + l.get(j).getString() + "]";
                             if (j != l.size() - 1) {
                                 partRes = partRes + " ";
                             }
@@ -131,6 +135,27 @@ public class History {
                         partRes = partRes + "\n";
                     }
                     res = res + partRes;
+                }
+            }
+        }
+        return res;
+    }
+
+    /** contains only histories with a '?' and cuts the rest after the '?'*/
+    public String printPredictionHistory(){
+        String res = "";
+        for(List<APICallTuple> l: historySet){
+            String partRes = "";
+            for(int j = 0; j < l.size(); j++){
+                if(l.get(j).getString().equals("?")){
+                    partRes = partRes + "<?>";
+                    res = res + partRes + "\n";
+                    break;
+                } else {
+                    partRes = partRes + "[" + l.get(j).getString() + "]";
+                    if (j != l.size() - 1) {
+                        partRes = partRes + " ";
+                    }
                 }
             }
         }

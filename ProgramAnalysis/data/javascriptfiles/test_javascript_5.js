@@ -23,3 +23,9 @@ function globalfunc2(){
     dalgo.read();
     globalfunc();
 }
+
+function globalfunc3(){
+    var romeojuliet = new book("Romeo & Juliet", 1856);
+    romeojuliet.read();
+    globalfunc();
+}

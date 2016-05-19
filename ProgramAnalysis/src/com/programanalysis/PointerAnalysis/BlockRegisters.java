@@ -2,6 +2,7 @@ package com.programanalysis.PointerAnalysis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by cedri on 4/28/2016.
@@ -14,11 +15,29 @@ public class BlockRegisters {
     private List<Object> registers;
 
     public void writeRegister(int reg,Object obj){
-        if(reg >= 0) {
+        if(reg == 1){
+            // we are dealing with the return register
+            if(obj == null){
+                return;
+            }
             while (reg >= registers.size())
                 registers.add(null);
-            registers.set(reg, obj);
+
+            // we might have multiple return values and want to keep all of them
+            if(registers.get(reg) != null){
+                ((Set<AbstractObject>)registers.get(1)).addAll((Set<AbstractObject>)obj);
+            } else{
+                registers.set(reg, obj);
+            }
+        } else {
+            // we are dealing with an ordinary register
+            if(reg >= 0) {
+                while (reg >= registers.size())
+                    registers.add(null);
+                registers.set(reg, obj);
+            }
         }
+
     }
 
     public Object readRegister(int reg){
@@ -34,8 +53,8 @@ public class BlockRegisters {
         }
     }
 
-    public void addOrdRegs(BlockRegisters other){
-        for(int i = 2; i < other.registers.size(); i++){
+    public void addRegs(BlockRegisters other){
+        for(int i = 0; i < other.registers.size(); i++){
             this.writeRegister(i, other.readRegister(i));
         }
     }

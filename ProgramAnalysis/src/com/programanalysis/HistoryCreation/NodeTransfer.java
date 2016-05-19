@@ -3,6 +3,7 @@ package com.programanalysis.HistoryCreation;
 import com.programanalysis.PointerAnalysis.AbstractObject;
 import com.programanalysis.PointerAnalysis.BlockRegisters;
 import com.programanalysis.PointerAnalysis.PointerAnalysis;
+import com.programanalysis.util.QueueEntry;
 import dk.brics.tajs.flowgraph.Function;
 import dk.brics.tajs.flowgraph.jsnodes.*;
 import dk.brics.tajs.solver.BlockAndContext;
@@ -64,10 +65,6 @@ public class NodeTransfer implements NodeVisitor {
 
         Map<AbstractObject, History> state = historyCreation.getState().getCurrentState();
         if(f == null){
-            if(callNode.getPropertyString()!= null && (callNode.getPropertyString().equals("call") || callNode.getPropertyString().equals("apply"))){
-                // we ignore these in the history
-                return;
-            }
             // we don't have the source code for the function
             if (obj != null) {
                 // add the current api call to the histories
@@ -77,7 +74,13 @@ public class NodeTransfer implements NodeVisitor {
                         state.put(absObj, h);
                     }
                     if(callNode.getPropertyString() != null) {
-                        state.get(absObj).add(new APICallTuple(callNode, callNode.getPropertyString()));
+                        if(historyCreation.getPrediction() && historyCreation.getNodesOfInterest().contains(callNode)){
+                            // we are in the prediction mode and want to predict this call
+                            state.get(absObj).add(new APICallTuple(callNode, "?"));
+                            historyCreation.getPredictionObjects().add(absObj);
+                        } else {
+                            state.get(absObj).add(new APICallTuple(callNode, callNode.getPropertyString()));
+                        }
                     } else {
                         //TODO: can we get here?
                     }
@@ -88,6 +91,10 @@ public class NodeTransfer implements NodeVisitor {
             set.add(new AbstractObject(callNode));
             reg.writeRegister(callNode.getResultRegister(), set);
         } else {
+            if(historyCreation.getMainOnly()){
+                // we are only following the main flow and have to add the called function to the worklist here
+                historyCreation.addToWorklist(new QueueEntry(f.getEntry()));
+            }
             if (obj != null) {
                 // add the current api call to the histories
                 for (AbstractObject absObj : (Set<AbstractObject>) obj) {
@@ -115,9 +122,19 @@ public class NodeTransfer implements NodeVisitor {
                 }
             }
 
-            // add the return value to the return register
-            Object returnValue = pointerAnalysis.getState().getOutstate(f).returnObjects;
-            reg.writeRegister(callNode.getResultRegister(), returnValue);
+
+            if(callNode.isConstructorCall()){
+                // add the created object to the return value
+                AbstractObject ret = new AbstractObject(callNode);
+                Set<AbstractObject> set = new HashSet<AbstractObject>();
+                set.add(ret);
+                reg.writeRegister(callNode.getResultRegister(), set);
+            } else {
+                // add the return value to the return register
+                Object returnValue = pointerAnalysis.getState().getOutstate(f).returnObjects;
+                reg.writeRegister(callNode.getResultRegister(), returnValue);
+            }
+
         }
     }
 

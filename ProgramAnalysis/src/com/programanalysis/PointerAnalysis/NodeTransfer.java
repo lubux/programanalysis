@@ -85,16 +85,24 @@ public class NodeTransfer implements NodeVisitor {
                 registers.writeRegister(callNode.getResultRegister(), set);
             }
         } else {
+            if(analysis.getMainOnly()) {
+                // we only want to visit the main flow and therefore have to add the function here
+                analysis.addToWorklist(callee);
+            }
             // add this function to the call graph for the history printing
             analysis.getCallGraphParser().addFuncToHistCallGraph(callNode.getBlock().getFunction(), callee);
 
             if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("call")){
-                Object thisobj = registers.readRegister(callNode.getArgRegister(0));
-                analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
+                if(callNode.getNumberOfArgs() >= 1) {
+                    Object thisobj = registers.readRegister(callNode.getArgRegister(0));
+                    analysis.getState().addThisToInState((Set<AbstractObject>)thisobj, callee);
+                }
                 for(int i = 1; i < callNode.getNumberOfArgs(); i++){
                     // add all arguments to the in set of the function
                     Object a = registers.readRegister(callNode.getArgRegister(i));
-                    analysis.getState().addArgToInState((Set<AbstractObject>)a,callee,callee.getParameterNames().get(i));
+                    if(callee.getParameterNames().size() > i) {
+                        analysis.getState().addArgToInState((Set<AbstractObject>) a, callee, callee.getParameterNames().get(i));
+                    }
                 }
             } else if(callNode.getPropertyString() != null && callNode.getPropertyString().equals("apply")){
                 // "apply" calls are not tracked by neither of the 2 call graphs -> this and probably the "call" call is useless
