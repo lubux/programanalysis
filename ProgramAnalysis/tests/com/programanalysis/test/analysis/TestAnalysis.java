@@ -24,6 +24,7 @@ public class TestAnalysis {
 
     @Test
     public void simpleAnalysisDebug2() throws IOException {
+        /*
         String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "test_javascript_3.js";
         //String filePath2 = "C:\\PA_Programs\\data\\j03m\\trafficcone\\public\\assets\\hero\\hero.js";
         //String filePath = "C:\\PA_Programs\\data\\axiomsoftware\\axiom-stack\\apps\\manage\\Root\\security.js";
@@ -39,7 +40,7 @@ public class TestAnalysis {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        PointerAnalysis analysis = new PointerAnalysis(tajsAnalysis, cgp);
+        //PointerAnalysis analysis = new PointerAnalysis(tajsAnalysis, cgp);
         analysis.init();
         analysis.solve();
         //System.out.println("Pointer Analysis completed");
@@ -47,6 +48,7 @@ public class TestAnalysis {
         hist.solve();
         //System.out.println("History creation completed");
         System.out.println(hist.printHistories());
+        */
     }
 
     @Test

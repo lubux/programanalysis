@@ -88,6 +88,9 @@ public class Main {
     }
 
     public static void handlePredictionTest(String programPath, String testPath) {
+        String SEARCH_TOKEN = "predictionfunction";
+        String REPLACE_TOKEN = "." + SEARCH_TOKEN + "()";
+        StringBuilder output = new StringBuilder();
         try {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);
             TestFileMarker.markNodes(programs, testPath);
@@ -95,14 +98,20 @@ public class Main {
             for(GenProgram program: programs) {
                 File temp = new File("./tmp.js");
                 try {
-                    FileUtil.writeToFile(program.getCode(), temp);
-                    if(!program.getMarkedNodesIterator().hasNext())
-                        System.err.println("No marked node found");
-                        System.exit(-1);
-                    int markedNodeID = program.getMarkedNodesIterator().next();
+                    String code = program.getCode();
+                    code = code.replace(".?()", REPLACE_TOKEN);
+                    FileUtil.writeToFile(code, temp);
+                    int markedNodeID = program.getFirstMarkedNode();
                     SourceLocation loc = program.getSourceLocationForID(markedNodeID);
-                    PredictionHistory pred = new PredictionHistory(temp.getPath(), loc.getLineNumber(), loc.getColumnNumber());
-                    System.out.println(pred.getPredictionHistories());
+                    PredictionHistory pred = new PredictionHistory(temp.getAbsolutePath(), loc.getLineNumber(), loc.getColumnNumber());
+                    System.out.println(program.getId() + " " + markedNodeID);
+                    String hist = pred.getPredictionHistories();
+                    if(!hist.isEmpty())
+                        System.out.print(hist.substring(0, hist.length()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    reportError("Error occurred :(");
+
                 } finally {
                     if(temp.exists())
                         if(!temp.delete())
