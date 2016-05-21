@@ -23,6 +23,8 @@ public class PointerAnalysis {
         this.srcCol = srcCol;
     }
 
+    private Integer abstractObjectIndex = 0;
+
     private int srcLine;
 
     private int srcCol;
@@ -110,6 +112,46 @@ public class PointerAnalysis {
     }
 
     public void solve(){
+        // create an abstract object for document, window, console
+
+        // document
+        AbstractObject absObj = new AbstractObject(abstractObjectIndex.toString());
+        Set<AbstractObject> set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("document", flowgraph.getMain(), set);
+
+        // console
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("console", flowgraph.getMain(), set);
+
+        //window
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("window", flowgraph.getMain(), set);
+
+        //screen
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("screen", flowgraph.getMain(), set);
+
+        //location
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("location", flowgraph.getMain(), set);
+
+
+        // start with the analysis
+        boolean first = true;
         while(! worklist.isEmpty()){
             QueueEntry entry = worklist.remove();
             BasicBlock block = entry.getBlock();
@@ -153,6 +195,33 @@ public class PointerAnalysis {
                         }
                     }
                 }
+            if(worklist.isEmpty() && first && !mainOnly){
+                // we have completed the pointer analysis, now we put abstract objects into each empty function argument
+                for(Function f: flowgraph.getFunctions()){
+                    InState inState = state.getInstate(f);
+                    for(String name: f.getParameterNames()){
+                        if(!inState.argumentObjects.keySet().contains(name)){
+                            Set<AbstractObject> inSet = new HashSet<AbstractObject>();
+                            inState.argumentObjects.put(name, inSet);
+                        }
+                        if(inState.argumentObjects.get(name).isEmpty()) {
+                            // there is no abstract object behind this argument and we put one there
+                            AbstractObject obj = new AbstractObject(abstractObjectIndex.toString());
+                            abstractObjectIndex++;
+                            inState.argumentObjects.get(name).add(obj);
+                        }
+                        if(inState.thisObjects.isEmpty()){
+                            // there is no abstract object behind the this object, so we put one there
+                            // there is no abstract object behind this argument and we put one there
+                            AbstractObject obj = new AbstractObject(abstractObjectIndex.toString());
+                            abstractObjectIndex++;
+                            inState.thisObjects.add(obj);
+                        }
+                    }
+                }
+                first = false;
+
+            }
         }
     }
 }

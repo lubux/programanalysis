@@ -11,11 +11,20 @@ public class AbstractObject {
     public AbstractObject(AbstractNode node){
         creationNode = node;
         stringvalue = null;
+        ID = null;
+    }
+
+    /* used for abstract objects that are put in to not called function arguments or global object like document, console, window etc. ...*/
+    public AbstractObject(String id){
+        creationNode = null;
+        stringvalue = null;
+        ID = id;
     }
 
     public AbstractObject(AbstractNode node, String string){
         creationNode = node;
         stringvalue = string;
+        ID = null;
     }
 
 
@@ -28,16 +37,43 @@ public class AbstractObject {
     /** string value used in the case of a property access a[s]*/
     String stringvalue;
 
+    /** used for abstract objects that are not created in call nodes, (document, console, function arguments of not called functions*/
+    String ID;
+
     public boolean equals(Object obj){
-        // compare the string values because strings aren't abstract objects anyway*/
-        if(obj instanceof AbstractObject && ((AbstractObject)obj).stringvalue != null & stringvalue != null){
-            return ((AbstractObject)obj).stringvalue.equals(stringvalue);
+        if(! (obj instanceof AbstractObject)){
+            return false;
         }
-        return (obj instanceof AbstractObject) && ((AbstractObject)obj).creationNode.equals(creationNode);
+        AbstractObject other = (AbstractObject) obj;
+
+        if(ID != null){
+            if(other.ID != null){
+                return ID.equals(other.ID);
+            } else {
+                // other doesn't have an ID and this does, return false
+                return false;
+            }
+        } else{
+            if(other.ID != null){
+                // other has an ID but this doesn't, return false
+                return false;
+            }
+        }
+
+        // TODO: is this safe?
+        // compare the string values because strings aren't abstract objects anyway*/
+        /*if(obj instanceof AbstractObject && ((AbstractObject)obj).stringvalue != null & stringvalue != null){
+            return ((AbstractObject)obj).stringvalue.equals(stringvalue);
+        }*/
+        return (other.creationNode.equals(creationNode));
     }
 
     public int hashCode(){
-        return creationNode.hashCode();
+        if(creationNode != null) {
+            return creationNode.hashCode();
+        } else {
+            return ID.hashCode();
+        }
     }
 
 }
