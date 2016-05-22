@@ -33,7 +33,7 @@ public class HistoryExtraction {
         this.columnNumber = columnNumber;
         this.sourcePath = sourcePath;
         this.variableName = variableName;
-        Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {sourcePath}, null);
+        Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {sourcePath, "-dom"}, null);
         dk.brics.tajs.Main.run(tajsAnalysis);
         String cg = CallGraphCaller.getCallGraph(FileUtil.getNodeJSCallGraphCMD(sourcePath));
         CallGraphParser cgp = new CallGraphParser(cg, sourcePath, tajsAnalysis);
