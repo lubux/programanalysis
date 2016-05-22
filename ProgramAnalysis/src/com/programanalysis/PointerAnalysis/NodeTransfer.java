@@ -367,7 +367,6 @@ public class NodeTransfer implements NodeVisitor {
     public void visit(WriteVariableNode writeVariableNode, Object o) {
         BlockRegisters registers = analysis.getRegisters(writeVariableNode.getBlock());
         Object obj = registers.readRegister(writeVariableNode.getValueRegister());
-        //TODO: what if variable is function argument? (see tajs)
         // if we assign an abstract object, just add it to the store set of the variable
         if(writeVariableNode.getBlock().getFunction().getParameterNames().contains(writeVariableNode.getVariableName())){
             // we write to a function argument, so we modify the in set of the function

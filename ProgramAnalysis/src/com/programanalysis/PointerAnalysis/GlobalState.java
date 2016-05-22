@@ -54,6 +54,10 @@ public class GlobalState {
             InState state = new InState();
             inStates.put(f, state);
             changed = true;
+            for(String name: f.getParameterNames()){
+                Set<AbstractObject> set = new HashSet<AbstractObject>();
+                state.argumentObjects.put(name, set);
+            }
         }
         return inStates.get(f);
     }
@@ -85,11 +89,7 @@ public class GlobalState {
         if(objs == null){
             return;
         }
-        if(! inStates.containsKey(f)){
-            InState state = new InState();
-            inStates.put(f, state);
-        }
-        changed |= inStates.get(f).thisObjects.addAll(objs);
+        changed |= getInstate(f).thisObjects.addAll(objs);
     }
 
     /** add all the AbstractObjects in objs to the set of argument arg in InState of f*/
@@ -97,11 +97,7 @@ public class GlobalState {
         if(objs == null){
             return;
         }
-        if(! inStates.containsKey(f)){
-            InState state = new InState();
-            inStates.put(f, state);
-        }
-        Map<String,Set<AbstractObject>> args = inStates.get(f).argumentObjects;
+        Map<String,Set<AbstractObject>> args = getInstate(f).argumentObjects;
         if(! args.containsKey(arg)){
             Set<AbstractObject> set = new HashSet<AbstractObject>();
             args.put(arg, set);
@@ -129,26 +125,17 @@ public class GlobalState {
     }
 
     /** adds obj to the store set of variable in the given scope*/
-    /*public void writeStore(String variable, Function scope, AbstractObject obj){
-        if(obj == null){
-            return;
-        }
-        // switch to the outer scope until the variable is defined
-        while(! store.containsKey(VariableName.getVariableName(scope, variable))){
-            scope = scope.getOuterFunction();
-        }
-        //TODO: write global object property if var is not found
-        // put the abstract object in the variable store
-        changed |= store.get(VariableName.getVariableName(scope, variable)).add(obj);
-    }*/
-
-    /** adds obj to the store set of variable in the given scope*/
     public void writeStore(String variable, Function scope, Set<AbstractObject> objs){
         if(objs == null){
             return;
         }
         // switch to the outer scope until the variable is defined
         while(! store.get(scope).containsKey(variable)){
+            if(getInstate(scope).argumentObjects.containsKey(variable)){
+                // we want to write to a function argument
+                changed |= getInstate(scope).argumentObjects.get(variable).addAll(objs);
+                return;
+            }
             if(scope.getOuterFunction() != null) {
                 scope = scope.getOuterFunction();
             } else {
@@ -167,6 +154,9 @@ public class GlobalState {
     public Set<AbstractObject> readStore(String variable, Function scope){
         // switch to the outer scope until the variable is defined
         while(! store.get(scope).containsKey(variable)){
+            if(getInstate(scope).argumentObjects.keySet().contains(variable)){
+                return getInstate(scope).argumentObjects.get(variable);
+            }
             scope = scope.getOuterFunction();
             if(scope == null){
                 return new HashSet<AbstractObject>();

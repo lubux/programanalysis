@@ -29,12 +29,12 @@ public class APICallTuple {
             return false;
         }
         APICallTuple otherTuple = (APICallTuple) other;
-        return node.equals((otherTuple).getNode()) && string.equals((otherTuple).getString());
+        return string.equals((otherTuple).getString());
     }
 
     @Override
     public int hashCode() {
-        return node.hashCode()*10 + string.hashCode();
+        return string.hashCode();
     }
 
 }
