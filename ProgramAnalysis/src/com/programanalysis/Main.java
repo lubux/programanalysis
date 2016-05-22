@@ -126,7 +126,9 @@ public class Main {
                         HistoryExtraction extr = new HistoryExtraction(temp.getPath(), loc.getLineNumber(), loc.getColumnNumber(), variablename, numIt, markedNodeID);
                         String extrHist = extr.getExtractedHistories();
                         // remove the last new line
-                        System.out.print(extrHist);
+                        if(! extrHist.isEmpty()) {
+                            System.out.print(extrHist.substring(0, extrHist.length() - 1));
+                        }
                     }
 
 
@@ -135,6 +137,7 @@ public class Main {
                         if(!temp.delete())
                             System.err.println("Failed deleting temp");
                     numIt++;
+                    dk.brics.tajs.Main.reset();
                 }
             }
         } catch (IOException e) {
@@ -173,6 +176,7 @@ public class Main {
                     if(temp.exists())
                         if(!temp.delete())
                            System.err.println("Failed deleting temp");
+                    dk.brics.tajs.Main.reset();
                 }
 
             }
