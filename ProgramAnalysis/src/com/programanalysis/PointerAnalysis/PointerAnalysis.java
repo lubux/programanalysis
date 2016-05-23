@@ -53,10 +53,22 @@ public class PointerAnalysis {
 
     private CallGraphParser callGraphParser;
 
+    private AbstractObject theGlobalObject;
+
+    public Integer getAndIncAbsObjIdx(){
+        Integer res = new Integer(abstractObjectIndex.intValue());
+        abstractObjectIndex++;
+        return res;
+    }
+
+    public AbstractObject getTheGlobalObject(){
+        return theGlobalObject;
+    }
+
     public void init(){
         nodesOfInterest = new HashSet<AbstractNode>();
         flowgraph = analysis.getSolver().getFlowGraph();
-        state = new GlobalState();
+        state = new GlobalState(this);
         callGraph = analysis.getSolver().getAnalysisLatticeElement().getCallGraph();
         blockRegisters = new HashMap<BasicBlock, BlockRegisters>();
         blockCheckList = new HashSet<BasicBlock>();
@@ -120,6 +132,12 @@ public class PointerAnalysis {
         set.add(absObj);
         abstractObjectIndex++;
         getState().writeStore("document", flowgraph.getMain(), set);
+
+        // define the global object
+        theGlobalObject = absObj;
+
+        // add the global object to the this object of the main function
+        getState().getInstate(flowgraph.getMain()).thisObjects.add(absObj);
 
         // console
         absObj = new AbstractObject(abstractObjectIndex.toString());
@@ -212,7 +230,6 @@ public class PointerAnalysis {
                         }
                         if(inState.thisObjects.isEmpty()){
                             // there is no abstract object behind the this object, so we put one there
-                            // there is no abstract object behind this argument and we put one there
                             AbstractObject obj = new AbstractObject(abstractObjectIndex.toString());
                             abstractObjectIndex++;
                             inState.thisObjects.add(obj);

@@ -27,10 +27,13 @@ public class GlobalState {
 
     private Map<Function, Map<String, Set<AbstractObject>>> store;
 
+    private PointerAnalysis analysis;
+
     /** store from abstract object and field to abstract object*/
     private Map<Tuple, Set<AbstractObject>> propertystore;
 
-    public GlobalState(){
+    public GlobalState(PointerAnalysis analysis){
+        this.analysis = analysis;
         store = new HashMap<Function, Map<String, Set<AbstractObject>>>();
         for(Function f: PointerAnalysis.flowgraph.getFunctions()){
             Map<String, Set<AbstractObject>> map = new HashMap<String, Set<AbstractObject>>();
@@ -258,6 +261,14 @@ public class GlobalState {
         }
         Set<AbstractObject> res = new HashSet<AbstractObject>();
         for(AbstractObject obj: objs){
+            if(obj.ID != null && !propertystore.containsKey(new Tuple(obj, property))){
+                // we read a property of a function argument that was created because the function is not called, so we have to generate the property
+                AbstractObject newProp = new AbstractObject(analysis.getAndIncAbsObjIdx().toString());
+                Set<AbstractObject> set = new HashSet<AbstractObject>();
+                set.add(newProp);
+                propertystore.put(new Tuple(obj, property), set);
+                changed = true;
+            }
             if(propertystore.containsKey(new Tuple(obj, property))){
                 res.addAll(propertystore.get(new Tuple(obj,property)));
             }
@@ -273,6 +284,14 @@ public class GlobalState {
         }
         for(AbstractObject obj: objs){
             for(String prop: property){
+                if(obj.ID != null && !propertystore.containsKey(new Tuple(obj, prop))){
+                    // we read a property of a function argument that was created because the function is not called, so we have to generate the property
+                    AbstractObject newProp = new AbstractObject(analysis.getAndIncAbsObjIdx().toString());
+                    Set<AbstractObject> set = new HashSet<AbstractObject>();
+                    set.add(newProp);
+                    propertystore.put(new Tuple(obj, prop), set);
+                    changed = true;
+                }
                 if(propertystore.containsKey(new Tuple(obj, prop))){
                     res.addAll(propertystore.get(new Tuple(obj,prop)));
                 }

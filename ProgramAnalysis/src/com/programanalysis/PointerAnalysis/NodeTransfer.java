@@ -137,8 +137,15 @@ public class NodeTransfer implements NodeVisitor {
                    }
                 }
                 if(! callNode.isConstructorCall()) {
-                    Object obj = registers.readRegister(callNode.getBaseRegister());
-                    analysis.getState().addThisToInState((Set)obj, callee);
+                    if(callee.getOuterFunction().equals(analysis.getFlowgraph().getMain())){
+                        // the called function is a global function, so we put the global object into the this object
+                        Set<AbstractObject> set = new HashSet<AbstractObject>();
+                        set.add(analysis.getTheGlobalObject());
+                        analysis.getState().addThisToInState(set, callee);
+                    } else {
+                        Object obj = registers.readRegister(callNode.getBaseRegister());
+                        analysis.getState().addThisToInState((Set) obj, callee);
+                    }
                     registers.writeRegister(callNode.getResultRegister(), analysis.getState().getOutstate(callee).returnObjects);
                 } else {
                     AbstractObject obj = new AbstractObject(callNode);
