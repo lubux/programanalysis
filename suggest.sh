@@ -49,4 +49,4 @@ java -jar ProgramAnalysis.jar -m test_predict -pf $1 -tf $2 > $SCRIPT_PATH/langu
 cd $SCRIPT_PATH/languagemodels/
 python predict.py -m rnn -i ./tmp_input.txt
 rm tmp_input.txt
-cd CUR_PATH
+cd $CUR_PATH
