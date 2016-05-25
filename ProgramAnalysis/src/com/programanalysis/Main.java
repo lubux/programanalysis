@@ -128,6 +128,8 @@ public class Main {
                         // remove the last new line
                         if(! extrHist.isEmpty()) {
                             System.out.print(extrHist.substring(0, extrHist.length() - 1));
+                        } else {
+                            System.err.println(variablename + " is not reachable in the code");
                         }
                     }
 
