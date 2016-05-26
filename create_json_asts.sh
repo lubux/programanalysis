@@ -1,5 +1,5 @@
 #!/bin/bash
-# Assumes js parser is locatet in the programanalysis folder(PATH_JS_PARSER)
+# Assumes js parser is located in the programanalysis folder (PATH_JS_PARSER)
 if [ "$#" -ne 1 ]; then
     echo "Illegal number of arguments"
     echo "usage: <scriptname> <js_directory>"

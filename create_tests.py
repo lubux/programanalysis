@@ -26,8 +26,8 @@ if "Linux" in platform.platform():
 
 
 def run_command(cmd, arg1, arg2):
-    output = subprocess.Popen([cmd, arg1, arg2], stdout=subprocess.PIPE).communicate()[0]
-    return str(output)
+    output, _ = subprocess.Popen([cmd, arg1, arg2], stdout=subprocess.PIPE).communicate()
+    return output.decode("utf-8") 
 
 with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
         open(os.path.join(path, TEST_F), "w") as test_w, \
@@ -36,7 +36,6 @@ with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
         if js_file.endswith(".js"):
             print("Process file %s" % (js_file,))
             json_ast = run_command(NODE_JS, PATH_JS_PARSER, os.path.join(path, js_file))
-            json_ast = str(json_ast)
             tokens = json_ast.split("}, {")
             found = False
             for token in tokens:
