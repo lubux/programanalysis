@@ -171,7 +171,7 @@ public class Main {
                     if(!hist.isEmpty())
                         System.out.print(hist.substring(0, hist.length()));
                     else
-                        System.out.print("<?>");
+                        System.out.println("<?>");
                 } catch (Exception e) {
                     e.printStackTrace();
                     reportError("Error occurred :(");

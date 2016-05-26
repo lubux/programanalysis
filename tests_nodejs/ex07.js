@@ -8,4 +8,4 @@ function ender (stream) {
   stream._emit_();
 }
 var stream = arg("Stream");
-ender(sream);
+ender(stream);
