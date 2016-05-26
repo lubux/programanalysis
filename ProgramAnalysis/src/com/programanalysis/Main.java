@@ -170,6 +170,8 @@ public class Main {
                     String hist = pred.getPredictionHistories();
                     if(!hist.isEmpty())
                         System.out.print(hist.substring(0, hist.length()));
+                    else
+                        System.out.print("<?>");
                 } catch (Exception e) {
                     e.printStackTrace();
                     reportError("Error occurred :(");
