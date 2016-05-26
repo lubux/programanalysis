@@ -20,5 +20,5 @@ fi
 for f in $FILES/*.js
 do
 	echo "Processing $f"
-	node $PATH_JS_PARSER $f >> $FILES/$PROGRAMS
+	$NODE_JS $PATH_JS_PARSER $f >> $FILES/$PROGRAMS
 done
