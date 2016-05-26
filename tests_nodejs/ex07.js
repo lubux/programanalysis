@@ -1,4 +1,4 @@
-function ender (stream) { 
+function test(stream) { 
   if (stream._error) {
   	return;
   }
@@ -8,4 +8,4 @@ function ender (stream) {
   stream._emit_();
 }
 var stream = arg("Stream");
-ender(stream);
+test(stream);
