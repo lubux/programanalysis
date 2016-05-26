@@ -4,7 +4,7 @@ function show_index(request, response) {
   var output = '<html><head><title>node.js HTTP server example</title></head><body><b>Index output</b>';
   var url_request = url.parse(request.url).query;
   output += "<p>Request query: " + url_request + "</p>";
-  if (url_request) sys.puts("Request query: " + JSON.stringify(querystring.parse(url_request)));
+  if (url_request) sys.puts("Request query: ");
   output += '</body></html>';
   response.write(output);
   response._end_();
