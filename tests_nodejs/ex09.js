@@ -1,5 +1,5 @@
 function handle(request, response) {
-	response.writeHead(200, {'Content-Type': 'text/plain'});
+	response.writeHead(200);
 	response.write('Hello World');
 	response._end_();
 }

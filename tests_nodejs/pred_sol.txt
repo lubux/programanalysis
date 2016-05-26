@@ -6,5 +6,5 @@
 5 102 join
 6 28 emit
 7 22 print
-8 25 end
+8 22 end
 9 125 on
