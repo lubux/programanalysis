@@ -5,7 +5,6 @@ function show_index(request, response) {
   var url_request = url.parse(request.url).query;
   output += "<p>Request query: " + url_request + "</p>";
   if (url_request) sys.puts("Request query: ");
-  output += '</body></html>';
   response.write(output);
   response._end_();
 }
