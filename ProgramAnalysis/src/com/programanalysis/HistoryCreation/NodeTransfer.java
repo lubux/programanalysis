@@ -88,7 +88,7 @@ public class NodeTransfer implements NodeVisitor {
             }
             // add a return value to the return register
             Set<AbstractObject> set = new HashSet<AbstractObject>();
-            set.add(new AbstractObject(callNode));
+            set.add(new AbstractObject(callNode, null, true));
             reg.writeRegister(callNode.getResultRegister(), set);
         } else {
             if(historyCreation.getMainOnly()){

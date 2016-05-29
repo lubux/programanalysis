@@ -25,7 +25,7 @@ public class PredictionHistory {
 
     private String predictionHistories;
 
-    private String predictionFunction = "predictionfunction";
+    private String predictionFunction = "PADeepLearningUniquePredFunc";
 
     public PredictionHistory(String sourcePath, int lineNumber, int columnNumber) throws IOException {
         this.lineNumber = lineNumber;

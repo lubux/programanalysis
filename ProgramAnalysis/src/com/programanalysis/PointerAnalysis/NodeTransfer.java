@@ -79,7 +79,7 @@ public class NodeTransfer implements NodeVisitor {
                 registers.writeRegister(callNode.getResultRegister(), set);
             } else {
                 // if callee is null, we don't have the source code for this function and just create a new abstract object as the return value
-                AbstractObject newobj = new AbstractObject(callNode);
+                AbstractObject newobj = new AbstractObject(callNode, null, true);
                 Set<AbstractObject> set = new HashSet<AbstractObject>();
                 set.add(newobj);
                 registers.writeRegister(callNode.getResultRegister(), set);
@@ -137,7 +137,7 @@ public class NodeTransfer implements NodeVisitor {
                    }
                 }
                 if(! callNode.isConstructorCall()) {
-                    if(callee.getOuterFunction().equals(analysis.getFlowgraph().getMain())){
+                    if(! callee.hasOuterFunction() || callee.getOuterFunction().equals(analysis.getFlowgraph().getMain())){
                         // the called function is a global function, so we put the global object into the this object
                         Set<AbstractObject> set = new HashSet<AbstractObject>();
                         set.add(analysis.getTheGlobalObject());

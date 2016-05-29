@@ -35,7 +35,7 @@ public class HistoryCreation {
 
     private Transfer visitor;
 
-    private int maxIter = 10;
+    private int maxIter = 12;
 
     private Set<AbstractNode> nodesOfInterest;
 
