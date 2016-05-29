@@ -17,7 +17,7 @@ sol_pat= re.compile(r'(\d+) (\d+) (.*)')
 
 NUM_BEST = 5
 model_to_res = {}
-with open(args.res, "r") as res:
+with open(args.result, "r") as res:
     cur_model = None
     cur_node = None
     for line in res:
@@ -40,7 +40,7 @@ with open(args.res, "r") as res:
             model_to_res[cur_model] = {}
 
 sols = []
-with open(args.sol, "r") as sol:
+with open(args.solution, "r") as sol:
     for line in sol:
         m_sol = sol_pat.match(line)
         if m_sol:
