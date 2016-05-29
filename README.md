@@ -34,3 +34,21 @@ Top 5: Percentage 70.00%
 ```
 ./extract_histories.sh ./tests_histories/programs.json ./tests_histories/test
 ```
+
+## How to create test/evaluation files in a directory of js files:
+```
+python create_tests.py ./tests_nodejs/
+```
+Example output:
+```
+Process file ex01.js
+Process file ex02.js
+Process file ex03.js
+Process file ex04.js
+Process file ex05.js
+Process file ex06.js
+Process file ex07.js
+Process file ex08.js
+Process file ex09.js
+Process file ex10.js
+```
