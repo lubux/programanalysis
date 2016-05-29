@@ -15,3 +15,5 @@
 [open] [write] <?>
 5 35
 [writeHead] [write] [write] <?>
+6 45
+[addShape] <?>

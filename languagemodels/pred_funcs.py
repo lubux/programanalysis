@@ -178,16 +178,17 @@ def combine_rnn_ngram_before(input, word_to_id, save_dir="./models/"):
                         cands_to_props[cand] = [props[ind]]
             preds_ngram = [(a, np.mean(np.asarray(b))) for (a, b) in cands_to_props.items()]
             final_score = [(a, (b + scores[word_to_id[a]][1]) / 2) for (a, b) in preds_ngram]
-            if len(final_score) < NUM_CAND:
-                in_ranking = [a for (a, b) in final_score]
-                scores.sort(key=lambda x:x[1], reverse=True)
-                count = len(final_score)
-                for score in scores:
-                    if score[0] not in in_ranking:
-                        final_score.append(score)
-                        count += 1
-                    if count >= NUM_CAND:
-                        break
+            if len(final_score) < len(NOT_ALLOWED_TOKEN) + NUM_CAND:
+                in_ranking = [a for (a, b) in final_score if a not in NOT_ALLOWED_TOKEN]
+                if len(in_ranking) < NUM_CAND:
+                    scores.sort(key=lambda x:x[1], reverse=True)
+                    count = len(in_ranking)
+                    for score in scores:
+                        if score[0] not in in_ranking and score[0] not in NOT_ALLOWED_TOKEN:
+                            final_score.append(score)
+                            count += 1
+                        if count >= NUM_CAND:
+                            break
             final_score.sort(key=lambda x:x[1], reverse=True)
             print_ranking(node, final_score)
     finally:
