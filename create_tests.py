@@ -24,7 +24,7 @@ if len(sys.argv) == 3:
 
 if not DO_SUGGEST:
     PROGRAMS = "hist_"+PROGRAMS
-    TEST_F = "hist_"+PROGRAMS
+    TEST_F = "hist_"+TEST_F
     SOL_F = "hist_"+SOL_F
 
 path = sys.argv[1]
