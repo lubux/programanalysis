@@ -1,12 +1,13 @@
-# ETH Program Analysis Project 2016
-Deep Learning for Programs
+# ETH Program Analysis Project 2016 - Deep Learning for Programs
 
 ## Requirements for running scripts:
 * libraries installed (installDep.sh)
 * Download the pretrainend models (./languagemodels/models/load_trained_model.sh) 
 
 ## How to run the evaluation script:
+```
 ./eval_suggest.sh ./tests_nodejs/programs.json ./tests_nodejs/test ./tests_nodejs/pred_sol.txt
+```
 
 Example output:
 ```
