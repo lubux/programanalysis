@@ -13,10 +13,19 @@ SOL_F = "pred_sol.txt"
 pat = re.compile(r'.*"id":(\d+), "type":".*", "value":"_(.*)_".*')
 DO_SUGGEST = True
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
     print("Invalid number of arguments")
-    print("usage: python <scriptname> <js_directory>")
+    print("usage: python <scriptname> <js_directory> optional:--hist")
     exit(1)
+
+if len(sys.argv) == 3:
+    if sys.argv[2] == "--hist":
+        DO_SUGGEST = False
+
+if not DO_SUGGEST:
+    PROGRAMS = "hist_"+PROGRAMS
+    TEST_F = "hist_"+PROGRAMS
+    SOL_F = "hist_"+SOL_F
 
 path = sys.argv[1]
 
@@ -50,7 +59,8 @@ with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
                         json_ast = json_ast.replace("_"+name+"_", name)
                     progs_w.write(json_ast)
                     test_w.write("%d    %s\n" % (program_id-1, node_id))
-                    sol_w.write("%d %s %s\n" % (program_id-1, node_id, name))
+                    if DO_SUGGEST:
+                        sol_w.write("%d %s %s\n" % (program_id-1, node_id, name))
                     found = True
                     break
             if not found:
