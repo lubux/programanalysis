@@ -128,6 +128,8 @@ public class Main {
                         // remove the last new line
                         if(! extrHist.isEmpty()) {
                             System.out.print(extrHist.substring(0, extrHist.length() - 1));
+                        } else {
+                            System.err.println(variablename + " is not reachable in the code");
                         }
                     }
 
@@ -168,6 +170,8 @@ public class Main {
                     String hist = pred.getPredictionHistories();
                     if(!hist.isEmpty())
                         System.out.print(hist.substring(0, hist.length()));
+                    else
+                        System.out.println("<?>");
                 } catch (Exception e) {
                     e.printStackTrace();
                     reportError("Error occurred :(");

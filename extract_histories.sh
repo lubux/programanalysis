@@ -34,4 +34,4 @@ CUR_PATH=$(pwd)
 
 cd $SCRIPT_PATH/ProgramAnalysis/
 java -jar ProgramAnalysis.jar -m test_hist -pf $CUR_PATH/$1 -tf $CUR_PATH/$2 2> /dev/null
-cd CUR_PATH
+cd $CUR_PATH

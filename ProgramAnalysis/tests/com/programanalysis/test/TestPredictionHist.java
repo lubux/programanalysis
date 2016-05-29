@@ -16,4 +16,11 @@ public class TestPredictionHist {
         Main.handlePredictionTest(propath, testpath);
     }
 
+    @Test
+    public void testHistTest() {
+        String propath = FileUtil.makePath("data", "exampletest", "tests_histories", "programs.json");
+        String testpath = FileUtil.makePath("data", "exampletest", "tests_histories", "test");
+        Main.handleHistoryTest(propath, testpath);
+    }
+
 }

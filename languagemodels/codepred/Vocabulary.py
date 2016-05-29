@@ -18,9 +18,11 @@ class Vocabulary:
             for line in f:
                 if line in last_line:
                     continue
+                tokens = line.split()
+                if len(tokens) < 2:
+                    continue
                 last_line = line
                 self.num_hist += 1
-                tokens = line.split()
                 if len(tokens) > self.max_sent_len:
                     self.max_sent_len = len(tokens)
                 for word in tokens:
@@ -67,9 +69,11 @@ def create_train(files, num_train, vocab, out_train="./data/train.txt", out_eval
                 for line in r_f:
                     if line in last_line:
                         continue
-                    line_count += 1
-                    last_line = line
                     tokens = line.split()
+                    if len(tokens) < 2:
+                        continue
+                    last_line = line
+                    line_count += 1
                     new_line = []
                     for token in tokens:
                         if token in vocab:
@@ -82,3 +86,19 @@ def create_train(files, num_train, vocab, out_train="./data/train.txt", out_eval
                         w_eval.write("%s\n" % line_str)
                     else:
                         w_train.write("%s\n" % line_str)
+
+
+def count_numhist(files):
+    count = 0
+    last_line = " "
+    for file_in in files:
+        with open(file_in, "r") as r_f:
+            for line in r_f:
+                if line in last_line:
+                        continue
+                tokens = line.split()
+                if len(tokens) < 2:
+                    continue
+                count += 1
+    return count
+
