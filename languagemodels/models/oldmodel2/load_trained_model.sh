@@ -4,7 +4,7 @@ CUR_PATH=$(pwd)
 cd $SCRIPTPATH
 
 echo "Load Trained Models"
-curl -L https://www.dropbox.com/s/9jj842q2um9odhe/model_big.zip?dl=1 > models.zip
+curl -L https://www.dropbox.com/sh/wtf12r9upwjw0o1/AABFpr5vm6t2XKwxb3hlXJvfa?dl=1 > models.zip
 
 unzip models.zip
 mv ./models/* .

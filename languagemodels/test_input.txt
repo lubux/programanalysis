@@ -11,3 +11,7 @@
 [lukas] [cedi] <?>
 3 33
 <?>
+4 34
+[open] [write] <?>
+5 35
+[writeHead] [write] [write] <?>

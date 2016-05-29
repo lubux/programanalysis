@@ -30,5 +30,4 @@ print "--------------------------RNN---------------------------------------"
 pred.predict_rnn(test_input, vocab)
 
 print "--------------------------RNN-BI---------------------------------------"
-
-#pred.predict_bigram_rnn(test_input, vocab)
+pred.predict_bigram_rnn(test_input, vocab)
