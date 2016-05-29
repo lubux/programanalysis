@@ -36,7 +36,7 @@ Top 5: Percentage 70.00%
 ```
 
 ## How to create test/evaluation files in a directory of prepared js files:
-*First Step:* mark desired method to predict with _methodName_ in the js file 
+*First Step:* mark desired method to predict with ``_<methodName>_`` in the js file 
 Example:
 ```
 var sys = require("sys");
