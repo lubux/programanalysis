@@ -151,6 +151,40 @@ def predict_ngram_before(input, vocab):
         bigram.close()
 
 
+def combine_rnn_ngram_before(input, word_to_id, save_dir="./models/"):
+    work_list = read_input(input, word_to_id)
+    bigram = BigramPredictor("./models/%s" % (LM_BIGRAM,))
+    nrgam_model = NGramPredictor("./models/%s" % (LN_NGRAM,))
+    rnn = LSTMPredictor(save_dir)
+    try:
+        for work in work_list:
+            node = work[0]
+            hists = work[1]
+            contexts = [hist[:hist.index(CAND_TOKEN)] for hist in hists]
+            scores = rnn.score_complentions(contexts)
+            candidates, hist_to_cand = get_candidates(bigram, hists)
+            cands_to_props = {}
+            for hist in hists:
+                hist_str = hist_to_str(hist)
+                hist_cands = list(hist_to_cand[hist_str])
+                context = hist[:hist.index(CAND_TOKEN)]
+                props = nrgam_model.get_context_prop(context, hist_cands)
+                for ind, cand in enumerate(hist_cands):
+                    if cand in cands_to_props:
+                        list_in = cands_to_props[cand]
+                        list_in.append(props[ind])
+                        cands_to_props[cand] = list_in
+                    else:
+                        cands_to_props[cand] = [props[ind]]
+            preds_ngram = [(a, np.mean(np.asarray(b))) for (a, b) in cands_to_props.items()]
+            final_score = [(a, (b + scores[word_to_id[a]][1]) / 2) for (a, b) in preds_ngram]
+            final_score.sort(key=lambda x:x[1], reverse=True)
+            print_ranking(node, final_score)
+    finally:
+        rnn.close()
+        bigram.close()
+
+
 def predict_rnn(input, vocab, save_dir="./models/"):
     work_list = read_input(input, vocab)
     rnn = LSTMPredictor(save_dir)
