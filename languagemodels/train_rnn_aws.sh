@@ -26,12 +26,8 @@ $SCP_CMD ./train_rnn.py $AWS_ADDR:./training/
 $SCP_CMD ./models/vocab.p $AWS_ADDR:./training/models/
 
 read -p "Press to run train..."
-#echo "run training"
-#$SSH_CMD << EOF
-export CUDA_HOME=/usr/local/cuda
-export CUDA_ROOT=/usr/local/cuda
-export PATH=$PATH:$CUDA_ROOT/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_ROOT/lib64
+echo "run training"
+$SSH_CMD << EOF
 cd training
 screen python ./train_rnn.py | tee log.txt
 EOF
