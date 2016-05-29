@@ -35,7 +35,24 @@ Top 5: Percentage 70.00%
 ./extract_histories.sh ./tests_histories/programs.json ./tests_histories/test
 ```
 
-## How to create test/evaluation files in a directory of js files:
+## How to create test/evaluation files in a directory of prepared js files:
+*First Step:* mark desired method to predict with _methodName_ in the js file 
+Example:
+```
+var sys = require("sys");
+var response = arg("func");
+
+sys.puts("STATUS: " + response.statusCode);
+sys.puts("HEADERS: " + JSON.stringify(response.headers));
+response.setEncoding("UTF8");
+response.addListener("data", function(chunk) {
+  sys.puts("BODY: " + chunk);
+});
+response._addListener_();
+
+```
+*Second Step:* run the create_tests.py python script
+
 ```
 python create_tests.py ./tests_nodejs/
 ```
