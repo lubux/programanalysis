@@ -99,7 +99,11 @@ public class JSONPrinterParser {
             reader = new BufferedReader(new InputStreamReader(input));
             String line = reader.readLine();
             List<LocIdPair> curMap = new ArrayList<>();
-            while (line!=null && !line.isEmpty()) {
+            while (line!=null) {
+                if(line.isEmpty()) {
+                    line = reader.readLine();
+                    continue;
+                }
                 Matcher matcher =  PATTERN_ID.matcher(line);
                 if (matcher.find()) {
                     int lineNr = Integer.valueOf(matcher.group(2));
