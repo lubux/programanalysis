@@ -33,7 +33,7 @@ query.on('row', function(row) {
   console.log(row);
   console.log("Beatle name: %s", row.name); //Beatle name: John
   console.log("Beatle birth year: %d", row.birthday.getYear()); //dates are returned as javascript dates
-  console.log("Beatle height: %d' %d\"", Math.floor(row.height/12), row.height%12); //integers are returned as javascript ints
+  console.log("Beatle height: %d' %d", Math.floor(row.height/12), row.height%12); //integers are returned as javascript ints
 });
 
 //fired after last row is emitted
