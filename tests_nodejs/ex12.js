@@ -19,7 +19,7 @@ function encrypt(text) {
 function decrypt(encrypted) {
   var decipher = crypto.createDecipheriv(algorithm, password, iv)
   decipher.setAuthTag(encrypted.tag);
-  var dec = decipher._update_(encrypted.content, 'hex', 'utf8')
+  var dec = decipher._update_()
   dec += decipher.final('utf8');
   return dec;
 }

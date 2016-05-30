@@ -26,7 +26,7 @@ client.query({
   name: 'insert beatle',
   values: ['Paul', 63, new Date(1945, 04, 03)]
 });
-var query = client._query_("SELECT * FROM beatles WHERE name = $1", ['Ringo']);
+var query = client._query_();
 
 //can stream row results back 1 at a time
 query.on('row', function(row) {
