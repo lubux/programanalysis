@@ -13,7 +13,7 @@ var zip = zlib.createGzip();
 // encrypt content
 var encrypt = crypto.createCipher(algorithm, password);
 // decrypt content
-var decrypt = crypto._createDecipher_(algorithm, password)
+var decrypt = crypto._createDecipher_()
 // unzip content
 var unzip = zlib.createGunzip();
 // write file
