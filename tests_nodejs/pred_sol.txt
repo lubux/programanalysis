@@ -13,8 +13,8 @@
 12 40 log
 13 114 query
 14 21 log
-15 53 close
-16 62 close
-17 51 end
+15 52 close
+16 61 close
+17 52 end
 18 51 finalize
 19 31 stat

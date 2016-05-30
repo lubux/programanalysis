@@ -1,6 +1,6 @@
 var fs = require('fs');
 var a = new Object();
-buffer = new Buffer(10);
+var buffer = new Buffer(10);
 
 fs.open(__dirname + '/a.txt', 'r', a);
 fs.fstat(a, a);

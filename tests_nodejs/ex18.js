@@ -10,8 +10,9 @@ connection.connect();
 
 //fetch data from table
 connection.query('SELECT * from users', function(err, rows, fields) {
-  if (err) throw err;
-
+  if (err) { 
+  	throw err;
+  }
   console.log(rows);
 });
 
