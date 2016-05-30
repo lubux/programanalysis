@@ -12,6 +12,7 @@ public class AbstractObject {
         creationNode = node;
         stringvalue = null;
         ID = null;
+        addProperties = true;
     }
 
     /* used for abstract objects that are put in to not called function arguments or global object like document, console, window etc. ...*/
@@ -26,7 +27,7 @@ public class AbstractObject {
         creationNode = node;
         stringvalue = string;
         ID = null;
-        addProperties = false;
+        addProperties = true;
     }
 
     public AbstractObject(AbstractNode node, String string, boolean addProperties){
