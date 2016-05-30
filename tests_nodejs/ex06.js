@@ -24,6 +24,6 @@ function parseHeaderString (headers, string) {
   affixHeader(headers, field, value);
 }
 
-var headers = arg("Header");
-var string = arg("String");
+var headers = new Object();
+var string = new Object();
 parseHeaderString (headers, string);

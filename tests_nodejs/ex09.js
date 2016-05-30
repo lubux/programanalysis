@@ -4,6 +4,6 @@ function handle(request, response) {
 	response._end_();
 }
 
-var request = arg("req");
-var response = arg("req");
+var request = new Object();
+var response = new Object();
 handle(request, response);

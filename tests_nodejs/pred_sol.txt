@@ -8,3 +8,8 @@
 7 22 print
 8 22 end
 9 125 on
+10 46 createDecipher
+11 80 update
+12 40 log
+13 114 query
+14 21 log

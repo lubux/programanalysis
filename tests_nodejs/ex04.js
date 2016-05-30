@@ -7,8 +7,8 @@ function show_index(request, response) {
   response.write(output);
   response._end_();
 }
-var request = arg("request");
-var response = arg("request");
+var request = new Object();
+var response = new Object();
 
 
 show_index(request, response);
