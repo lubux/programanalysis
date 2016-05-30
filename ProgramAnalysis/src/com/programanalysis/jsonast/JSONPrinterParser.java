@@ -53,7 +53,7 @@ public class JSONPrinterParser {
                         sb = new StringBuilder();
                     }
                     String start = matcher.group(1);
-                    if(start!=null && !start.isEmpty()) {
+                    if(start!=null && !(start.length()<=1)) {
                         sb.append(start);
                         sb.append(System.lineSeparator());
                     }
