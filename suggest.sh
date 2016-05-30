@@ -47,6 +47,6 @@ CUR_PATH=$(pwd)
 cd $SCRIPT_PATH/ProgramAnalysis/
 java -jar ProgramAnalysis.jar -m test_predict -pf $CUR_PATH/$1 -tf $CUR_PATH/$2 > $SCRIPT_PATH/languagemodels/tmp_input.txt 2> /dev/null
 cd $SCRIPT_PATH/languagemodels/
-python predict.py -m rnn -i ./tmp_input.txt
+python predict.py -m rnn_ngram -i ./tmp_input.txt
 rm tmp_input.txt
 cd $CUR_PATH

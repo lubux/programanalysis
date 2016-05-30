@@ -11,5 +11,5 @@ function on_post(stream) {
   stream._addListener_()
 }
 
-var stream = arg("Stream");
+var stream = new Object();
 on_post(stream);

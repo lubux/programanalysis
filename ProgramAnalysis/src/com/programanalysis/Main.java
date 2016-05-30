@@ -151,7 +151,7 @@ public class Main {
     }
 
     public static void handlePredictionTest(String programPath, String testPath) {
-        String SEARCH_TOKEN = "predictionfunction";
+        String SEARCH_TOKEN = PredictionHistory.predictionFunction;
         String REPLACE_TOKEN = "." + SEARCH_TOKEN + "()";
         try {
             List<GenProgram> programs = JSONPrinterCaller.getPrograms(programPath);

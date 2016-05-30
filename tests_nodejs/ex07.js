@@ -7,5 +7,5 @@ function test(stream) {
   }
   stream._emit_();
 }
-var stream = arg("Stream");
+var stream = new Object();
 test(stream);
