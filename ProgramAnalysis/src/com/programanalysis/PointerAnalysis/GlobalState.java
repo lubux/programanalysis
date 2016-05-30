@@ -261,7 +261,7 @@ public class GlobalState {
         }
         Set<AbstractObject> res = new HashSet<AbstractObject>();
         for(AbstractObject obj: objs){
-            if(obj.ID != null && !propertystore.containsKey(new Tuple(obj, property))){
+            if(obj.getAddProperties() && !propertystore.containsKey(new Tuple(obj, property))){
                 // we read a property of a function argument that was created because the function is not called, so we have to generate the property
                 AbstractObject newProp = new AbstractObject(analysis.getAndIncAbsObjIdx().toString());
                 Set<AbstractObject> set = new HashSet<AbstractObject>();
@@ -284,7 +284,7 @@ public class GlobalState {
         }
         for(AbstractObject obj: objs){
             for(String prop: property){
-                if(obj.ID != null && !propertystore.containsKey(new Tuple(obj, prop))){
+                if(obj.getAddProperties() && !propertystore.containsKey(new Tuple(obj, prop))){
                     // we read a property of a function argument that was created because the function is not called, so we have to generate the property
                     AbstractObject newProp = new AbstractObject(analysis.getAndIncAbsObjIdx().toString());
                     Set<AbstractObject> set = new HashSet<AbstractObject>();

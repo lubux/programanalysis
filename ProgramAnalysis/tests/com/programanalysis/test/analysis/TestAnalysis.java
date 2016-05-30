@@ -24,12 +24,12 @@ public class TestAnalysis {
 
     @Test
     public void simpleAnalysisDebug2() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "test_javascript_6.js";
-        //String filePath2 = "C:\\PA_Programs\\data\\j03m\\trafficcone\\public\\assets\\hero\\hero.js";
+        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "endlesstest.js";
+        //String filePath = "C:\\PA_Programs\\data\\jwysiwyg\\jwysiwyg\\src\\controls\\default.js";
         //String filePath = "C:\\PA_Programs\\data\\axiomsoftware\\axiom-stack\\apps\\manage\\Root\\security.js";
 
         // run the tajs analysis
-        Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath}, null);
+        Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath, "-dom"}, null);
         dk.brics.tajs.Main.run(tajsAnalysis);
         // get the full call graph
         String cg = CallGraphCaller.getCallGraph(FileUtil.getNodeJSCallGraphCMD(filePath));
@@ -47,7 +47,7 @@ public class TestAnalysis {
         hist.solve();
         //System.out.println("History creation completed");
         String result = hist.printSelectedHistories();
-        System.out.println(result);
+        System.out.print(result);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class TestAnalysis {
                 // run the tajs analysis
                 Analysis tajsAnalysis = null;
                 try{
-                    tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath}, null);
+                    tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath, "-dom"}, null);
                     dk.brics.tajs.Main.run(tajsAnalysis);
                 } catch(Exception e){
                     dk.brics.tajs.Main.reset();
@@ -99,8 +99,8 @@ public class TestAnalysis {
 
     @Test
     public void predictionHistory() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "predictionHistory_test_3.js";
-        PredictionHistory predHist = new PredictionHistory(filePath, 11, 9);
+        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "interfaceTest_1.js";
+        PredictionHistory predHist = new PredictionHistory(filePath, 14, 25);
         String sol = predHist.getPredictionHistories();
         System.out.print(sol);
     }
@@ -108,7 +108,7 @@ public class TestAnalysis {
     @Test
     public void HistoryExtraction() throws IOException {
         String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "test_javascript_6.js";
-        HistoryExtraction histExt = new HistoryExtraction(filePath,40,5,"beverage3");
+        HistoryExtraction histExt = new HistoryExtraction(filePath,40,5,"beverage3", 0,0);
         String sol = histExt.getExtractedHistories();
         System.out.print(sol);
     }
@@ -126,12 +126,12 @@ public class TestAnalysis {
             String line;
             while ((line = br.readLine()) != null && counter < 100000) {
                 generalCounter++;
-                /*if(!line.equals("data/viadeo/tetra/lib/prototype/1.6.1/prototype.js") && skip){
+                if(!line.equals("data/jgallen23/jquery-builder/dist/2.0.1/jquery-ajax-css-deprecated-sizzle.js") && skip){
                     continue;
-                } else if(line.equals("data/viadeo/tetra/lib/prototype/1.6.1/prototype.js") && skip) {
+                } else if(line.equals("data/jgallen23/jquery-builder/dist/2.0.1/jquery-ajax-css-deprecated-sizzle.js") && skip) {
                     skip = false;
                     continue;
-                }*/
+                }
                 System.out.println(generalCounter + " " + counter + " " + line);
                 String filePath = basePath + line;
                 File sourceFile = new File(filePath);
@@ -141,11 +141,11 @@ public class TestAnalysis {
                 // run the tajs analysis
                 Analysis tajsAnalysis = null;
 
-                // create a timer for timeout, set timeout to 15 seconds
+                // create a timer for timeout, set timeout to 8 seconds
                 Timer timer = new Timer(true);
                 InterruptTimerTask interruptTimerTask =
                         new InterruptTimerTask(Thread.currentThread());
-                timer.schedule(interruptTimerTask, 15000);
+                timer.schedule(interruptTimerTask, 8000);
                 tajsThread tajsT = new tajsThread(filePath);
                 Thread t = new Thread(tajsT);
                 try{
@@ -163,7 +163,9 @@ public class TestAnalysis {
                 if(tajsAnalysis == null){
                     continue;
                 }
-
+                if(tajsT.error){
+                    continue;
+                }
 
                 // get the full call graph
                 String cg = CallGraphCaller.getCallGraph(FileUtil.getNodeJSCallGraphCMD(filePath));
@@ -174,11 +176,11 @@ public class TestAnalysis {
                     dk.brics.tajs.Main.reset();
                     continue;
                 }
-                // create a new thread for the history creation, limit the pointer analysis & history creation to 30 seconds
+                // create a new thread for the history creation, limit the pointer analysis & history creation to 16 seconds
                 timer = new Timer(true);
                 interruptTimerTask =
                         new InterruptTimerTask(Thread.currentThread());
-                timer.schedule(interruptTimerTask, 30000);
+                timer.schedule(interruptTimerTask, 16000);
                 HistoryThread histT = new HistoryThread(tajsAnalysis, cgp);
                 t = new Thread(histT);
                 HistoryCreation hist;
@@ -207,6 +209,8 @@ public class TestAnalysis {
         }
         writer.close();
     }
+
+
 
 
 }

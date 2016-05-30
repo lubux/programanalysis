@@ -23,6 +23,8 @@ public class PointerAnalysis {
         this.srcCol = srcCol;
     }
 
+    private int maxIter = 12;
+
     private Integer abstractObjectIndex = 0;
 
     private int srcLine;
@@ -167,9 +169,17 @@ public class PointerAnalysis {
         abstractObjectIndex++;
         getState().writeStore("location", flowgraph.getMain(), set);
 
+        //process
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("process", flowgraph.getMain(), set);
+
 
         // start with the analysis
         boolean first = true;
+        int iterCounter = 0;
         while(! worklist.isEmpty()){
             QueueEntry entry = worklist.remove();
             BasicBlock block = entry.getBlock();
@@ -204,12 +214,15 @@ public class PointerAnalysis {
             }
             if(worklist.isEmpty())
                 if(getState().getAndResetChanged()){
-                    worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
-                    blockCheckList = new HashSet<>();
-                    if(! mainOnly) {
-                        // we want to visit all functions and therefore add all here
-                        for (Function f : flowgraph.getFunctions()) {
-                            addToWorklist(f);
+                    iterCounter++;
+                    if(iterCounter < maxIter) {
+                        worklist.add(new QueueEntry(flowgraph.getEntryBlock()));
+                        blockCheckList = new HashSet<>();
+                        if (!mainOnly) {
+                            // we want to visit all functions and therefore add all here
+                            for (Function f : flowgraph.getFunctions()) {
+                                addToWorklist(f);
+                            }
                         }
                     }
                 }
@@ -237,6 +250,12 @@ public class PointerAnalysis {
                     }
                 }
                 first = false;
+                // re-run the analysis
+                blockCheckList = new HashSet<>();
+                // we want to visit all functions and therefore add all here
+                for (Function f : flowgraph.getFunctions()) {
+                    addToWorklist(f);
+                }
 
             }
         }

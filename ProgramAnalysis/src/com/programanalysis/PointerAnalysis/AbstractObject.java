@@ -19,12 +19,21 @@ public class AbstractObject {
         creationNode = null;
         stringvalue = null;
         ID = id;
+        addProperties = true;
     }
 
     public AbstractObject(AbstractNode node, String string){
         creationNode = node;
         stringvalue = string;
         ID = null;
+        addProperties = false;
+    }
+
+    public AbstractObject(AbstractNode node, String string, boolean addProperties){
+        creationNode = node;
+        stringvalue = string;
+        this.addProperties = addProperties;
+
     }
 
 
@@ -39,6 +48,13 @@ public class AbstractObject {
 
     /** used for abstract objects that are not created in call nodes, (document, console, function arguments of not called functions*/
     String ID;
+
+    /** if true, each accessed property of this abstract object is assigned a new abstract object because it wasn't constructed in a constructor*/
+    boolean addProperties;
+
+    public boolean getAddProperties(){
+        return addProperties;
+    }
 
     public boolean equals(Object obj){
         if(! (obj instanceof AbstractObject)){
