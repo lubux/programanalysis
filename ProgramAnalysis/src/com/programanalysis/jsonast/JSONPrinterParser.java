@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class JSONPrinterParser {
 
-    public static final String PATTERN_LOG_STR = "I\\d+ .+ \\d* main.cpp:\\d*] (.*)";
+    public static final String PATTERN_LOG_STR = "I\\d+ .+ \\d* main.cpp:\\d*](.*)";
     public static final String PATTERN_LOG_ID = "I\\d+ .+ \\d* main.cpp:\\d*] (\\d+) (\\d+) (\\d+)";
 
     public static final Pattern PATTERN_LOG = Pattern.compile(PATTERN_LOG_STR);
@@ -36,8 +36,12 @@ public class JSONPrinterParser {
             StringBuilder sb = new StringBuilder();
             reader = new BufferedReader(new InputStreamReader(input));
             String line = reader.readLine();
-            while (line!=null && !line.isEmpty()) {
+            while (line!=null) {
                 Matcher matcher =  PATTERN_LOG.matcher(line);
+                if(line.isEmpty()) {
+                    line = reader.readLine();
+                    continue;
+                }
                 if (matcher.find()) {
                     if(skip<2) {
                         skip++;
