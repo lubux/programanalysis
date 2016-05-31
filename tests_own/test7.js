@@ -4,6 +4,6 @@ if(Number.isFinite(a)){
 } else {
     a = 0;
 }
-if(Number._isNaN_(a)){
+if(Number._isNaN_()){
     alert("It's NaN");
 }

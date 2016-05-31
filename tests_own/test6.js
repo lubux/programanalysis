@@ -5,4 +5,4 @@ function test(arg){
 }
 var f = array.find(test);
 var g = array.indexOf("d");
-var array3 = array._concat_(array2);
+var array3 = array._concat_();
