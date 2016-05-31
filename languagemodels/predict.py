@@ -17,19 +17,23 @@ parser.add_argument("-i", "--input", help="the path of the input file",
 
 args = parser.parse_args()
 
-[max_sent_len, word_to_id, vocab] = voc.load_vocab_data()
-
 if args.model == MODEL_NGRAM_FLAG:
+    [max_sent_len, word_to_id, vocab] = voc.load_vocab_data(path="./models/vocab_large.p")
     pred.predict_ngram_before(args.input, vocab)
 elif args.model == MODEL_RNN_FLAG:
+    [max_sent_len, word_to_id, vocab] = voc.load_vocab_data()
     pred.predict_rnn(args.input, vocab)
 elif args.model == MODEL_COMB_FLAG:
-    pred.combine_rnn_ngram_before(args.input, word_to_id)
+    [max_sent_len, word_to_id, vocab] = voc.load_vocab_data()
+    [max_sent_len_l, word_to_id_l, vocab_l] = voc.load_vocab_data(path="./models/vocab_large.p")
+    pred.combine_rnn_ngram_before(args.input, word_to_id, word_to_id_l)
 elif args.model == MODEL_EVAL_FLAG:
+    [max_sent_len, word_to_id, vocab] = voc.load_vocab_data()
+    [max_sent_len_l, word_to_id_l, vocab_l] = voc.load_vocab_data(path="./models/vocab_large.p")
     print MODEL_NGRAM_FLAG
     pred.predict_ngram_before(args.input, vocab)
     print MODEL_RNN_FLAG
     pred.predict_rnn(args.input, vocab)
     print MODEL_COMB_FLAG
-    pred.combine_rnn_ngram_before(args.input, word_to_id)
+    pred.combine_rnn_ngram_before(args.input, word_to_id, word_to_id_l)
 
