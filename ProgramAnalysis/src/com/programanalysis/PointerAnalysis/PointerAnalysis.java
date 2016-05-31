@@ -176,6 +176,19 @@ public class PointerAnalysis {
         abstractObjectIndex++;
         getState().writeStore("process", flowgraph.getMain(), set);
 
+        //Number
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("Number", flowgraph.getMain(), set);
+
+        //Math
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("Math", flowgraph.getMain(), set);
 
         // start with the analysis
         boolean first = true;
