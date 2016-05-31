@@ -127,7 +127,7 @@ public class Main {
                         String extrHist = extr.getExtractedHistories();
                         // remove the last new line
                         if(! extrHist.isEmpty()) {
-                            System.out.print(extrHist.substring(0, extrHist.length() - 1));
+                            System.out.print(extrHist);
                         } else {
                             System.err.println(variablename + " is not reachable in the code");
                         }
