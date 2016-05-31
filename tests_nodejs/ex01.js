@@ -1,10 +1,25 @@
-var http = require('http'),
-    port = 8000;
+// Import events module
+var events = require('events');
+// Create an eventEmitter object
+var eventEmitter = new events.EventEmitter();
 
-var server = http.createServer(function (request, response) {
-  response.writeHead(200);
-  response.end("Hello World");
+// Create an event handler as follows
+var connectHandler = function connected() {
+   console.log('connection succesful.');
+  
+   // Fire the data_received event 
+   eventEmitter.emit('data_received');
+}
+
+// Bind the connection event with the handler
+eventEmitter.on('connection', connectHandler);
+ 
+// Bind the data_received event with the anonymous function
+eventEmitter.on('data_received', function(){
+   console.log('data received succesfully.');
 });
 
-server._listen_();
-console.log("Listening on <insert your favorite ip>:" + port);
+// Fire the connection event 
+eventEmitter._emit_();
+
+console.log("Program Ended.");

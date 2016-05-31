@@ -1,4 +1,4 @@
-0 34 listen
+0 53 emit
 1 201 use
 2 62 addListener
 3 50 end
@@ -18,3 +18,13 @@
 17 52 end
 18 51 finalize
 19 31 stat
+20 67 toString
+21 51 fork
+22 46 on
+23 76 removeListener
+24 37 resolve4
+25 42 end
+26 81 listen
+27 150 listen
+28 89 replace
+29 770 post
