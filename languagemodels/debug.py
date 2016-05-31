@@ -17,6 +17,7 @@ bigram = BigramPredictor("./models/ngram_lm2db")
 #bigram.store_birams("./models/ngram_lm2")
 
 [max_sent_len, word_to_id, vocab] = pre.load_vocab_data()
+[max_sent_len_l, word_to_id_l, vocab_l] = pre.load_vocab_data(path="./models/vocab_large.p")
 
 print "%d %d" % (len(word_to_id), len(vocab))
 
@@ -24,7 +25,7 @@ test_input = "./test_input.txt"
 #pred.predict_ngram(test_input, vocab)
 
 #pred.predict_ngram(test_input, vocab)
-pred.predict_ngram_before(test_input, vocab)
+pred.predict_ngram_before(test_input, word_to_id_l)
 print "--------------------------RNN---------------------------------------"
 #print "-----------------------------------------------------------------"
 pred.predict_rnn(test_input, vocab)
@@ -33,4 +34,4 @@ print "--------------------------RNN-BI---------------------------------------"
 #pred.predict_bigram_rnn(test_input, vocab)
 
 print "-------------------RNN-NGRAM_COMBINATION-------------------------------"
-pred.combine_rnn_ngram_before(test_input, word_to_id)
+pred.combine_rnn_ngram_before(test_input, word_to_id, word_to_id_l)

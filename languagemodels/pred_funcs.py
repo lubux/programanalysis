@@ -151,17 +151,20 @@ def predict_ngram_before(input, vocab):
         bigram.close()
 
 
-def combine_rnn_ngram_before(input, word_to_id, save_dir="./models/"):
-    work_list = read_input(input, word_to_id)
+def combine_rnn_ngram_before(input, word_to_id, vocab, save_dir="./models/"):
+    work_list = read_input(input, vocab)
+    rnn_work_list =  read_input(input, word_to_id)
     bigram = BigramPredictor("./models/%s" % (LM_BIGRAM,))
     nrgam_model = NGramPredictor("./models/%s" % (LN_NGRAM,))
     rnn = LSTMPredictor(save_dir)
     try:
-        for work in work_list:
-            node = work[0]
+        for work in rnn_work_list:
             hists = work[1]
             contexts = [hist[:hist.index(CAND_TOKEN)] for hist in hists]
             scores = rnn.score_complentions(contexts)
+        for work in work_list:
+            node = work[0]
+            hists = work[1]
             candidates, hist_to_cand = get_candidates(bigram, hists)
             cands_to_props = {}
             for hist in hists:
