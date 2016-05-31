@@ -1,0 +1,8 @@
+0 16 lastIndexOf
+1 30 close
+2 16 close
+3 11 reload
+4 22 getSeconds
+5 41 concat
+6 24 isNaN
+7 20 sqrt
