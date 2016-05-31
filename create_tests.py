@@ -41,7 +41,8 @@ def run_command(cmd, arg1, arg2):
 with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
         open(os.path.join(path, TEST_F), "w") as test_w, \
         open(os.path.join(path, SOL_F), "w") as sol_w:
-    for program_id, js_file in enumerate(os.listdir(path)):
+    program_id = 0
+    for js_file in os.listdir(path):
         if js_file.endswith(".js"):
             print("Process file %s" % (js_file,))
             json_ast = run_command(NODE_JS, PATH_JS_PARSER, os.path.join(path, js_file))
@@ -58,10 +59,11 @@ with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
                     else:
                         json_ast = json_ast.replace("_"+name+"_", name)
                     progs_w.write(json_ast)
-                    test_w.write("%d    %s\n" % (program_id-1, node_id))
+                    test_w.write("%d    %s\n" % (program_id, node_id))
                     if DO_SUGGEST:
-                        sol_w.write("%d %s %s\n" % (program_id-1, node_id, name))
+                        sol_w.write("%d %s %s\n" % (program_id, node_id, name))
                     found = True
                     break
             if not found:
                 print("Program wit id %d has no method marked :( -> ignore" % (program_id-1,))
+            program_id += 1
