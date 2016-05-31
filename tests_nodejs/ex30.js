@@ -1,5 +1,5 @@
 var express = require('express');
-var app = express();
+var app = new Object();
 var server = require('http').createServer(app);
 var Game = require('./game.js');
 var routes = require('./routes/routes.js');
