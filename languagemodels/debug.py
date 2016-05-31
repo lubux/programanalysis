@@ -14,7 +14,7 @@ data_file = "./data/train.txt"
 #pre.create_train(data_file, prep.num_hist-num_eval, prep.vocab_to_count)
 
 bigram = BigramPredictor("./models/ngram_lm2db")
-bigram.store_birams("./models/ngram_lm2")
+#bigram.store_birams("./models/ngram_lm2")
 
 [max_sent_len, word_to_id, vocab] = pre.load_vocab_data()
 
@@ -30,7 +30,7 @@ print "--------------------------RNN---------------------------------------"
 pred.predict_rnn(test_input, vocab)
 
 print "--------------------------RNN-BI---------------------------------------"
-pred.predict_bigram_rnn(test_input, vocab)
+#pred.predict_bigram_rnn(test_input, vocab)
 
 print "-------------------RNN-NGRAM_COMBINATION-------------------------------"
 pred.combine_rnn_ngram_before(test_input, word_to_id)

@@ -177,7 +177,7 @@ def combine_rnn_ngram_before(input, word_to_id, save_dir="./models/"):
                     else:
                         cands_to_props[cand] = [props[ind]]
             preds_ngram = [(a, np.mean(np.asarray(b))) for (a, b) in cands_to_props.items()]
-            final_score = [(a, (b + scores[word_to_id[a]][1]) / 2) for (a, b) in preds_ngram]
+            final_score = [(a, (b + scores[word_to_id[a]][1]) / 2) if a in word_to_id else (a, b) for (a, b) in preds_ngram]
             if len(final_score) < len(NOT_ALLOWED_TOKEN) + NUM_CAND:
                 in_ranking = [a for (a, b) in final_score if a not in NOT_ALLOWED_TOKEN]
                 if len(in_ranking) < NUM_CAND:
