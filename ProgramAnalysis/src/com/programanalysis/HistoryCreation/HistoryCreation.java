@@ -113,7 +113,7 @@ public class HistoryCreation {
             workList.add(entry);
         } else {
             Integer i = blockCounter.get(entry.getBlock());
-            if(i >=2){
+            if(i >=4){
                 // we don't add it to the worklist because it was already added 2 times
                 return;
             } else {
