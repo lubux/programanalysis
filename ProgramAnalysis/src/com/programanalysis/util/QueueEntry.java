@@ -24,7 +24,7 @@ public class QueueEntry implements Comparable<QueueEntry> {
         return serial;
     }
     @Override
-    /** from workliststrategy of tajs*/
+    /** partly from workliststrategy of tajs*/
     public int compareTo(QueueEntry o) {
         BasicBlock block2 = o.getBlock();
         int serial2 = o.getSerial();
@@ -36,6 +36,12 @@ public class QueueEntry implements Comparable<QueueEntry> {
             if(block.getOrder() < block2.getOrder()){
                 return -1;
             } else if(block.getOrder() > block2.getOrder()){
+                return 1;
+            }
+        } else {
+            if(block.getFunction().getIndex() < block2.getFunction().getIndex()){
+                return -1;
+            } else if(block.getFunction().getIndex() > block2.getFunction().getIndex()){
                 return 1;
             }
         }

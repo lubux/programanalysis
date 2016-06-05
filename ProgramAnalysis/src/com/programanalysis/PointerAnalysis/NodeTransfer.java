@@ -265,6 +265,10 @@ public class NodeTransfer implements NodeVisitor {
 
     @Override
     public void visit(ReadPropertyNode readPropertyNode, Object o) {
+        if(readPropertyNode.getResultRegister() == -1){
+            // there is no result register, so we are probably reading a function name and don't have to mess with it
+            return;
+        }
         BlockRegisters registers = analysis.getRegisters(readPropertyNode.getBlock());
         Object base = registers.readRegister(readPropertyNode.getBaseRegister());
         if(readPropertyNode.isPropertyFixed()){
