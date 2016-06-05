@@ -113,7 +113,7 @@ public class HistoryCreation {
             workList.add(entry);
         } else {
             Integer i = blockCounter.get(entry.getBlock());
-            if(i >=4){
+            if(i >=2){
                 // we don't add it to the worklist because it was already added 2 times
                 return;
             } else {
@@ -172,7 +172,8 @@ public class HistoryCreation {
                 // add the successor to the worklist
                 addToWorklist(new QueueEntry(b));
             }
-            if(block.getSuccessors().isEmpty()){
+            if(block.getSuccessors().isEmpty() || block.getFunction().getOrdinaryExit().equals(block)
+                    || block.getFunction().getExceptionalExit().equals(block)){
                 // add the current state to the out state
                 Map<AbstractObject, History> outState = state.getFunctionOutState(block.getFunction());
                 for(AbstractObject absObj: state.getCurrentState().keySet()){
