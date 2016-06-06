@@ -129,7 +129,7 @@ public class Main {
                         if(! extrHist.isEmpty()) {
                             System.out.print(extrHist);
                         } else {
-                            System.err.println(variablename + " is not reachable in the code");
+                            System.err.println(numIt + " " + markedNodeID + " " + variablename + " does not contain an object history");
                         }
                     }
 
