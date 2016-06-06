@@ -62,7 +62,6 @@ with open(os.path.join(path, PROGRAMS), "w") as progs_w, \
                     test_w.write("%d    %s\n" % (program_id, node_id))
                     if DO_SUGGEST:
                         sol_w.write("%d %s %s\n" % (program_id, node_id, name))
-                    found = True
                     break
             if not found:
                 print("Program wit id %d has no method marked :( -> ignore" % (program_id-1,))
