@@ -1,0 +1,15 @@
+# JavaScript parser 
+
+A Javascript parser that outputs program AST in JSON format.
+The parser is build on top of Acorn (https://github.com/ternjs/acorn) and Tern (https://github.com/ternjs/tern).
+
+To parse a file use the 'js_parser.js' script in bin directory.
+For example:
+
+./bin/js_parser.js ./bin/js_parser.js
+
+produces AST representation of the parser itself.
+
+Note that in order to run you need to have nodejs installed.
+https://nodejs.org/en/download/package-manager/
+
