@@ -34,7 +34,7 @@ def bar_plot_pred(data, title, filename):
     width = 0.30
     fig, ax = plt.subplots()
 
-    ngram = plt.bar(ind, data[:, 0], width, color='0.1', label='n-gram')
+    ngram = plt.bar(ind, data[:, 0], width, color='0.1', label='3-gram')
     rnn = plt.bar(ind + width, data[:, 1], width, color='0.7', label='lstm-rnn', hatch="///")
     comb = plt.bar(ind + 2 * width, data[:, 2], width, color='0.3', label='combined', hatch='\\\\')
 
