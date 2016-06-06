@@ -17,17 +17,18 @@ sudo pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/t
 
 sudo apt-get install git
 
-#SRILM by hand
+echo "Get SRILM from http://www.speech.sri.com/projects/srilm/download.html"
+read -i "Install SRILM by hand, ASSUMES srilm-1.7.1.tar.gz is in current folder!! PRESS ENTER"
 sudo mkdir /usr/share/srilm
 mv srilm-1.7.1.tar.gz /usr/share/srilm
 cd /usr/share/srilm
 sudo tar xzf srilm-1.7.1.tar.gz 
 sudo nano Makefile
-#Change srlim variable in makefile to /usr/share/srilm
+read -i "Change srlim variable in makefile to /usr/share/srilm"
 sudo nano common/Makefile.machine.i686-m64
-#Add -fPIC flags
-#ADDITIONAL_CFLAGS = -fopenmp -fPIC
-#ADDITIONAL_CXXFLAGS = -fopenmp -fPIC
+echo "Add -fPIC flags"
+echo "ADDITIONAL_CFLAGS = -fopenmp -fPIC"
+read -i "ADDITIONAL_CXXFLAGS = -fopenmp -fPIC PRESS ENTER"
 sudo make
 sudo cp /usr/share/srilm/bin/i686-m64/* /usr/local/bin
 
@@ -37,16 +38,16 @@ cd
 git clone https://github.com/njsmith/pysrilm.git
 cd pysrilm/
 sudo nano setup.py
-#Change SRILM_DIR to /usr/share/srilm in setup.py
+read -i "Change SRILM_DIR to /usr/share/srilm in setup.py. PRESS ENTER"
 sudo python setup.py install
 
 cd
-wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v1.tar.gz
-tar -xvzf json_printer_v1.tar.gz
-rm -f json_printer_v1.tar.gz
+wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v2.tar.gz
+tar -xvzf json_printer_v2.tar.gz
+rm -f json_printer_v2.tar.gz
 cd json_printer
 sudo apt-get install libgoogle-glog-dev libgflags-dev libjsoncpp-dev cmake g++
 sudo ./build.sh
 
 cd
-git clone https://github.com/lubux/programanalysis.git
+#git clone https://github.com/lubux/programanalysis.git
