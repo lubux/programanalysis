@@ -1,7 +1,7 @@
 # ETH Program Analysis Project 2016 - Deep Learning for Programs
 
 ## Requirements for running scripts:
-* libraries installed (installDep.sh)
+* libraries installed (installDep.sh) -> SRILM must be downloaded by hand!
 * Download the pretrainend models (./languagemodels/models/load_trained_model.sh) 
 
 ## How to run the evaluation script:
@@ -69,3 +69,8 @@ Process file ex08.js
 Process file ex09.js
 Process file ex10.js
 ```
+program.json, test pred_sol.txt should know be located in the defined directory.
+
+## Code
+* ``./ProgramAnalysis`` contains the java project for the pointer analysis and object history extraction.
+* ``./languagemodels`` contains various python scripts for training and querying the language models.
