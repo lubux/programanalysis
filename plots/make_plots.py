@@ -87,11 +87,11 @@ data_node = np.asarray(data_node)
 bar_plot_pred(data_node, 'NodeJS Test-Set Scores', 'node_data_plot.pdf')
 
 # data from own test set
-data_tutorial = [[46.67, 30.00, 46.67],
-                 [63.33, 50.00, 63.33],
-                 [66.67, 56.67, 66.67],
-                 [73.33, 63.33, 73.33],
-                 [73.33, 63.33, 73.33]]
+data_tutorial = [[53.33, 30.00, 53.33],
+                 [63.33, 36.67, 63.33],
+                 [63.33, 40.00, 63.33],
+                 [63.33, 40.00, 63.33],
+                 [63.33, 43.33, 63.33]]
 data_tutorial = np.asarray(data_tutorial)
 
 bar_plot_pred(data_tutorial, 'Tutorial Test-Set Scores', 'tutorial_data_plot.pdf')
