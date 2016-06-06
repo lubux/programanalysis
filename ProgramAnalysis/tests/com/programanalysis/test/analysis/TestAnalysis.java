@@ -15,8 +15,7 @@ import java.util.Timer;
  * Created by lukas on 05.05.16.
  */
 public class TestAnalysis {
-
-    //TODO:
+    
     @Test
     public void simpleAnalysisDebug() {
 
@@ -24,9 +23,7 @@ public class TestAnalysis {
 
     @Test
     public void simpleAnalysisDebug2() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "endlesstest.js";
-        //String filePath = "C:\\PA_Programs\\data\\jwysiwyg\\jwysiwyg\\src\\controls\\default.js";
-        //String filePath = "C:\\PA_Programs\\data\\axiomsoftware\\axiom-stack\\apps\\manage\\Root\\security.js";
+        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "implementation_tests/looptest5.js";
 
         // run the tajs analysis
         Analysis tajsAnalysis = dk.brics.tajs.Main.init(new String[] {filePath, "-dom"}, null);
@@ -99,15 +96,15 @@ public class TestAnalysis {
 
     @Test
     public void predictionHistory() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "interfaceTest_1.js";
-        PredictionHistory predHist = new PredictionHistory(filePath, 14, 25);
+        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "tempTest.js";
+        PredictionHistory predHist = new PredictionHistory(filePath, 7, 10);
         String sol = predHist.getPredictionHistories();
         System.out.print(sol);
     }
 
     @Test
     public void HistoryExtraction() throws IOException {
-        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "test_javascript_6.js";
+        String filePath = "data"+ File.separator +"javascriptfiles"+File.separator+ "";
         HistoryExtraction histExt = new HistoryExtraction(filePath,40,5,"beverage3", 0,0);
         String sol = histExt.getExtractedHistories();
         System.out.print(sol);
@@ -119,19 +116,13 @@ public class TestAnalysis {
         int counter = 0;
         int generalCounter = 0;
         String basePath = "C:\\PA_Programs\\";
-        File pathFile = new File(basePath + "programs_training.txt");
+        File pathFile = new File(basePath + "programs_eval.txt");
         Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(basePath + "trainingSet.txt"), "utf-8"));
 
         try (BufferedReader br = new BufferedReader(new FileReader(pathFile))) {
             String line;
             while ((line = br.readLine()) != null && counter < 100000) {
                 generalCounter++;
-                if(!line.equals("data/jgallen23/jquery-builder/dist/2.0.1/jquery-ajax-css-deprecated-sizzle.js") && skip){
-                    continue;
-                } else if(line.equals("data/jgallen23/jquery-builder/dist/2.0.1/jquery-ajax-css-deprecated-sizzle.js") && skip) {
-                    skip = false;
-                    continue;
-                }
                 System.out.println(generalCounter + " " + counter + " " + line);
                 String filePath = basePath + line;
                 File sourceFile = new File(filePath);
@@ -200,6 +191,7 @@ public class TestAnalysis {
                     String histories = hist.printSelectedHistories();
                     if (!histories.equals("")) {
                         counter++;
+                        writer.write(line + "\n");
                         writer.write(histories);
                     }
                 }
@@ -209,8 +201,4 @@ public class TestAnalysis {
         }
         writer.close();
     }
-
-
-
-
 }
