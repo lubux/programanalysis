@@ -8,7 +8,7 @@
 7 12 getScroll
 8 431 html
 9 180 getFullYear
-10 171 getTime
+10 152 getTime
 11 35 createDocumentFragment
 12 246 close
 13 42 getElementsByTagName

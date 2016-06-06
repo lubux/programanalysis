@@ -5,8 +5,6 @@ var date_bits = iso8601_re.exec(temp);
 var date_obj = null;
 if ( date_bits ) {
   date_bits.shift();
-  date_bits[1] && date_bits[1]--; // normalize month
-  date_bits[6] && (date_bits[6] *= 1000); // convert mils
   date_obj = new Date(date_bits[0]||1970, date_bits[1]||0, date_bits[2]||0, date_bits[3]||0, date_bits[4]||0, date_bits[5]||0, date_bits[6]||0);
 
   //timezone handling
