@@ -10,7 +10,7 @@
 9 180 getFullYear
 10 152 getTime
 11 35 createDocumentFragment
-12 246 close
+12 238 close
 13 42 getElementsByTagName
 14 326 getElementsByTagName
 15 36 find
