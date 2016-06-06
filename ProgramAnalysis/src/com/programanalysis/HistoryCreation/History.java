@@ -21,6 +21,12 @@ public class History {
         this.abstractObject = obj;
     }
 
+    /** second constructor that adds no empty list, used for the copy function*/
+    public History(AbstractObject obj, boolean copy){
+        this.historySet = new HashSet<List<APICallTuple>>();
+        this.abstractObject = obj;
+    }
+
     /** adds all the histories of other to the set of this abtract object histories*/
     public void merge(History other){
         for(List<APICallTuple> l: other.historySet){
@@ -87,7 +93,7 @@ public class History {
 
     /** returns a copy of this history, the lists in historyset are new objects*/
     public History copy(){
-        History res = new History(abstractObject);
+        History res = new History(abstractObject, true);
         // copy all the history lists to res
         for(List<APICallTuple> l: historySet){
             res.historySet.add(new ArrayList<APICallTuple>(l));
