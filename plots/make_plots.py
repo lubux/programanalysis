@@ -51,7 +51,7 @@ def bar_plot_pred(data, title, filename):
             height = rect.get_height()
             ax.text(rect.get_x() + rect.get_width()/2., 1.02*height,
                     '%d%%' % int(height),
-                    ha='center', va='bottom', fontsize=10)
+                    ha='center', va='bottom', fontsize=12)
 
     autolabel(ngram)
     autolabel(rnn)
