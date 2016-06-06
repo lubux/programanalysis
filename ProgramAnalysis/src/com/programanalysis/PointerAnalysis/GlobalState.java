@@ -51,6 +51,18 @@ public class GlobalState {
         return res;
     }
 
+    public Map<String, Set<AbstractObject>> getStore(Function f){
+        if(store.keySet().contains(f)){
+            return store.get(f);
+        } else {
+            return null;
+        }
+    }
+
+    public Map<Tuple, Set<AbstractObject>> getPropertystore(){
+        return propertystore;
+    }
+
     /** this should only be used to read the state*/
     public InState getInstate(Function f){
         if(! inStates.containsKey(f)){

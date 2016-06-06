@@ -3,6 +3,7 @@ package com.programanalysis.HistoryCreation;
 import com.programanalysis.PointerAnalysis.AbstractObject;
 import com.programanalysis.PointerAnalysis.PointerAnalysis;
 import com.programanalysis.util.QueueEntry;
+import com.programanalysis.util.Tuple;
 import dk.brics.tajs.analysis.Analysis;
 import dk.brics.tajs.flowgraph.AbstractNode;
 import dk.brics.tajs.flowgraph.BasicBlock;
@@ -108,6 +109,34 @@ public class HistoryCreation {
     }
 
     public void addToWorklist(QueueEntry entry){
+        // add a history for all the objects in the function and its outer functions
+        Function f = entry.getBlock().getFunction();
+        while(f != null){
+            Map<String, Set<AbstractObject>> store = pointerAnalysis.getState().getStore(f);
+            if(store != null){
+                for(String s:store.keySet()){
+                    Set<AbstractObject> set = store.get(s);
+                    for(AbstractObject obj: set){
+                        if(!state.getBlockInState(entry.getBlock()).keySet().contains(obj)){
+                            History h = new History(obj);
+                            state.getBlockInState(entry.getBlock()).put(obj, h);
+                        }
+                    }
+                }
+            }
+            f = f.getOuterFunction();
+        }
+        // add a history for all the objects in the property store
+        Map<Tuple, Set<AbstractObject>> propertyStore = pointerAnalysis.getState().getPropertystore();
+        for(Tuple t: propertyStore.keySet()){
+            for(AbstractObject obj: propertyStore.get(t)){
+                if(!state.getBlockInState(entry.getBlock()).keySet().contains(obj)){
+                    History h = new History(obj);
+                    state.getBlockInState(entry.getBlock()).put(obj, h);
+                }
+            }
+        }
+
         if(! blockCounter.keySet().contains(entry.getBlock())){
             blockCounter.put(entry.getBlock(), 1);
             workList.add(entry);

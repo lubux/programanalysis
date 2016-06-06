@@ -17,6 +17,7 @@ public class History {
 
     public History(AbstractObject obj){
         this.historySet = new HashSet<List<APICallTuple>>();
+        historySet.add(new ArrayList<APICallTuple>());
         this.abstractObject = obj;
     }
 
