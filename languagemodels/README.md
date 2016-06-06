@@ -9,9 +9,9 @@
 * ``./models`` contains the trained models and a script for downloading them from dropbox
 * ``./codepred`` contains the code, which implemnts n-gram and the lstm-rnn model.
 * ``./data`` contains the history trainig/validation data and a script for downloading them from dropbox
-* *predict.py* implements the api for computing the completions on the provided histories
-* *train_ngram.sh* a script for training the n-gram model
-* *train_rnn.py* a python script for training the lstm-rnn model
-* *train_rnn_aws.sh* a script for training the lstm-rnn model on Amazon Web Services
+* ``predict.py`` implements the api for computing the completions on the provided histories
+* ``train_ngram.sh`` a script for training the n-gram model
+* ``train_rnn.py`` a python script for training the lstm-rnn model
+* ``train_rnn_aws.sh`` a script for training the lstm-rnn model on Amazon Web Services
 
 
