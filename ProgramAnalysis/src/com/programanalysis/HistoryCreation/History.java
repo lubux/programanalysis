@@ -11,9 +11,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class History {
 
-    private int maxCount = 16;
+    private int maxCount = 32;
 
-    private int maxLength = 14;
+    private int maxLength = 64;
 
     public History(AbstractObject obj){
         this.historySet = new HashSet<List<APICallTuple>>();
