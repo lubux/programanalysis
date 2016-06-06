@@ -197,6 +197,20 @@ public class PointerAnalysis {
         abstractObjectIndex++;
         getState().writeStore("jQuery", flowgraph.getMain(), set);
 
+        //navigator
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("navigator", flowgraph.getMain(), set);
+
+        //Date
+        absObj = new AbstractObject(abstractObjectIndex.toString());
+        set = new HashSet<AbstractObject>();
+        set.add(absObj);
+        abstractObjectIndex++;
+        getState().writeStore("Date", flowgraph.getMain(), set);
+
         // start with the analysis
         boolean first = true;
         int iterCounter = 0;
