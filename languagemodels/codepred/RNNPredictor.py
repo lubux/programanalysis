@@ -1,29 +1,28 @@
 """Implementation of a RNN network
- based on the Tutorial
- https://www.tensorflow.org/versions/r0.8/tutorials/recurrent/index.html#recurrent-neural-networks
- which implements model of (Zaremba, et. al.) Recurrent Neural Network Regularization
- http://arxiv.org/abs/1409.2329
+    based on the Tutorial
+    https://www.tensorflow.org/versions/r0.8/tutorials/recurrent/index.html#recurrent-neural-networks
+    which implements model of (Zaremba, et. al.) Recurrent Neural Network Regularization
+    http://arxiv.org/abs/1409.2329
 
-Trains the model described in:
-(Zaremba, et. al.) Recurrent Neural Network Regularization
-http://arxiv.org/abs/1409.2329
+    Similar model described in:
+    (Zaremba, et. al.) Recurrent Neural Network Regularization
+    http://arxiv.org/abs/1409.2329
 
-Paramters from Tutorial
-The hyperparameters used in the model:
-- init_scale - the initial scale of the weights
-- learning_rate - the initial value of the learning rate
-- max_grad_norm - the maximum permissible norm of the gradient
-- num_layers - the number of LSTM layers
-- num_steps - the number of unrolled steps of LSTM
-- hidden_size - the number of LSTM units
-- max_epoch - the number of epochs trained with the initial learning rate
-- max_max_epoch - the total number of epochs for training
-- keep_prob - the probability of keeping weights in the dropout layer
-- lr_decay - the decay of the learning rate for each epoch after "max_epoch"
-- batch_size - the batch size
+    Paramters from Tutorial
+    The hyperparameters used in the model:
+    - init_scale - the initial scale of the weights
+    - learning_rate - the initial value of the learning rate
+    - max_grad_norm - the maximum permissible norm of the gradient
+    - num_layers - the number of LSTM layers
+    - num_steps - the number of unrolled steps of LSTM
+    - hidden_size - the number of LSTM units
+    - max_epoch - the number of epochs trained with the initial learning rate
+    - max_max_epoch - the total number of epochs for training
+    - keep_prob - the probability of keeping weights in the dropout layer
+    - lr_decay - the decay of the learning rate for each epoch after "max_epoch"
+    - batch_size - the batch size
 
--l2_reg_lambda - the influence of the l2 regularization (see cost function)
-
+    -l2_reg_lambda - the influence of the l2 regularization (see cost function)
 """
 
 from __future__ import absolute_import
@@ -42,9 +41,17 @@ import itertools
 
 
 class APIPredModel(object):
-    """The APIPred model."""
+    """
+    Implememnts the LSTM-RNN model for API prdiction in tensorflow
+    """
 
     def __init__(self, is_training, config):
+        """
+        Creates the tensorflow graph for the LSTM-RNN
+        :param is_training: bool if the model is used for training
+        :param config: the parameter config
+        :return:
+        """
         self.batch_size = batch_size = config.batch_size
         self.num_steps = num_steps = config.num_steps
         size = config.hidden_size
@@ -59,19 +66,24 @@ class APIPredModel(object):
                 lstm_cell, output_keep_prob=config.keep_prob)
         cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * config.num_layers)
 
+        # init state is zero
         self.initial_state = cell.zero_state(batch_size, tf.float32)
 
+        # word embedding
         with tf.device("/cpu:0"):
             embedding = tf.get_variable("embedding", [vocab_size, size])
             inputs = tf.nn.embedding_lookup(embedding, self.input_data)
 
+        # add dopout layer if training
         if is_training and config.keep_prob < 1:
             inputs = tf.nn.dropout(inputs, config.keep_prob)
 
         inputs = [tf.squeeze(input_, [1])
                   for input_ in tf.split(1, num_steps, inputs)]
+        # arrange LSTM rnn cells
         outputs, state = tf.nn.rnn(cell, inputs, initial_state=self.initial_state)
 
+        # perform softmax regression on outputs from LSTM cells
         output = tf.reshape(tf.concat(1, outputs), [-1, size])
         softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
         softmax_b = tf.get_variable("softmax_b", [vocab_size])
@@ -84,6 +96,7 @@ class APIPredModel(object):
             [tf.ones([batch_size * num_steps])])
         l2_reg += tf.nn.l2_loss(softmax_w)
         l2_reg += tf.nn.l2_loss(softmax_b)
+        # add l2 reg to cost dunction
         self.cost = cost = tf.reduce_sum(loss) / batch_size + config.l2_reg_lambda * l2_reg
         self.final_state = state
 
@@ -154,6 +167,18 @@ def _run_epoch(session, m, data, eval_op, verbose=False):
 
 def train_model(train_path, test_path, model_store_dir, model_name,
                 config=APIPredictionConfig(), vocab_path="./models/vocab.p", restore=False, restore_epoch=0):
+    """
+    Train the LSTM-RNN
+    :param train_path: path of the training data
+    :param test_path: path of the validation data
+    :param model_store_dir: path to store the model in
+    :param model_name: the name of the model
+    :param config: the parameters for the LSTM-RNN
+    :param vocab_path: the path to the vocab pickle file produced by the preprocessor
+    :param restore: indicates if the training should restor a previous state (optional)
+    :param restore_epoch: the epoch to restore (optional)
+    :return:
+    """
     [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
     train_data, test_data = _raw_data(train_path, test_path, word_to_id)
     config.vocab_size = len(vocab)
@@ -238,7 +263,18 @@ def get_perplexity(train_path, test_path, model_store_dir,
 
 
 class LSTMPredictor:
+    """
+    Used for querying the LSTM-RNN model
+    !Needs to be closed after usage
+    """
     def __init__(self, save_dir, vocab_path="./models/vocab.p", eval_config=APIPredictionConfig()):
+        """
+        Init LSTM Predictor
+        :param save_dir: the path to the LSTM-RNN model
+        :param vocab_path: the path to the pickle vocab file
+        :param eval_config: (optional) the config of the LSTM-RNN model
+        :return:
+        """
         self.eval_config = eval_config
         [_, word_to_id, vocab] = pre.load_vocab_data(path=vocab_path)
         self.words = vocab
@@ -265,6 +301,11 @@ class LSTMPredictor:
         self.session.close()
 
     def sentence_score_prediction(self, sentences):
+        """
+        Computes the scores for each sentence in sentences
+        :param sentences: list of sentences
+        :return: list of scores
+        """
         with self.session.as_default():
             result = []
             for sentence in sentences:
@@ -283,6 +324,11 @@ class LSTMPredictor:
             return result
 
     def score_complentions(self, contexts):
+        """
+        Given the contexts computes scores for contuation
+        :param contexts: list of contexts as list of words
+        :return: list of scores for all words
+        """
         num_words = len(self.words)
         scores = np.zeros((num_words, len(contexts)))
         for step, context in enumerate(contexts):
@@ -304,7 +350,13 @@ class LSTMPredictor:
         return zip(self.words, final_scores)
 
     def get_context_prop(self, context, candidates):
-         with self.session.as_default():
+        """
+        Get probabilities for a given context with possible candodates
+        :param context: the context as list of words
+        :param candidates: list of candidates
+        :return: list of scores for candi
+        """
+        with self.session.as_default():
             state = self.model.initial_state.eval()
             for word in context[:-1]:
                 x = np.zeros((1, 1))
@@ -319,9 +371,15 @@ class LSTMPredictor:
             [probs, _] = self.session.run([self.model.probabilities, self.model.final_state], feed)
             probs_context = probs[0]
             res = [probs_context[self.vocab[cand]] for cand in candidates]
-         return res
+            return res
 
     def next_word_prediction(self, sentence, num_best):
+        """
+        Given a sentence provides a listof num_best predictions for continuations of the sentence
+        :param sentence: the sentence as string
+        :param num_best: returns top num_best predictions
+        :return: list of continuation words
+        """
         with self.session.as_default():
             state = self.model.initial_state.eval()
             sent_split = sentence.split()

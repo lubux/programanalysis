@@ -15,6 +15,9 @@ def _remove_min(values):
 
 
 class NGramPredictor:
+    """
+    Used for querying n-gram model from SRILM
+    """
     def __init__(self, path_to_lm):
         self.lm = LM(path_to_lm, lower=False)
 
@@ -32,11 +35,22 @@ class NGramPredictor:
         return sorted(result, key=lambda t: t[1], reverse=True)
 
     def get_context_prop(self, context_sent, candidates):
+        """
+        Computes the scores given a context and the candidates
+        :param context_sent: contexts as list of words
+        :param candidates: list of candidates
+        :return: list of probabilities for candiates
+        """
         context = [self.lm.vocab.intern(word) for word in context_sent[::-1]]
         res = [self.lm.logprob(self.lm.vocab.intern(cand), context) for cand in candidates]
         return map(lambda prob: 10**prob, res)
 
     def sentence_score_prediction(self, sentences):
+        """
+        Computes sentence probabilities for the list of intput sentences
+        :param sentences: list of sentences
+        :return: list of sentence probabilities
+        """
         result = []
         for sentence in sentences:
             logprob = self.lm.total_logprob_strings(sentence)
@@ -45,6 +59,9 @@ class NGramPredictor:
 
 
 class BigramPredictor:
+    """
+    Used for Candidate selection based on the bigram model
+    """
     def __init__(self, sqllitedb_path):
         self.conn = sqlite3.connect(sqllitedb_path)
 
@@ -65,6 +82,11 @@ class BigramPredictor:
         self.conn.commit()
 
     def store_birams(self, path_lm):
+        """
+        Stores bigrams in DB given the bigram model path
+        :param path:
+        :return:
+        """
         c = self.conn.cursor()
         c.execute('''DROP TABLE IF EXISTS bigrams''')
         c.execute('''CREATE TABLE bigrams
@@ -75,6 +97,11 @@ class BigramPredictor:
         self._store_bigrams(path_lm)
 
     def get_candidates_for_word(self, word):
+        """
+        Get candidates for the given word
+        :param word: the input word as string
+        :return: list of candidates
+        """
         c = self.conn.cursor()
         res = []
         for row in c.execute('SELECT biright FROM bigrams WHERE bileft=?', (word,)):

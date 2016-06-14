@@ -7,12 +7,20 @@ TOKEN_UNKOWN = "<unk>"
 
 
 class Vocabulary:
+    """
+    Used for Preprocessing the history data before training
+    """
     def __init__(self):
         self.max_sent_len = 0
         self.vocab_to_count = {}
         self.num_hist = 0
 
     def process(self, path):
+        """
+        Process a data file
+        :param path: the path of the data file
+        :return:
+        """
         with open(path, "r") as f:
             last_line = ""
             for line in f:
@@ -51,6 +59,12 @@ class Vocabulary:
         return vocab, dict(zip(vocab, range(len(vocab))))
 
     def gen_data(self, max_vocab_size, out_path="./models/vocab.p"):
+        """
+        Generates the vocabulary and stores it as pickle file in out_path
+        :param max_vocab_size: maximal vocab size
+        :param out_path: the path to store the vocab
+        :return: 
+        """
         vocab, word_to_id = self.get_word_to_id(max_vocab_size)
         pickle.dump([self.max_sent_len, word_to_id, vocab], open(out_path, "wb"))
 

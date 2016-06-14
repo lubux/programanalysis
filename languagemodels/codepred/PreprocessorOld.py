@@ -1,6 +1,10 @@
 
 
 class FilePreprocessor:
+    """
+    Used for Preprocessing the history data before training
+    OLD, use Vocabulary class instead
+    """
     START_TOKEN = "<h-start>"
     END_TOKEN = "<h-end>"
     UNKNOWN_TOKEN = "<unk>"
