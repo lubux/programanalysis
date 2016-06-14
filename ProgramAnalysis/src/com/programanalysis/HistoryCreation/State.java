@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by cedri on 5/9/2016.
+ * used to store the histories
  */
 public class State {
     private Map<BasicBlock, Map<AbstractObject, History>> blockInStates;

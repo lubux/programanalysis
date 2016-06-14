@@ -121,6 +121,7 @@ public class History {
             }
         } else {
             // we only print random maxCount histories
+            //remark: this is not used anymore
             Set<Integer> s = new HashSet<Integer>();
             while(s.size() < maxCount){
                 s.add(ThreadLocalRandom.current().nextInt(0, historySet.size()));

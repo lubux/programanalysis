@@ -30,18 +30,6 @@ public class NodeTransfer implements NodeVisitor {
     public void visit(BinaryOperatorNode binaryOperatorNode, Object o) {
         BlockRegisters registers = analysis.getRegisters(binaryOperatorNode.getBlock());
         registers.writeRegister(binaryOperatorNode.getResultRegister(), new HashSet<AbstractObject>());
-        //TODO: maybe support string concatenation here?
-
-        /*BlockRegisters registers = analysis.getRegisters(binaryOperatorNode.getBlock());
-        Object arg1 = registers.readRegister(binaryOperatorNode.getArg1Register());
-        Object arg2 = registers.readRegister(binaryOperatorNode.getArg2Register());
-        // only handle string concatenation for the property access
-        if(arg1 != null && arg1 instanceof String && arg2 != null && arg2 instanceof String){
-            if(binaryOperatorNode.getOperator().equals(BinaryOperatorNode.Op.ADD)){
-                String sol = (String) arg1 + (String) arg2;
-                registers.writeRegister(binaryOperatorNode.getResultRegister(), sol);
-            }
-        }*/
     }
 
     @Override
@@ -49,7 +37,7 @@ public class NodeTransfer implements NodeVisitor {
         BlockRegisters registers = analysis.getRegisters(callNode.getBlock());
         Function callee = null;
 
-        //TODO: any way to make this less ugly and faster?
+        //try to extract the called function from the tajs call graph
         Map<BlockAndContext, Set<Pair>> callSources = analysis.getCallgraph().getCallSources();
         for(Set<Pair> entry: callSources.values()){
             for(Pair pair: entry){
@@ -221,7 +209,6 @@ public class NodeTransfer implements NodeVisitor {
             registers.writeRegister(beginForInNode.getPropertyListRegister(), propNames);
         } else {
             // we don't know anything about the object from which we want the property labels
-            //TODO: can this occurr? if yes do what?
         }
     }
 
@@ -308,7 +295,6 @@ public class NodeTransfer implements NodeVisitor {
             } else {
                 Object obj = analysis.getState().readStore(variable, readVariableNode.getBlock().getFunction());
                 registers.writeRegister(readVariableNode.getResultRegister(), obj);
-            //TODO: what is the ResultBaseRegister?
             }
         }
     }
@@ -387,7 +373,7 @@ public class NodeTransfer implements NodeVisitor {
             if(obj != null && obj instanceof Set){
                 analysis.getState().writeStore(writeVariableNode.getVariableName(), writeVariableNode.getBlock().getFunction(), (Set) obj);
             } else {
-                // TODO: can we even get here?
+                //do nothing
             }
         }
     }

@@ -44,7 +44,7 @@ public class NodeTransfer implements NodeVisitor {
         BlockRegisters reg = historyCreation.getState().getRegisters(callNode.getBlock());
         Object obj = reg.readRegister(callNode.getBaseRegister());
         Function f = null;
-        //TODO: any way to make this less ugly and faster?
+        // try to extract the called function from the call graph
         Map<BlockAndContext, Set<Pair>> callSources = pointerAnalysis.getCallgraph().getCallSources();
         for(Set<Pair> entry: callSources.values()){
             for(Pair pair: entry){
@@ -82,7 +82,7 @@ public class NodeTransfer implements NodeVisitor {
                             state.get(absObj).add(new APICallTuple(callNode, callNode.getPropertyString()));
                         }
                     } else {
-                        //TODO: can we get here?
+                        //do nothing
                     }
                 }
             }
@@ -260,7 +260,6 @@ public class NodeTransfer implements NodeVisitor {
             } else {
                 Object obj = pointerAnalysis.getState().readStore(variable, readVariableNode.getBlock().getFunction());
                 reg.writeRegister(readVariableNode.getResultRegister(), obj);
-                //TODO: what is the ResultBaseRegister?
             }
         }
     }
