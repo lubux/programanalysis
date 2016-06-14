@@ -45,9 +45,9 @@ read
 sudo python setup.py install
 
 cd
-wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v2.tar.gz
-tar -xvzf json_printer_v2.tar.gz
-rm -f json_printer_v2.tar.gz
+wget http://www.srl.inf.ethz.ch/pa2016/json_printer_v3.tar.gz
+tar -xvzf json_printer_v3.tar.gz
+rm -f json_printer_v3.tar.gz
 cd json_printer
 sudo apt-get install libgoogle-glog-dev libgflags-dev libjsoncpp-dev cmake g++
 sudo ./build.sh
