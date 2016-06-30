@@ -74,3 +74,10 @@ program.json, test pred_sol.txt should know be located in the defined directory.
 ## Code
 * ``./ProgramAnalysis`` contains the java project for the pointer analysis and object history extraction.
 * ``./languagemodels`` contains various python scripts for training and querying the language models.
+
+## Used Libaries
+* http://www.brics.dk/TAJS/
+* http://www.speech.sri.com/projects/srilm/
+* https://github.com/njsmith/pysrilm
+* https://www.tensorflow.org/
+* https://github.com/abort/javascript-call-graph
