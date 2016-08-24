@@ -1,5 +1,7 @@
 # ETH Program Analysis Project 2016 - Deep Learning for Programs
 
+See Report cedlujs-deep-learning.pdf
+
 ## Requirements for running scripts:
 * libraries installed (installDep.sh) -> SRILM must be downloaded by hand!
 * Download the pretrainend models (./languagemodels/models/load_trained_model.sh) 
